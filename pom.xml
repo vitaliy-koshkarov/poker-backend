@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>kv</groupId>
+    <artifactId>poker-backend</artifactId>
+    <version>1.1.0</version>
+
+    <packaging>jar</packaging>
+
+    <developers>
+        <developer>
+            <name>Koshkarov Vitalii</name>
+            <roles>
+                <role>Owner</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring-boot>3.3.5</spring-boot>
+    </properties>
+
+    <build>
+        <finalName>${project.name}</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot}</version>
+                <configuration>
+                    <mainClass>kv.Main</mainClass>
+                    <additionalProperties>
+                        <encoding.source>${project.build.sourceEncoding}</encoding.source>
+                        <encoding.reporting>${project.build.sourceEncoding}</encoding.reporting>
+                        <java.source>${maven.compiler.source}</java.source>
+                        <java.target>${maven.compiler.target}</java.target>
+                    </additionalProperties>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
