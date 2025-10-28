@@ -5,6 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import poker.handler.ActionHandler;
 import poker.service.PokerService;
 
 @SpringBootApplication
@@ -16,6 +17,11 @@ public class Main {
 
     @Bean
     public PokerService pokerService() {
-        return new PokerService();
+        return new PokerService(actionHandler());
+    }
+
+    @Bean
+    public ActionHandler actionHandler() {
+        return new ActionHandler();
     }
 }

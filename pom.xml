@@ -15,6 +15,7 @@
             <name>Vitaly Koshkarov</name>
             <roles>
                 <role>Owner</role>
+                <role>Developer</role>
             </roles>
         </developer>
     </developers>
@@ -42,8 +43,20 @@
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+            <version>${spring-boot}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-log4j2</artifactId>
             <version>${spring-boot}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>kv</groupId>
+            <artifactId>core-poker</artifactId>
+            <version>1.1.0</version>
         </dependency>
 
         <dependency>
