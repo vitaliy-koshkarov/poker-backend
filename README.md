@@ -1,4 +1,4 @@
-# Backend service for Poker game
+## Backend service for Poker game
 
 Poker game according to the rules of Texas Hold'em (for now only)
 

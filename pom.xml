@@ -12,7 +12,7 @@
 
     <developers>
         <developer>
-            <name>Koshkarov Vitalii</name>
+            <name>Vitaly Koshkarov</name>
             <roles>
                 <role>Owner</role>
             </roles>
@@ -23,8 +23,8 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring-boot>3.3.5</spring-boot>
-        <lombok>1.18.34</lombok>
+        <spring-boot>3.3.7</spring-boot>
+        <lombok>1.18.42</lombok>
     </properties>
 
     <dependencies>
@@ -62,7 +62,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot}</version>
                 <configuration>
-                    <mainClass>kv.Main</mainClass>
+                    <mainClass>poker.Main</mainClass>
                     <additionalProperties>
                         <encoding.source>${project.build.sourceEncoding}</encoding.source>
                         <encoding.reporting>${project.build.sourceEncoding}</encoding.reporting>
