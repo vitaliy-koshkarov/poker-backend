@@ -2,7 +2,7 @@ package poker.service;
 
 import lombok.extern.log4j.Log4j2;
 import poker.handler.ActionHandler;
-import poker.model.Greeting;
+import poker.model.ResponseMessage;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,9 +14,9 @@ public class PokerService {
         this.actionHandler = actionHandler;
     }
 
-    public Greeting greeting(String someString) {
+    public ResponseMessage greeting(String someString) {
         log.info("Service layer. Input string: {}", someString);
-        return new Greeting("Hello, " + someString);
+        return new ResponseMessage("Hello, " + someString);
     }
 
     public void handlePlayerAction(String playerAction) {

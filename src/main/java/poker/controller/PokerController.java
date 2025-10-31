@@ -2,12 +2,14 @@ package poker.controller;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import poker.model.Greeting;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
+import poker.model.ResponseMessage;
+import poker.model.RequestMessage;
 import poker.service.PokerService;
 
 @RestController
-@RequestMapping("poker")
+//@RequestMapping("poker")
 @Log4j2
 public class PokerController {
     private final PokerService pokerService;
@@ -16,15 +18,12 @@ public class PokerController {
         this.pokerService = pokerService;
     }
 
-    @GetMapping("/hello")
-    public Greeting hello(@RequestParam(value = "name", required = false) String someString) {
-        log.info("Controller layer. Request parameters: {}", someString);
-        return pokerService.greeting(someString);
-    }
-
-    @MessageMapping("/action")
-    public void handleAction(String userName, String playerAction) {
-        log.info("PokerController. Request param: {}, {}", userName, playerAction);
-        pokerService.handlePlayerAction(playerAction);
+    @MessageMapping("/hello")
+    @SendTo("/topic/greetings")
+    public ResponseMessage greeting(RequestMessage message) {
+        log.info("Controller. Request param: {}", message);
+        var response = pokerService.greeting(message.getName());
+        log.info("Response: {}", response);
+        return response;
     }
 }

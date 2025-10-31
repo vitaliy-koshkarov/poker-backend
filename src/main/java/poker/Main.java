@@ -1,5 +1,6 @@
 package poker;
 
+import poker.config.WebSocketConfig;
 import poker.controller.PokerController;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -9,7 +10,7 @@ import poker.handler.ActionHandler;
 import poker.service.PokerService;
 
 @SpringBootApplication
-@ComponentScan(basePackageClasses = PokerController.class)
+@ComponentScan(basePackageClasses = {PokerController.class, WebSocketConfig.class})
 public class Main {
     public static void main(String[] args) {
         SpringApplication.run(Main.class, args);
