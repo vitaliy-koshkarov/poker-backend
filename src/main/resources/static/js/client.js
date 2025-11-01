@@ -3,26 +3,37 @@
 const endPoint = '/ws';
 const topic = '/topic/greetings';
 const toPath = '/app/hello';
-const stompClient = Stomp.over(new SockJS(endPoint));
-
-connectToChat();
+var stompClient = null;
 
 function connectToChat() {
+    stompClient = Stomp.over(new SockJS(endPoint));
+
     stompClient.connect({}, frame => {
         console.log('Connected to: ' + frame);
 
-// Subscribe to topic from server
         stompClient.subscribe(topic, (message) => {
             const chat = document.getElementById('chat');
             chat.textContent += message.body + '\r\n';
         });
     });
+
+    changeState('connectBtn');
+    changeState('disconnectBtn');
+    changeState('messageInput');
+    changeState('sendBtn');
+
+    console.log('Connected');
 }
 
 function disconnectFromChat() {
-    stompClient.disconnect({}, frame => {
-        console.log('Disconnected: ' + frame);
-    });
+    stompClient.disconnect();
+
+    changeState('connectBtn');
+    changeState('disconnectBtn');
+    changeState('messageInput');
+    changeState('sendBtn');
+
+    console.log('Disconnected');
 }
 
 function sendMessage() {
@@ -32,4 +43,9 @@ function sendMessage() {
         stompClient.send(toPath, {}, JSON.stringify(text));
         input.value = '';
     }
+}
+
+function changeState(elementId) {
+    let elem = document.getElementById(elementId);
+    elem.disabled = !elem.disabled;
 }
