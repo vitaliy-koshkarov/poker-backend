@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
     <title>Spring Boot WebSocket STOMP test</title>
-    <script src="libs/sockjs.min.js"></script>
-    <script src="libs/stomp_2.3.3.min.js"></script>
-    <script src="js/client.js"></script>
+
+    <script th:src="@{/js/app/client.js}"></script>
+    <script th:src="@{/js/sockjs.min.js}"></script>
+    <script th:src="@{/js/stomp_2.3.3.min.js}"></script>
 </head>
 
 <body>

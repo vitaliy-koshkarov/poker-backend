@@ -14,6 +14,6 @@ public class RequestMessage {
 
     @Override
     public String toString() {
-        return "HelloMessage{name='" + name + "'}";
+        return "RequestMessage{name='" + name + "'}";
     }
 }

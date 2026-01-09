@@ -18,8 +18,8 @@ public class PokerController {
         this.pokerService = pokerService;
     }
 
-    @MessageMapping("/hello")
-    @SendTo("/topic/greetings")
+    @MessageMapping("/chat")
+    @SendTo("/topic/messages")
     public ResponseMessage greeting(RequestMessage message) {
         log.info("Controller. Request param: {}", message);
         var response = pokerService.greeting(message.getName());

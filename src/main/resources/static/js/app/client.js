@@ -1,8 +1,9 @@
 'use strict'
 
 const endPoint = '/ws';
-const topic = '/topic/greetings';
-const toPath = '/app/hello';
+const topic = '/topic/messages';
+const appDestinationPrefix = '/app';
+const method = '/chat';
 var stompClient = null;
 
 function connectToChat() {
@@ -40,7 +41,7 @@ function sendMessage() {
     const input = document.getElementById('messageInput');
     const text = input.value.trim();
     if (text) {
-        stompClient.send(toPath, {}, JSON.stringify(text));
+        stompClient.send(appDestinationPrefix + method, {}, JSON.stringify(text));
         input.value = '';
     }
 }
