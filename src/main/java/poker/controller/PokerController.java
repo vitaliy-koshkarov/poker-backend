@@ -26,4 +26,9 @@ public class PokerController {
         log.info("Response: {}", response);
         return response;
     }
+
+    @GetMapping("/status")
+    public String status() {
+        return "Poker backend is running";
+    }
 }
