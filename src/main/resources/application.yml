@@ -3,6 +3,23 @@ server:
 
 logging:
   level:
-    kv: info
+    poker: info
   pattern:
     console: "[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n"
+
+spring:
+#  main:
+#    allow-bean-definition-overriding: false
+  datasource:
+    url: "jdbc:postgresql://${db.host}:${db.port}/${db.name}?ApplicationName=poker-backend-local"
+    username: ${db.user}
+    password: ${db.pass}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: public
+        format-sql: true
+    generate-ddl: true
+    show-sql: true
