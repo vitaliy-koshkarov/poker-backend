@@ -16,7 +16,7 @@ import poker.dto.AuthResponse;
 import poker.dto.LoginRequest;
 import poker.dto.RegisterRequest;
 import poker.repository.UserRepository;
-import poker.auth.JwtService;
+import poker.auth.JwtIssuer;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -24,19 +24,19 @@ import poker.auth.JwtService;
 public class AuthController {
     private final UserRepository userRepo;
     private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
+    private final JwtIssuer jwtIssuer;
 
     public AuthController(UserRepository userRepo,
                           PasswordEncoder passwordEncoder,
-                          JwtService jwtService) {
+                          JwtIssuer jwtIssuer) {
         this.userRepo = userRepo;
         this.passwordEncoder = passwordEncoder;
-        this.jwtService = jwtService;
+        this.jwtIssuer = jwtIssuer;
     }
 
     @PostMapping("/register")
     public AuthResponse register(@RequestBody RegisterRequest regReq) {
-        log.info("Register user, email {}, nickname {}", regReq.email(), regReq.nickname());
+        log.info("Register user with email {}, nickname {}", regReq.email(), regReq.nickname());
 
         if (userRepo.existsByEmail(regReq.email())) {
             log.error("Email {} already exists", regReq.email());
@@ -48,17 +48,18 @@ public class AuthController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nickname taken");
         }
 
-        var user = new User(
+        var newUser = new User(
             regReq.email(),
             regReq.nickname(),
             passwordEncoder.encode(regReq.password()),
             Role.ROLE_USER);
 
-        userRepo.save(user);
+        var registeredUser = userRepo.save(newUser);
 
-        log.info("Registered user {}", user);
+        log.info("Saved user {}", registeredUser);
 
-        String token = jwtService.generateToken(user.getEmail(), user.getRole());
+        var token = jwtIssuer.generateToken(
+            registeredUser.getId(), registeredUser.getEmail(), registeredUser.getRole());
 
         return new AuthResponse(token);
     }
@@ -69,28 +70,27 @@ public class AuthController {
 
         var user = userRepo.findByEmail(loginReq.email())
             .orElseThrow(() -> {
-                log.error("User {} not found", loginReq.email());
+                log.error("Not found user {}", loginReq.email());
                 return new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email does not exist");
             });
 
         if (!passwordEncoder.matches(loginReq.password(), user.getPassword())) {
-            log.error("Passwords do not match for user {}", loginReq.email());
+            log.error("Passwords do not match, user {}", loginReq.email());
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Wrong password");
         }
 
-        var token = jwtService.generateToken(user.getEmail(), user.getRole());
+        Long userId = user.getId();
+        var token = jwtIssuer.generateToken(userId, user.getEmail(), user.getRole());
 
-        log.info("Successful login {}", loginReq.email());
+        log.info("Successful login user id {}", userId);
 
         return new AuthResponse(token);
     }
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request) {
-        var jwt = request.getHeader("Authorization").substring(7);
-        var email = jwtService.extractEmail(jwt);
-        log.info("Logout user {}", email);
-
+        var userId = jwtIssuer.getUserIdFromJwt(request);
+        log.info("Logout user {}", userId);
         return ResponseEntity.ok().build();
     }
 }

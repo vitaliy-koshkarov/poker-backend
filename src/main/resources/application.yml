@@ -3,6 +3,14 @@ server:
 
 logging:
   level:
+    org:
+      hibernate:
+#        set debug to log Hibernate SQL statements
+        SQL: info
+#        set trace to log binding Hibernate parameters
+        orm:
+          jdbc:
+            bind: info
     poker: info
   pattern:
     console: "[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n"

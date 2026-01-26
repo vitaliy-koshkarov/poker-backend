@@ -1,0 +1,57 @@
+package poker.controller;
+
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.annotation.*;
+import poker.auth.JwtIssuer;
+import poker.dto.ProfileInfoRequest;
+import poker.dto.ProfileInfoResponse;
+import poker.repository.UserRepository;
+
+@RestController
+@RequestMapping("/api/profile")
+@Log4j2
+public class ProfileController {
+    private final UserRepository userRepo;
+    private final JwtIssuer jwtIssuer;
+
+    public ProfileController(UserRepository userRepository, JwtIssuer jwtIssuer) {
+        this.userRepo = userRepository;
+        this.jwtIssuer = jwtIssuer;
+    }
+
+    @GetMapping("/getProfileInfo")
+    public ProfileInfoResponse getProfileInfo(HttpServletRequest request) {
+        Long userId = jwtIssuer.getUserIdFromJwt(request);
+        log.info("getProfileInfo user {}", userId);
+        log.debug("User id {}", userId);
+
+        var user = userRepo.findById(userId)
+            .orElseThrow(() -> {
+                log.error("Not found user {}", userId);
+                return new UsernameNotFoundException("Not found user " + userId);
+            });
+
+        var response = new ProfileInfoResponse(user.getEmail(), user.getNickname());
+        log.debug("Response {}", response);
+        return response;
+    }
+
+    @PostMapping("/updateProfileInfo")
+    public ProfileInfoResponse updateProfileInfo(@RequestBody ProfileInfoRequest req) {
+        var email = req.email();
+        var user = userRepo.findByEmail(email)
+            .orElseThrow(() -> {
+                log.error("Not found user {}", email);
+                return new UsernameNotFoundException("Not found user " + email);
+            });
+
+        user.setNickname(req.nickname());
+        userRepo.save(user);
+
+        log.info("Update user info {}", user);
+
+        return new ProfileInfoResponse(user.getEmail(), user.getNickname());
+    }
+}

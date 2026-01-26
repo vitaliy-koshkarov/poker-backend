@@ -7,23 +7,23 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import poker.service.PokerUserDetailService;
 
 import java.io.IOException;
 
 @Component
 @Log4j2
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    private final JwtService jwtService;
-    private final UserDetailsService userDetailsService;
+    private final JwtIssuer jwtIssuer;
+    private final PokerUserDetailService pods;
 
-    public JwtAuthenticationFilter(JwtService jwtService,
-                                   UserDetailsService userDetailsService) {
-        this.jwtService = jwtService;
-        this.userDetailsService = userDetailsService;
+    public JwtAuthenticationFilter(JwtIssuer jwtIssuer,
+                                   PokerUserDetailService pokerUserDetailService) {
+        this.jwtIssuer = jwtIssuer;
+        this.pods = pokerUserDetailService;
     }
 
     @Override
@@ -38,15 +38,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String jwt = authHeader.substring(7);
-
-        if (!jwtService.isTokenValid(jwt)) {
+        if (!jwtIssuer.isTokenValid(jwt)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String email = jwtService.extractEmail(jwt);
+        Long userId = jwtIssuer.extractUserId(jwt);
 
-        var userDetails = userDetailsService.loadUserByUsername(email);
+        var userDetails = pods.findUserById(userId);
 
         var authentication = new UsernamePasswordAuthenticationToken(
             userDetails,null, userDetails.getAuthorities());
@@ -55,7 +54,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        log.info("Auth by email {}", email);
+        log.info("Auth user id {}", userId);
 
         filterChain.doFilter(request, response);
     }
