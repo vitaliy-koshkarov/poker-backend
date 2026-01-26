@@ -2,20 +2,21 @@ package poker.auth;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 import poker.model.Role;
 
-import java.security.SecureRandom;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Component
 @Log4j2
 public class JwtService {
-    private final String secret = "temp-secret-key";
+    private final String secret = "temp-more-long-enough-not-super-secret-key";
     private final long expirationMs = 86_400_000; // 24h
 
-    public String generateToken(/*Authentication authentication*/String email, Role role) {
+    public String generateToken(String email, Role role) {
         var now = new Date();
 
         return Jwts.builder()
@@ -23,12 +24,7 @@ public class JwtService {
             .claim("role", role)
             .issuedAt(now)
             .expiration(new Date(now.getTime() + expirationMs))
-            .signWith(
-                Jwts.SIG.HS256.key()
-                    .random(new SecureRandom(secret.getBytes()))
-                    .build(),
-                Jwts.SIG.HS256
-            )
+            .signWith(Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8)), Jwts.SIG.HS256)
             .compact();
     }
 
@@ -51,12 +47,8 @@ public class JwtService {
     }
 
     private Claims extractClaims(String token) {
-//        TODO: fix invalid token received after registration
         return Jwts.parser()
-            .setSigningKey(secret.getBytes())
-//            .decryptWith(Jwts.SIG.HS256.key()
-//                .random(new SecureRandom(secret.getBytes()))
-//                .build())
+            .verifyWith(Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8)))
             .build()
             .parseSignedClaims(token)
             .getPayload();

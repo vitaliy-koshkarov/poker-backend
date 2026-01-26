@@ -22,8 +22,6 @@ public class PokerUserDetailService implements UserDetailsService {
         User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new UsernameNotFoundException("Not found user by email " + email));
 
-        log.info("Auth by email {}", email);
-
         return org.springframework.security.core.userdetails.User
             .withUsername(user.getNickname())
             .password(user.getPassword())

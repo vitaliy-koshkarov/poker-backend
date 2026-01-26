@@ -1,7 +1,9 @@
 package poker.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -10,9 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import poker.model.Role;
 import poker.model.User;
-import poker.model.dto.AuthResponse;
-import poker.model.dto.LoginRequest;
-import poker.model.dto.RegisterRequest;
+import poker.dto.AuthResponse;
+import poker.dto.LoginRequest;
+import poker.dto.RegisterRequest;
 import poker.repository.UserRepository;
 import poker.auth.JwtService;
 
@@ -81,5 +83,14 @@ public class AuthController {
         log.info("Successful login {}", loginReq.email());
 
         return new AuthResponse(token);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        var jwt = request.getHeader("Authorization").substring(7);
+        var email = jwtService.extractEmail(jwt);
+        log.info("Logout user {}", email);
+
+        return ResponseEntity.ok().build();
     }
 }

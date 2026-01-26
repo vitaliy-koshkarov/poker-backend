@@ -1,4 +1,4 @@
-package poker.model.dto;
+package poker.dto;
 
 public record LoginRequest(
     String email,
