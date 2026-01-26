@@ -75,7 +75,7 @@ public class AuthController {
             });
 
         if (!passwordEncoder.matches(loginReq.password(), user.getPassword())) {
-            log.error("Passwords do not match, user {}", loginReq.email());
+            log.error("Passwords do not match for user {}", loginReq.email());
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Wrong password");
         }
 
