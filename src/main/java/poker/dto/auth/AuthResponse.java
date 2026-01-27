@@ -1,4 +1,4 @@
-package poker.dto;
+package poker.dto.auth;
 
 public record AuthResponse(String token) {
 }

@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import poker.model.Role;
 import poker.model.User;
-import poker.dto.AuthResponse;
-import poker.dto.LoginRequest;
-import poker.dto.RegisterRequest;
+import poker.dto.auth.AuthResponse;
+import poker.dto.auth.LoginRequest;
+import poker.dto.auth.RegistrationRequest;
 import poker.repository.UserRepository;
 import poker.auth.JwtIssuer;
 
@@ -35,7 +35,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public AuthResponse register(@RequestBody RegisterRequest regReq) {
+    public AuthResponse register(@RequestBody RegistrationRequest regReq) {
         log.info("Register user with email {}, nickname {}", regReq.email(), regReq.nickname());
 
         if (userRepo.existsByEmail(regReq.email())) {

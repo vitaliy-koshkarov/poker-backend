@@ -1,6 +1,6 @@
-package poker.dto;
+package poker.dto.auth;
 
-public record RegisterRequest(
+public record RegistrationRequest(
     String email,
     String nickname,
     String password) {
