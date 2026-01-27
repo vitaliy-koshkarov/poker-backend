@@ -1,3 +1,6 @@
+app:
+  name: "poker-backend"
+
 server:
   port: {8080}
 
@@ -19,7 +22,7 @@ spring:
 #  main:
 #    allow-bean-definition-overriding: false
   datasource:
-    url: "jdbc:postgresql://${db.host}:${db.port}/${db.name}?ApplicationName=poker-backend-local"
+    url: "jdbc:postgresql://${db.host}:${db.port}/${db.name}?ApplicationName=${app.name}"
     username: ${db.user}
     password: ${db.pass}
   jpa:
@@ -31,3 +34,10 @@ spring:
         format-sql: true
     generate-ddl: true
     show-sql: true
+
+flyway:
+  user: ${db.user}
+  password: ${db.pass}
+  schemas: public
+  url: "jdbc:postgresql://${db.host}:${db.port}/${db.name}"
+#  locations: classpath:db/migration
