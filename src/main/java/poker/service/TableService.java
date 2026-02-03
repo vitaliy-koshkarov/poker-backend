@@ -20,6 +20,17 @@ public class TableService {
         this.THTableRepo = THTableRepository;
     }
 
+    public List<TableDTO> getTables() {
+        var thTablesList = THTableRepo.findAll(Sort.by(Sort.Order.asc("id")));
+
+        List<TableDTO> tables = new LinkedList<>();
+        for (THTable t : thTablesList) {
+            tables.add(new TableDTO(t.getId(), t.getCurrentPlayers(), t.getMaxPlayers(), t.getBuyIn(), t.getName()));
+        }
+
+        return tables;
+    }
+
     public THTable addTable(CreateTableRequest createTableRequest) {
         THTable table = new THTable();
         table.setCurrentPlayers(0);
@@ -33,14 +44,8 @@ public class TableService {
         return savedTable;
     }
 
-    public List<TableDTO> getTables() {
-        var thTablesList = THTableRepo.findAll(Sort.by(Sort.Order.asc("id")));
-
-        List<TableDTO> tables = new LinkedList<>();
-        for (THTable t : thTablesList) {
-            tables.add(new TableDTO(t.getId(), t.getCurrentPlayers(), t.getMaxPlayers(), t.getBuyIn(), t.getName()));
-        }
-
-        return tables;
+    public void removeTable(long id) {
+        THTableRepo.deleteById(id);
+        log.info("Removed table with id {}", id);
     }
 }
