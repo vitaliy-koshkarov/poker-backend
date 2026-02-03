@@ -1,4 +1,4 @@
-package poker.dto;
+package poker.dto.table;
 
 public record TableDTO(
     int id,
