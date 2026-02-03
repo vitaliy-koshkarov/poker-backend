@@ -1,26 +1,43 @@
 package poker.controller;
 
 import lombok.extern.log4j.Log4j2;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import poker.dto.TableDTO;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import poker.dto.table.CreateTableRequest;
+import poker.dto.table.TableDTO;
+import poker.service.TableService;
 
-import java.time.Instant;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/tables")
 @Log4j2
 public class TableController {
+    private final TableService tableService;
+
+    public TableController(TableService tableService) {
+        this.tableService = tableService;
+    }
 
     @GetMapping
     public List<TableDTO> getTables() {
-        log.info("Call from front: {}", Instant.now());
-        return List.of(
-            new TableDTO(1, 0, 6),
-            new TableDTO(2, 1, 6),
-            new TableDTO(3, 3, 6)
-        );
+        log.info("Get list of tables");
+        return tableService.getTables();
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<?> createTable(@RequestBody CreateTableRequest createTableRequest) {
+        log.info("Create table: {}", createTableRequest);
+
+        var createdTable = tableService.addTable(createTableRequest);
+        log.info("Table created {}\r\n", createdTable);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public void deleteTable(@PathVariable Long id) {
+        log.info("Delete table with id {}", id);
+        tableService.removeTable(id);
     }
 }

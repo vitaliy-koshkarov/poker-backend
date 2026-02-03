@@ -6,7 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Table(name = "users")
+@jakarta.persistence.Table(schema = "public", name = "users")
 @Getter
 @Setter
 @ToString(exclude = {"password"})
