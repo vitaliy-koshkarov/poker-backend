@@ -1,7 +1,9 @@
 package poker.dto.table;
 
 public record TableDTO(
-    int id,
-    int players,
-    int maxPlayers) {
+    long id,
+    int currentPlayers,
+    int maxPlayers,
+    int buyIn,
+    String name) {
 }

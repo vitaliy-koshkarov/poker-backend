@@ -21,12 +21,8 @@ public class TableController {
 
     @GetMapping
     public List<TableDTO> getTables() {
-        log.info("Get tables");
-        return List.of(
-            new TableDTO(1, 0, 6),
-            new TableDTO(2, 1, 6),
-            new TableDTO(3, 3, 6)
-        );
+        log.info("Get list of tables");
+        return tableService.getTables();
     }
 
     @PostMapping("/create")
