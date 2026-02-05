@@ -1,16 +1,18 @@
 package poker.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
+import texasholdem.GameState;
 
 @Entity
-@jakarta.persistence.Table(schema = "public", name = "texas_holdem_tables")
+@Table(schema = "public", name = "games")
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
+@Builder
 @ToString
-public class THTable {
+public class Game {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -26,4 +28,8 @@ public class THTable {
 
     @Column(name = "name", nullable = false)
     private String name;
+
+    @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private GameState status;
 }

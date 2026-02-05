@@ -40,7 +40,7 @@ public class ProfileController {
                 return new UsernameNotFoundException("Not found user " + userId);
             });
 
-        var response = new ProfileInfoResponse(user.getEmail(), user.getNickname());
+        var response = new ProfileInfoResponse(user.getEmail(), user.getPlayer().getNickname());
         log.debug("Response {}", response);
         return response;
     }
@@ -54,12 +54,12 @@ public class ProfileController {
                 return new UsernameNotFoundException("Not found user " + email);
             });
 
-        user.setNickname(req.nickname());
+        user.getPlayer().setNickname(req.nickname());
         userRepo.save(user);
 
         log.info("Update user info {}", user);
 
-        return new ProfileInfoResponse(user.getEmail(), user.getNickname());
+        return new ProfileInfoResponse(user.getEmail(), user.getPlayer().getNickname());
     }
 
     @PostMapping("/updatePassword")

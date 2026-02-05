@@ -3,5 +3,5 @@ CREATE TABLE public.texas_holdem_tables(
     max_players INT NOT NULL,
     current_players INT NOT NULL,
     buy_in INT NOT NULL,
-    name TEXT
+    name TEXT NOT NULL
 );
