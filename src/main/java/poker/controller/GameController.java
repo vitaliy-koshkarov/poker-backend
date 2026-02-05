@@ -28,10 +28,7 @@ public class GameController {
     @PostMapping("/create")
     public ResponseEntity<?> createGame(@RequestBody CreateGameRequest createGameRequest) {
         log.info("Create game: {}", createGameRequest);
-
-        var createdGame = gameService.addGame(createGameRequest);
-        log.info("Game created {}", createdGame);
-
+        gameService.addGame(createGameRequest);
         return ResponseEntity.ok().build();
     }
 

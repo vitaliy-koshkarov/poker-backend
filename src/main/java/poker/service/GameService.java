@@ -6,7 +6,7 @@ import poker.dto.game.CreateGameRequest;
 import poker.dto.game.GameDTO;
 import poker.model.Game;
 import poker.repository.GameRepository;
-import texasholdem.GameState;
+import texasholdem.GameStatus;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -23,33 +23,27 @@ public class GameService {
     public List<GameDTO> getGamesList() {
         var gamesList = gameRepo.findAllGamesByOrderByIdAsc();
 
-        log.info("GamesList: {}", gamesList);
-
         var gamesDtoList = new LinkedList<GameDTO>();
         for (Game game : gamesList) {
-            gamesDtoList.add(new GameDTO(game.getId(), 0, game.getMaxPlayers(),
-                game.getBuyIn(), game.getName())
+            gamesDtoList.add(
+                new GameDTO(game.getId(), 0, game.getMaxPlayers(), game.getBuyIn(), game.getName())
             );
         }
-
-        log.info("Games: {}", gamesDtoList);
 
         return gamesDtoList;
     }
 
-    public Game addGame(CreateGameRequest createGameRequest) {
+    public void addGame(CreateGameRequest createGameRequest) {
         Game game = Game.builder()
             .maxPlayers(createGameRequest.maxPlayers())
             .currentPlayers(0)
             .buyIn(createGameRequest.buyIn())
             .name(createGameRequest.name())
-            .status(GameState.WAITING_FOR_PLAYERS)
+            .status(GameStatus.WAITING_FOR_PLAYERS)
             .build();
 
         Game savedGame = gameRepo.save(game);
         log.info("Game saved {}", savedGame);
-
-        return savedGame;
     }
 
     public void removeGame(long id) throws Exception {

@@ -2,7 +2,7 @@ package poker.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import texasholdem.GameState;
+import texasholdem.GameStatus;
 
 @Entity
 @Table(schema = "public", name = "games")
@@ -31,5 +31,5 @@ public class Game {
 
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
-    private GameState status;
+    private GameStatus status;
 }

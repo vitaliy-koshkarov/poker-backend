@@ -1,5 +1,6 @@
 package poker.controller;
 
+import common.PlayerStatus;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -55,6 +56,9 @@ public class AuthController {
 
         var player = Player.builder()
             .nickname(regReq.nickname())
+            .status(PlayerStatus.NOT_IN_GAME)
+            .chips(0)
+            .currentBet(0)
             .build();
 
         var user = User.builder()
