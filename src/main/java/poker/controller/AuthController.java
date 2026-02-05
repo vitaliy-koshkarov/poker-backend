@@ -1,5 +1,6 @@
 package poker.controller;
 
+import common.PlayerStatus;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -10,11 +11,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import poker.model.Player;
 import poker.model.Role;
 import poker.model.User;
 import poker.dto.auth.AuthResponse;
 import poker.dto.auth.LoginRequest;
 import poker.dto.auth.RegistrationRequest;
+import poker.repository.PlayerRepository;
 import poker.repository.UserRepository;
 import poker.auth.JwtIssuer;
 
@@ -23,13 +26,16 @@ import poker.auth.JwtIssuer;
 @Log4j2
 public class AuthController {
     private final UserRepository userRepo;
+    private final PlayerRepository playerRepo;
     private final PasswordEncoder passwordEncoder;
     private final JwtIssuer jwtIssuer;
 
-    public AuthController(UserRepository userRepo,
+    public AuthController(UserRepository userRepository,
+                          PlayerRepository playerRepository,
                           PasswordEncoder passwordEncoder,
                           JwtIssuer jwtIssuer) {
-        this.userRepo = userRepo;
+        this.userRepo = userRepository;
+        this.playerRepo = playerRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtIssuer = jwtIssuer;
     }
@@ -43,18 +49,26 @@ public class AuthController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email taken");
         }
 
-        if (userRepo.existsByNickname(regReq.nickname())) {
+        if (playerRepo.existsByNickname(regReq.nickname())) {
             log.error("Nickname {} already exists", regReq.nickname());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nickname taken");
         }
 
-        var newUser = new User(
-            regReq.email(),
-            regReq.nickname(),
-            passwordEncoder.encode(regReq.password()),
-            Role.ROLE_USER);
+        var player = Player.builder()
+            .nickname(regReq.nickname())
+            .status(PlayerStatus.NOT_IN_GAME)
+            .chips(0)
+            .currentBet(0)
+            .build();
 
-        var registeredUser = userRepo.save(newUser);
+        var user = User.builder()
+            .email(regReq.email())
+            .password(passwordEncoder.encode(regReq.password()))
+            .role(Role.ROLE_USER)
+            .player(player)
+            .build();
+
+        var registeredUser = userRepo.save(user);
 
         log.info("Saved user {}", registeredUser);
 

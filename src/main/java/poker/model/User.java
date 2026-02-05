@@ -1,14 +1,15 @@
 package poker.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 @Entity
-@jakarta.persistence.Table(schema = "public", name = "users")
+@Table(schema = "public", name = "users")
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
+@Builder
 @ToString(exclude = {"password"})
 public class User {
     @Id
@@ -18,9 +19,6 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false, unique = true)
-    private String nickname;
-
     @Column(nullable = false)
     private String password;
 
@@ -28,13 +26,7 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
-    public User(String email, String nickname, String password, Role role) {
-        this.email = email;
-        this.nickname = nickname;
-        this.password = password;
-        this.role = role;
-    }
-
-    public User() {
-    }
+    @OneToOne(targetEntity = Player.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "player_id")
+    private Player player;
 }

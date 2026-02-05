@@ -1,6 +1,6 @@
-package poker.dto.table;
+package poker.dto.game;
 
-public record TableDTO(
+public record GameTableDTO(
     long id,
     int currentPlayers,
     int maxPlayers,
