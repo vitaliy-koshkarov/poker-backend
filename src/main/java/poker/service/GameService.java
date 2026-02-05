@@ -8,6 +8,7 @@ import poker.model.Game;
 import poker.repository.GameRepository;
 import texasholdem.GameStatus;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -36,7 +37,7 @@ public class GameService {
     public void addGame(CreateGameRequest createGameRequest) {
         Game game = Game.builder()
             .maxPlayers(createGameRequest.maxPlayers())
-            .currentPlayers(0)
+            .currentPlayers(Collections.emptySet())
             .buyIn(createGameRequest.buyIn())
             .name(createGameRequest.name())
             .status(GameStatus.WAITING_FOR_PLAYERS)

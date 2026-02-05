@@ -4,8 +4,10 @@ import jakarta.persistence.*;
 import lombok.*;
 import texasholdem.GameStatus;
 
+import java.util.Set;
+
 @Entity
-@Table(schema = "public", name = "games")
+@Table(schema = "public", name = "game_tables")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -20,8 +22,8 @@ public class Game {
     @Column(name = "max_players", nullable = false)
     private Integer maxPlayers;
 
-    @Column(name = "current_players", nullable = false)
-    private Integer currentPlayers;
+    @Column(name = "current_players_ids", nullable = false)
+    private Set<Long> currentPlayers;
 
     @Column(name = "buy_in", nullable = false)
     private Integer buyIn;
