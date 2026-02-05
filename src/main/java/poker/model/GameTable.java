@@ -34,4 +34,8 @@ public class GameTable {
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
     private GameStatus status;
+
+    @OneToOne(targetEntity = Pot.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "pot_id")
+    private Pot pot;
 }

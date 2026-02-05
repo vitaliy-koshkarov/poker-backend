@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import poker.dto.game.CreateGameTableRequest;
 import poker.dto.game.GameTableDTO;
 import poker.model.GameTable;
+import poker.model.Pot;
 import poker.repository.GameTableRepository;
 import texasholdem.GameStatus;
 
@@ -41,15 +42,20 @@ public class GameTableService {
     }
 
     public void addGameTable(CreateGameTableRequest createGameTableRequest) {
-        GameTable gameTable = GameTable.builder()
+        var pot = Pot.builder()
+            .total(0)
+            .build();
+
+        var gameTable = GameTable.builder()
             .maxPlayers(createGameTableRequest.maxPlayers())
             .currentPlayers(Collections.emptySet())
             .buyIn(createGameTableRequest.buyIn())
             .name(createGameTableRequest.name())
             .status(GameStatus.WAITING_FOR_PLAYERS)
+            .pot(pot)
             .build();
 
-        GameTable savedGameTable = gameTableRepo.save(gameTable);
+        var savedGameTable = gameTableRepo.save(gameTable);
         log.info("Game table saved {}", savedGameTable);
     }
 
