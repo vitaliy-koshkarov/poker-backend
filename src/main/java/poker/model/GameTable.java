@@ -14,7 +14,7 @@ import java.util.Set;
 @Setter
 @Builder
 @ToString
-public class Game {
+public class GameTable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

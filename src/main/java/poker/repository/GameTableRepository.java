@@ -2,11 +2,11 @@ package poker.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import poker.model.Game;
+import poker.model.GameTable;
 
 import java.util.List;
 
 @Repository
-public interface GameRepository extends JpaRepository<Game, Long> {
-    List<Game> findAllGamesByOrderByIdAsc();
+public interface GameTableRepository extends JpaRepository<GameTable, Long> {
+    List<GameTable> findAllGamesByOrderByIdAsc();
 }

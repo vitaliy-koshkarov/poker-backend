@@ -1,6 +1,8 @@
 package poker.dto.game;
 
-public record CreateGameRequest(
+public record GameTableDTO(
+    long id,
+    int currentPlayers,
     int maxPlayers,
     int buyIn,
     String name) {
