@@ -25,16 +25,16 @@ public class GameTableService {
     public List<GameTableDTO> getGameTablesList() {
         var gameTablesList = gameTableRepo.findAllGamesByOrderByIdAsc();
 
-//        TODO: return correct value of current players
         var gameTableDtoList = new LinkedList<GameTableDTO>();
         for (GameTable gameTable : gameTablesList) {
             gameTableDtoList.add(
-                new GameTableDTO(
-                    gameTable.getId(),
-                    0,
-                    gameTable.getMaxPlayers(),
-                    gameTable.getBuyIn(),
-                    gameTable.getName())
+                GameTableDTO.builder()
+                    .id(gameTable.getId())
+                    .currentPlayers(gameTable.getCurrentPlayers().size())
+                    .maxPlayers(gameTable.getMaxPlayers())
+                    .buyIn(gameTable.getBuyIn())
+                    .name(gameTable.getName())
+                    .build()
             );
         }
 
@@ -63,5 +63,20 @@ public class GameTableService {
         var game = gameTableRepo.findById(id).orElseThrow(() -> new Exception("asd"));
         log.info("Removed game table {}", game);
         gameTableRepo.deleteById(id);
+    }
+
+    public GameTableDTO getGameTableById(Long id) throws Exception {
+        GameTable gameTable = gameTableRepo.findById(id).orElseThrow(() -> {
+            log.error("Fail to get game table data by id {}", id);
+            return new Exception("Fail to get game table data by id " + id);
+        });
+
+        return GameTableDTO.builder()
+            .id(gameTable.getId())
+            .currentPlayers(gameTable.getCurrentPlayers().size())
+            .maxPlayers(gameTable.getMaxPlayers())
+            .buyIn(gameTable.getBuyIn())
+            .name(gameTable.getName())
+            .build();
     }
 }

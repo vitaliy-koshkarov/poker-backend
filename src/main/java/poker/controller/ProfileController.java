@@ -40,9 +40,12 @@ public class ProfileController {
                 return new UsernameNotFoundException("Not found user " + userId);
             });
 
-        var response = new ProfileInfoResponse(user.getEmail(), user.getPlayer().getNickname());
-        log.debug("Response {}", response);
-        return response;
+        var profileInfoResponse = ProfileInfoResponse.builder()
+            .email(user.getEmail())
+            .nickname(user.getPlayer().getNickname())
+            .build();
+        log.debug("Response {}", profileInfoResponse);
+        return profileInfoResponse;
     }
 
     @PostMapping("/updateProfileInfo")
@@ -59,7 +62,13 @@ public class ProfileController {
 
         log.info("Update user info {}", user);
 
-        return new ProfileInfoResponse(user.getEmail(), user.getPlayer().getNickname());
+        var profileInfoResponse = ProfileInfoResponse.builder()
+            .email(user.getEmail())
+            .nickname(user.getPlayer().getNickname())
+            .build();
+        log.debug("Response {}", profileInfoResponse);
+
+        return profileInfoResponse;
     }
 
     @PostMapping("/updatePassword")
