@@ -1,26 +1,37 @@
 package poker.service;
 
 import lombok.extern.log4j.Log4j2;
-import poker.handler.ActionHandler;
-import poker.model.ResponseMessage;
+import poker.dto.game.GameTableDTO;
 import org.springframework.stereotype.Service;
+import poker.repository.GameTableRepository;
 
 @Service
 @Log4j2
 public class PokerService {
-    private final ActionHandler actionHandler;
+    private final GameTableRepository gameTableRepo;
 
-    public PokerService(ActionHandler actionHandler) {
-        this.actionHandler = actionHandler;
+    public PokerService(GameTableRepository gameTableRepository) {
+        this.gameTableRepo = gameTableRepository;
     }
 
-    public ResponseMessage greeting(String someString) {
-        log.info("Service layer. Input string: {}", someString);
-        return new ResponseMessage("Hello, " + someString);
-    }
+    public GameTableDTO handleAction(String sessionId, Long gameTableId) throws Exception {
+        log.info("PokerService handle game table id {} for session {}", gameTableId, sessionId);
 
-    public void handlePlayerAction(String playerAction) {
-        log.info("PokerService, handle {}", playerAction);
-        actionHandler.handleAction(playerAction);
+        var gameTable = gameTableRepo.findById(gameTableId).orElseThrow(() -> {
+            log.error("Failed to get game table with id {} for session {}", gameTableId, sessionId);
+            return new Exception("Failed to get game table with id " + gameTableId + " for session " + sessionId);
+        });
+
+        var gameTableDTO = GameTableDTO.builder()
+            .id(gameTable.getId())
+            .currentPlayers(gameTable.getCurrentPlayers().size())
+            .maxPlayers(gameTable.getMaxPlayers())
+            .buyIn(gameTable.getBuyIn())
+            .name(gameTable.getName())
+            .build();
+
+        log.info("PokerService handled game table {} for session {}. {}", gameTableId, sessionId, gameTableDTO);
+
+        return gameTableDTO;
     }
 }

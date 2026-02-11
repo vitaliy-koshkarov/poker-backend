@@ -18,12 +18,12 @@ import java.io.IOException;
 @Log4j2
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtIssuer jwtIssuer;
-    private final PokerUserDetailService pods;
+    private final PokerUserDetailService puds;
 
     public JwtAuthenticationFilter(JwtIssuer jwtIssuer,
                                    PokerUserDetailService pokerUserDetailService) {
         this.jwtIssuer = jwtIssuer;
-        this.pods = pokerUserDetailService;
+        this.puds = pokerUserDetailService;
     }
 
     @Override
@@ -45,7 +45,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         Long userId = jwtIssuer.extractUserId(jwt);
 
-        var userDetails = pods.findUserById(userId);
+        var userDetails = puds.findUserById(userId);
 
         var authentication = new UsernamePasswordAuthenticationToken(
             userDetails,null, userDetails.getAuthorities());

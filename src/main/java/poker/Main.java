@@ -1,11 +1,10 @@
 package poker;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import poker.handler.ActionHandler;
-import poker.service.PokerService;
 
 @SpringBootApplication
 @ComponentScan("poker")
@@ -15,12 +14,7 @@ public class Main {
     }
 
     @Bean
-    public PokerService pokerService() {
-        return new PokerService(actionHandler());
-    }
-
-    @Bean
-    public ActionHandler actionHandler() {
-        return new ActionHandler();
+    public ObjectMapper getObjectMapper() {
+        return new ObjectMapper();
     }
 }
