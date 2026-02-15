@@ -82,15 +82,15 @@ public class ProfileController {
                 return new UsernameNotFoundException("Not found user " + userId);
             });
 
-        var oldPass = req.oldPassword();
+        var currentPass = req.currentPassword();
         var newPass = req.newPassword();
 
-        if (!passwordEncoder.matches(oldPass, user.getPassword())) {
+        if (!passwordEncoder.matches(currentPass, user.getPassword())) {
             log.error("Passwords do not match for user {}", userId);
-            return ResponseEntity.badRequest().body("Wrong old password");
+            return ResponseEntity.badRequest().body("Wrong current password");
         }
 
-        if (oldPass.equals(newPass)) {
+        if (currentPass.equals(newPass)) {
             log.info("The passwords are no different");
             return ResponseEntity.badRequest().body("The new password must be different from the current one");
         }

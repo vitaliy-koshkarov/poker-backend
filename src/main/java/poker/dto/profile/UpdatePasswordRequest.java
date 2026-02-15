@@ -1,6 +1,6 @@
 package poker.dto.profile;
 
 public record UpdatePasswordRequest(
-    String oldPassword,
+    String currentPassword,
     String newPassword) {
 }
