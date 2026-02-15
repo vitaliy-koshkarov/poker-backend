@@ -80,7 +80,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public AuthResponse login(@RequestBody LoginRequest loginReq) {
-        log.info("Logining user {}", loginReq.email());
+        log.info("Login user {}", loginReq.email());
 
         var user = userRepo.findByEmail(loginReq.email())
             .orElseThrow(() -> {

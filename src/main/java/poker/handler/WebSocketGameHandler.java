@@ -29,9 +29,10 @@ public class WebSocketGameHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        log.info("Received message from session {}", session.getId());
-        sessions.put(session.getId(), session);
-        log.info("Connected session {}", session.getId());
+        var sessionId = session.getId();
+        log.info("Received message from session {}", sessionId);
+        sessions.put(sessionId, session);
+        log.info("Connected session {}", sessionId);
     }
 
     @Override
@@ -50,17 +51,8 @@ public class WebSocketGameHandler extends TextWebSocketHandler {
     }
 
     @Override
-    public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
-    }
-
-    @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
-        sessions.remove(session.getId());
-        log.info("Disconnected session : {}", session.getId());
-    }
-
-    @Override
-    public boolean supportsPartialMessages() {
-        return false;
+        WebSocketSession removedSession = sessions.remove(session.getId());
+        log.info("Disconnected session : {}", removedSession.getId());
     }
 }
