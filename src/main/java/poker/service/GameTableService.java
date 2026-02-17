@@ -3,6 +3,7 @@ package poker.service;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import poker.dto.game.CreateGameTableRequest;
+import poker.dto.game.GameTableConverter;
 import poker.dto.game.GameTableDTO;
 import poker.model.GameTable;
 import poker.model.Pot;
@@ -12,6 +13,7 @@ import texasholdem.GameStatus;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @Log4j2
@@ -27,15 +29,7 @@ public class GameTableService {
 
         var gameTableDtoList = new LinkedList<GameTableDTO>();
         for (GameTable gameTable : gameTablesList) {
-            gameTableDtoList.add(
-                GameTableDTO.builder()
-                    .id(gameTable.getId())
-                    .currentPlayers(gameTable.getCurrentPlayers().size())
-                    .maxPlayers(gameTable.getMaxPlayers())
-                    .buyIn(gameTable.getBuyIn())
-                    .name(gameTable.getName())
-                    .build()
-            );
+            gameTableDtoList.add(GameTableConverter.toDTO(gameTable));
         }
 
         return gameTableDtoList;
@@ -65,18 +59,19 @@ public class GameTableService {
         gameTableRepo.deleteById(id);
     }
 
-    public GameTableDTO getGameTableById(Long id) throws Exception {
-        GameTable gameTable = gameTableRepo.findById(id).orElseThrow(() -> {
+    public GameTable getGameTableById(Long id) throws Exception {
+        return gameTableRepo.findById(id).orElseThrow(() -> {
             log.error("Fail to get game table data by id {}", id);
             return new Exception("Fail to get game table data by id " + id);
         });
+    }
 
-        return GameTableDTO.builder()
-            .id(gameTable.getId())
-            .currentPlayers(gameTable.getCurrentPlayers().size())
-            .maxPlayers(gameTable.getMaxPlayers())
-            .buyIn(gameTable.getBuyIn())
-            .name(gameTable.getName())
-            .build();
+    public GameTable updateGameTableName(Long id, String name) {
+        gameTableRepo.updateGameTableNameById(id, name);
+//        TODO: improve somehow
+        AtomicReference<GameTable> gameTableRef = new AtomicReference<>();
+        gameTableRepo.findById(id).ifPresent(gameTableRef::set);
+
+        return gameTableRef.get();
     }
 }
