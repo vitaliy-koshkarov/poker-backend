@@ -25,6 +25,7 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jwt>0.13.0</jwt>
+        <spring-security-messaging>6.3.10</spring-security-messaging>
         <postgresql>42.7.8</postgresql>
         <flyway-plugin>11.20.3</flyway-plugin>
         <core-poker-lib>1.1.1</core-poker-lib>
@@ -67,6 +68,13 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-log4j2</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-messaging</artifactId>
+            <version>${spring-security-messaging}</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>

@@ -3,6 +3,7 @@ package poker.controller;
 import common.PlayerStatus;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,6 +33,7 @@ public class AuthController {
 
     public AuthController(UserRepository userRepository,
                           PlayerRepository playerRepository,
+                          @Qualifier("pokerPasswordEncoder")
                           PasswordEncoder passwordEncoder,
                           JwtIssuer jwtIssuer) {
         this.userRepo = userRepository;

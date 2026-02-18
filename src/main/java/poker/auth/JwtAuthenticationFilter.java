@@ -5,12 +5,12 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import poker.service.PokerUserDetailService;
 
 import java.io.IOException;
 
@@ -18,12 +18,9 @@ import java.io.IOException;
 @Log4j2
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtIssuer jwtIssuer;
-    private final PokerUserDetailService puds;
 
-    public JwtAuthenticationFilter(JwtIssuer jwtIssuer,
-                                   PokerUserDetailService pokerUserDetailService) {
+    public JwtAuthenticationFilter(JwtIssuer jwtIssuer) {
         this.jwtIssuer = jwtIssuer;
-        this.puds = pokerUserDetailService;
     }
 
     @Override
@@ -43,18 +40,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        Long userId = jwtIssuer.extractUserId(jwt);
+        Authentication auth = jwtIssuer.authenticate(jwt);
 
-        var userDetails = puds.findUserById(userId);
+        ((AbstractAuthenticationToken) auth).setDetails(
+            new WebAuthenticationDetailsSource().buildDetails(request)
+        );
 
-        var authentication = new UsernamePasswordAuthenticationToken(
-            userDetails,null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
-        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        long userId = jwtIssuer.extractUserId(jwt);
+        var userEmail = jwtIssuer.extractUserEmail(jwt);
+//        var userDetailsUserName = ((User) auth.getPrincipal()).getUsername();
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        log.info("Auth user id {}", userId);
+        log.info("Auth user with id {}, email {}", userId, userEmail);
 
         filterChain.doFilter(request, response);
     }
