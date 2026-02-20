@@ -8,7 +8,7 @@ Poker game according to the rules of Texas Hold'em
 
 ### Technologies stack:
 * Java 21
-* Spring Boot 3 (Security, Web, Data, WebSocket)
+* Spring Boot 3 (Security, Web, Data, JPA, WebSocket, Messaging)
 * PostgreSQL 16
 * Hibernate 6
 * Flyway 10
