@@ -26,7 +26,7 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
-    @OneToOne(targetEntity = Player.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(targetEntity = Player.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "player_id")
     private Player player;
 }

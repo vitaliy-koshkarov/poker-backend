@@ -8,9 +8,12 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.messaging.support.GenericMessage;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import poker.dto.game.GameTableConverter;
 import poker.dto.game.GameTableDTO;
+import poker.model.PlayerDetails;
 import poker.service.GameTableService;
 
 @Controller
@@ -23,29 +26,38 @@ public class WebSocketPokerController {
     }
 
     @SubscribeMapping("/gameTable/{id}")
-    public GameTableDTO subscribe(@DestinationVariable Long id) throws Exception {
-        log.info("Subscribe user to game table with id {}", id);
+    public GameTableDTO subscribe(@DestinationVariable("id") Long tableId,
+                                  @AuthenticationPrincipal Authentication authentication) throws Exception {
+        Long userId = ((PlayerDetails) authentication.getPrincipal()).getId();
 
-        var gameTable = gameTableService.getGameTableById(id);
+        log.info("SUBSCRIBE user id {}, game table id {}", userId, tableId);
+
+        log.debug("SUBSCRIBE authentication {}", authentication);
+
+        var gameTable = gameTableService.getGameTableById(tableId);
         var gameTableDTO = GameTableConverter.toDTO(gameTable);
-        log.info("Subscribe message: {}", gameTableDTO);
+        log.info("SUBSCRIBE {}", gameTableDTO);
 
         return gameTableDTO;
     }
 
     @MessageMapping("/table/{id}")
     @SendTo("/topic/gameTable/{id}")
-    public Message<GameTableDTO> handleMessage(@DestinationVariable Long id,
-                                               @Payload String newGameTableName) {
-        log.info("Handle message of game table with id {}", id);
-        log.info("New game table name `{}`", newGameTableName);
+    public Message<GameTableDTO> handleMessage(@DestinationVariable("id") Long tableId,
+                                               @Payload String newGameTableName,
+                                               @AuthenticationPrincipal Authentication authentication) {
+        Long userId = ((PlayerDetails) authentication.getPrincipal()).getId();
 
-        var gameTable = gameTableService.updateGameTableName(id, newGameTableName);
+        log.info("SEND user id {}, game table id {}, new table name {}", userId, tableId, newGameTableName);
+
+        log.debug("SEND authentication {}", authentication);
+
+        var gameTable = gameTableService.updateGameTableName(tableId, newGameTableName);
         var gameTableDTO = GameTableConverter.toDTO(gameTable);
-        log.info("Handle message {}", gameTableDTO);
+        log.info("SEND {}", gameTableDTO);
 
         Message<GameTableDTO> message = new GenericMessage<>(gameTableDTO);
-        log.info("Handle message: {}", message);
+        log.info("SEND {}", message);
 
         return message;
     }

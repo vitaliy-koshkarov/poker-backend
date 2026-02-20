@@ -1,4 +1,4 @@
-package poker.auth;
+package poker.config.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -11,16 +11,17 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import poker.service.AuthenticationService;
 
 import java.io.IOException;
 
 @Component
 @Log4j2
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    private final JwtIssuer jwtIssuer;
+    private final AuthenticationService authenticationService;
 
-    public JwtAuthenticationFilter(JwtIssuer jwtIssuer) {
-        this.jwtIssuer = jwtIssuer;
+    public JwtAuthenticationFilter(AuthenticationService authenticationService) {
+        this.authenticationService = authenticationService;
     }
 
     @Override
@@ -29,18 +30,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
 
         String authHeader = request.getHeader("Authorization");
+        log.debug("JWT auth header: {}", authHeader);
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
         String jwt = authHeader.substring(7);
-        if (!jwtIssuer.isTokenValid(jwt)) {
+        if (!authenticationService.isTokenValid(jwt)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        Authentication auth = jwtIssuer.authenticate(jwt);
+        Authentication auth = authenticationService.authenticate(jwt);
 
         ((AbstractAuthenticationToken) auth).setDetails(
             new WebAuthenticationDetailsSource().buildDetails(request)
@@ -48,11 +50,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        long userId = jwtIssuer.extractUserId(jwt);
-        var userEmail = jwtIssuer.extractUserEmail(jwt);
-//        var userDetailsUserName = ((User) auth.getPrincipal()).getUsername();
+        long userId = authenticationService.extractUserId(jwt);
+        var userEmail = authenticationService.extractUserEmail(jwt);
 
-        log.info("Auth user with id {}, email {}", userId, userEmail);
+        log.info("Authenticate user with id {}, email {}", userId, userEmail);
 
         filterChain.doFilter(request, response);
     }

@@ -1,4 +1,4 @@
-package poker.auth;
+package poker.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -7,22 +7,21 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import poker.model.Role;
-import poker.service.PokerUserDetailService;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
-@Component
+@Service
 @Log4j2
-public class JwtIssuer {
+public class AuthenticationService {
 //    TODO: use values from config file
     private final String secret = "temp-more-long-enough-not-super-secret-key";
     private final long expirationMs = 86_400_000; // 24h
     private final PokerUserDetailService puds;
 
-    public JwtIssuer(PokerUserDetailService pokerUserDetailService) {
+    public AuthenticationService(PokerUserDetailService pokerUserDetailService) {
         this.puds = pokerUserDetailService;
     }
 
@@ -73,12 +72,12 @@ public class JwtIssuer {
     public Authentication authenticate(String jwt) {
         Long userId = extractUserId(jwt);
 
-        var userDetails = puds.findUserById(userId);
+        var playerDetails = puds.findUserById(userId);
 
         return new UsernamePasswordAuthenticationToken(
-            userDetails,
+            playerDetails,
             null,
-            userDetails.getAuthorities()
+            playerDetails.getAuthorities()
         );
     }
 

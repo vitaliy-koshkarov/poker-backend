@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import poker.auth.JwtIssuer;
+import poker.service.AuthenticationService;
 import poker.dto.profile.ProfileInfoRequest;
 import poker.dto.profile.ProfileInfoResponse;
 import poker.dto.profile.UpdatePasswordRequest;
@@ -18,19 +18,19 @@ import poker.repository.UserRepository;
 public class ProfileController {
     private final UserRepository userRepo;
     private final PasswordEncoder passwordEncoder;
-    private final JwtIssuer jwtIssuer;
+    private final AuthenticationService authenticationService;
 
     public ProfileController(UserRepository userRepository,
                              PasswordEncoder passwordEncoder,
-                             JwtIssuer jwtIssuer) {
+                             AuthenticationService authenticationService) {
         this.userRepo = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.jwtIssuer = jwtIssuer;
+        this.authenticationService = authenticationService;
     }
 
     @GetMapping("/getProfileInfo")
     public ProfileInfoResponse getProfileInfo(HttpServletRequest request) {
-        Long userId = jwtIssuer.getUserIdFromJwt(request);
+        Long userId = authenticationService.getUserIdFromJwt(request);
         log.info("getProfileInfo user {}", userId);
         log.debug("User id {}", userId);
 
@@ -74,7 +74,7 @@ public class ProfileController {
     @PostMapping("/updatePassword")
     public ResponseEntity<?> updatePassword(HttpServletRequest httpServletRequest,
                                             @RequestBody UpdatePasswordRequest req) {
-        Long userId = jwtIssuer.getUserIdFromJwt(httpServletRequest);
+        Long userId = authenticationService.getUserIdFromJwt(httpServletRequest);
 
         var user = userRepo.findById(userId)
             .orElseThrow(() -> {
