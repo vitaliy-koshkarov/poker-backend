@@ -1,29 +1,27 @@
-package poker.auth;
+package poker.config.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import poker.service.PokerUserDetailService;
+import poker.service.AuthenticationService;
 
 import java.io.IOException;
 
 @Component
 @Log4j2
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    private final JwtIssuer jwtIssuer;
-    private final PokerUserDetailService pods;
+    private final AuthenticationService authenticationService;
 
-    public JwtAuthenticationFilter(JwtIssuer jwtIssuer,
-                                   PokerUserDetailService pokerUserDetailService) {
-        this.jwtIssuer = jwtIssuer;
-        this.pods = pokerUserDetailService;
+    public JwtAuthenticationFilter(AuthenticationService authenticationService) {
+        this.authenticationService = authenticationService;
     }
 
     @Override
@@ -32,29 +30,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
 
         String authHeader = request.getHeader("Authorization");
+        log.debug("JWT auth header: {}", authHeader);
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
         String jwt = authHeader.substring(7);
-        if (!jwtIssuer.isTokenValid(jwt)) {
+        if (!authenticationService.isTokenValid(jwt)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        Long userId = jwtIssuer.extractUserId(jwt);
+        Authentication auth = authenticationService.authenticate(jwt);
 
-        var userDetails = pods.findUserById(userId);
+        ((AbstractAuthenticationToken) auth).setDetails(
+            new WebAuthenticationDetailsSource().buildDetails(request)
+        );
 
-        var authentication = new UsernamePasswordAuthenticationToken(
-            userDetails,null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
-        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        long userId = authenticationService.extractUserId(jwt);
+        var userEmail = authenticationService.extractUserEmail(jwt);
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        log.info("Auth user id {}", userId);
+        log.info("Authenticate user with id {}, email {}", userId, userEmail);
 
         filterChain.doFilter(request, response);
     }

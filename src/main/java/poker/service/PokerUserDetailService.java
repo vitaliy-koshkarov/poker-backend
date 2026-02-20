@@ -5,6 +5,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import poker.model.PlayerDetails;
 import poker.model.User;
 import poker.repository.UserRepository;
 
@@ -25,11 +26,9 @@ public class PokerUserDetailService implements UserDetailsService {
                 return new UsernameNotFoundException("Not found user by email " + email);
             });
 
-        return org.springframework.security.core.userdetails.User
-            .withUsername(user.getEmail())
-            .password(user.getPassword())
-            .roles(user.getRole().name().replace("ROLE_", ""))
-            .build();
+        var playerDetails = new PlayerDetails(user);
+        log.debug("Load user {} by email {}", playerDetails, email);
+        return playerDetails;
     }
 
     public UserDetails findUserById(Long userId) throws UsernameNotFoundException {
@@ -39,10 +38,8 @@ public class PokerUserDetailService implements UserDetailsService {
                 return new UsernameNotFoundException("Not found user by id " + userId);
             });
 
-        return org.springframework.security.core.userdetails.User
-            .withUsername(user.getEmail())
-            .password(user.getPassword())
-            .roles(user.getRole().name().replace("ROLE_", ""))
-            .build();
+        var playerDetails = new PlayerDetails(user);
+        log.debug("Load user {} by id {}", playerDetails, userId);
+        return playerDetails;
     }
 }

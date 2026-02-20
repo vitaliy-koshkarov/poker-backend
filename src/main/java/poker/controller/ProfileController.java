@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import poker.auth.JwtIssuer;
+import poker.service.AuthenticationService;
 import poker.dto.profile.ProfileInfoRequest;
 import poker.dto.profile.ProfileInfoResponse;
 import poker.dto.profile.UpdatePasswordRequest;
@@ -18,19 +18,19 @@ import poker.repository.UserRepository;
 public class ProfileController {
     private final UserRepository userRepo;
     private final PasswordEncoder passwordEncoder;
-    private final JwtIssuer jwtIssuer;
+    private final AuthenticationService authenticationService;
 
     public ProfileController(UserRepository userRepository,
                              PasswordEncoder passwordEncoder,
-                             JwtIssuer jwtIssuer) {
+                             AuthenticationService authenticationService) {
         this.userRepo = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.jwtIssuer = jwtIssuer;
+        this.authenticationService = authenticationService;
     }
 
     @GetMapping("/getProfileInfo")
     public ProfileInfoResponse getProfileInfo(HttpServletRequest request) {
-        Long userId = jwtIssuer.getUserIdFromJwt(request);
+        Long userId = authenticationService.getUserIdFromJwt(request);
         log.info("getProfileInfo user {}", userId);
         log.debug("User id {}", userId);
 
@@ -40,9 +40,12 @@ public class ProfileController {
                 return new UsernameNotFoundException("Not found user " + userId);
             });
 
-        var response = new ProfileInfoResponse(user.getEmail(), user.getPlayer().getNickname());
-        log.debug("Response {}", response);
-        return response;
+        var profileInfoResponse = ProfileInfoResponse.builder()
+            .email(user.getEmail())
+            .nickname(user.getPlayer().getNickname())
+            .build();
+        log.debug("Response {}", profileInfoResponse);
+        return profileInfoResponse;
     }
 
     @PostMapping("/updateProfileInfo")
@@ -59,13 +62,19 @@ public class ProfileController {
 
         log.info("Update user info {}", user);
 
-        return new ProfileInfoResponse(user.getEmail(), user.getPlayer().getNickname());
+        var profileInfoResponse = ProfileInfoResponse.builder()
+            .email(user.getEmail())
+            .nickname(user.getPlayer().getNickname())
+            .build();
+        log.debug("Response {}", profileInfoResponse);
+
+        return profileInfoResponse;
     }
 
     @PostMapping("/updatePassword")
     public ResponseEntity<?> updatePassword(HttpServletRequest httpServletRequest,
                                             @RequestBody UpdatePasswordRequest req) {
-        Long userId = jwtIssuer.getUserIdFromJwt(httpServletRequest);
+        Long userId = authenticationService.getUserIdFromJwt(httpServletRequest);
 
         var user = userRepo.findById(userId)
             .orElseThrow(() -> {
@@ -73,15 +82,15 @@ public class ProfileController {
                 return new UsernameNotFoundException("Not found user " + userId);
             });
 
-        var oldPass = req.oldPassword();
+        var currentPass = req.currentPassword();
         var newPass = req.newPassword();
 
-        if (!passwordEncoder.matches(oldPass, user.getPassword())) {
+        if (!passwordEncoder.matches(currentPass, user.getPassword())) {
             log.error("Passwords do not match for user {}", userId);
-            return ResponseEntity.badRequest().body("Wrong old password");
+            return ResponseEntity.badRequest().body("Wrong current password");
         }
 
-        if (oldPass.equals(newPass)) {
+        if (currentPass.equals(newPass)) {
             log.info("The passwords are no different");
             return ResponseEntity.badRequest().body("The new password must be different from the current one");
         }

@@ -3,6 +3,7 @@ package poker.service;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import poker.dto.game.CreateGameTableRequest;
+import poker.dto.game.GameTableConverter;
 import poker.dto.game.GameTableDTO;
 import poker.model.GameTable;
 import poker.model.Pot;
@@ -12,6 +13,7 @@ import texasholdem.GameStatus;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @Log4j2
@@ -25,17 +27,9 @@ public class GameTableService {
     public List<GameTableDTO> getGameTablesList() {
         var gameTablesList = gameTableRepo.findAllGamesByOrderByIdAsc();
 
-//        TODO: return correct value of current players
         var gameTableDtoList = new LinkedList<GameTableDTO>();
         for (GameTable gameTable : gameTablesList) {
-            gameTableDtoList.add(
-                new GameTableDTO(
-                    gameTable.getId(),
-                    0,
-                    gameTable.getMaxPlayers(),
-                    gameTable.getBuyIn(),
-                    gameTable.getName())
-            );
+            gameTableDtoList.add(GameTableConverter.toDTO(gameTable));
         }
 
         return gameTableDtoList;
@@ -63,5 +57,21 @@ public class GameTableService {
         var game = gameTableRepo.findById(id).orElseThrow(() -> new Exception("asd"));
         log.info("Removed game table {}", game);
         gameTableRepo.deleteById(id);
+    }
+
+    public GameTable getGameTableById(Long id) throws Exception {
+        return gameTableRepo.findById(id).orElseThrow(() -> {
+            log.error("Fail to get game table data by id {}", id);
+            return new Exception("Fail to get game table data by id " + id);
+        });
+    }
+
+    public GameTable updateGameTableName(Long id, String name) {
+        gameTableRepo.updateGameTableNameById(id, name);
+//        TODO: improve somehow
+        AtomicReference<GameTable> gameTableRef = new AtomicReference<>();
+        gameTableRepo.findById(id).ifPresent(gameTableRef::set);
+
+        return gameTableRef.get();
     }
 }

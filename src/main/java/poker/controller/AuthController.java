@@ -3,6 +3,7 @@ package poker.controller;
 import common.PlayerStatus;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,7 +20,7 @@ import poker.dto.auth.LoginRequest;
 import poker.dto.auth.RegistrationRequest;
 import poker.repository.PlayerRepository;
 import poker.repository.UserRepository;
-import poker.auth.JwtIssuer;
+import poker.service.AuthenticationService;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -28,16 +29,17 @@ public class AuthController {
     private final UserRepository userRepo;
     private final PlayerRepository playerRepo;
     private final PasswordEncoder passwordEncoder;
-    private final JwtIssuer jwtIssuer;
+    private final AuthenticationService authenticationService;
 
     public AuthController(UserRepository userRepository,
                           PlayerRepository playerRepository,
+                          @Qualifier("pokerPasswordEncoder")
                           PasswordEncoder passwordEncoder,
-                          JwtIssuer jwtIssuer) {
+                          AuthenticationService authenticationService) {
         this.userRepo = userRepository;
         this.playerRepo = playerRepository;
         this.passwordEncoder = passwordEncoder;
-        this.jwtIssuer = jwtIssuer;
+        this.authenticationService = authenticationService;
     }
 
     @PostMapping("/register")
@@ -72,7 +74,7 @@ public class AuthController {
 
         log.info("Saved user {}", registeredUser);
 
-        var token = jwtIssuer.generateToken(
+        var token = authenticationService.generateToken(
             registeredUser.getId(), registeredUser.getEmail(), registeredUser.getRole());
 
         return new AuthResponse(token);
@@ -80,7 +82,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public AuthResponse login(@RequestBody LoginRequest loginReq) {
-        log.info("Logining user {}", loginReq.email());
+        log.info("Login user {}", loginReq.email());
 
         var user = userRepo.findByEmail(loginReq.email())
             .orElseThrow(() -> {
@@ -94,7 +96,7 @@ public class AuthController {
         }
 
         Long userId = user.getId();
-        var token = jwtIssuer.generateToken(userId, user.getEmail(), user.getRole());
+        var token = authenticationService.generateToken(userId, user.getEmail(), user.getRole());
 
         log.info("Successful login user id {}", userId);
 
@@ -103,7 +105,7 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request) {
-        var userId = jwtIssuer.getUserIdFromJwt(request);
+        var userId = authenticationService.getUserIdFromJwt(request);
         log.info("Logout user {}", userId);
         return ResponseEntity.ok().build();
     }
