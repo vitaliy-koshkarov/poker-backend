@@ -11,15 +11,15 @@ import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
-import poker.service.AuthenticationService;
+import poker.service.AuthService;
 
 @Component
 @Log4j2
 public class JwtChannelInterceptor implements ChannelInterceptor {
-    private final AuthenticationService authenticationService;
+    private final AuthService authService;
 
-    public JwtChannelInterceptor(AuthenticationService authenticationService) {
-        this.authenticationService = authenticationService;
+    public JwtChannelInterceptor(AuthService authService) {
+        this.authService = authService;
     }
 
     @Nullable
@@ -38,13 +38,13 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
             }
 
             var jwt = authorizationHeader.substring(7);
-            if (!authenticationService.isTokenValid(jwt)) {
+            if (!authService.isTokenValid(jwt)) {
                 throw new AccessDeniedException("Invalid token " + jwt);
             }
 
-            Authentication authentication = authenticationService.authenticate(jwt);
-            long userId = authenticationService.extractUserId(jwt);
-            var userEmail = authenticationService.extractUserEmail(jwt);
+            Authentication authentication = authService.authenticate(jwt);
+            long userId = authService.extractUserId(jwt);
+            var userEmail = authService.extractUserEmail(jwt);
 
             accessor.setUser(authentication);
             log.info("WebSocket authenticate user with id {}, email {}", userId, userEmail);

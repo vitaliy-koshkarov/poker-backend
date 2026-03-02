@@ -13,12 +13,17 @@ import poker.model.Player;
 public interface PlayerRepository extends JpaRepository<Player, Long> {
     boolean existsByNickname(String nickname);
 
-    @Modifying
     @Query("UPDATE Player p SET p.status = :playerStatus WHERE p.id = :playerId")
+    @Modifying
     @Transactional
     void updatePlayerStatus(Long playerId, PlayerStatus playerStatus);
 
     @Query("SELECT p FROM Player p JOIN User u ON u.player.id = p.id WHERE u.id = :userId")
-    @Transactional
+    @Transactional(readOnly = true)
     Player findPlayerByUserId(@Param("userId") long userId);
+
+    @Query("UPDATE Player p SET p.nickname = :nickname WHERE p.id = :playerId")
+    @Modifying
+    @Transactional
+    void updatePlayerNickname(@Param("playerId") long playerId, @Param("nickname") String nickname);
 }

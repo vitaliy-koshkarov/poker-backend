@@ -20,7 +20,7 @@ import poker.dto.auth.LoginRequest;
 import poker.dto.auth.RegistrationRequest;
 import poker.repository.PlayerRepository;
 import poker.repository.UserRepository;
-import poker.service.AuthenticationService;
+import poker.service.AuthService;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -29,17 +29,17 @@ public class AuthController {
     private final UserRepository userRepo;
     private final PlayerRepository playerRepo;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationService authenticationService;
+    private final AuthService authService;
 
     public AuthController(UserRepository userRepository,
                           PlayerRepository playerRepository,
                           @Qualifier("pokerPasswordEncoder")
                           PasswordEncoder passwordEncoder,
-                          AuthenticationService authenticationService) {
+                          AuthService authService) {
         this.userRepo = userRepository;
         this.playerRepo = playerRepository;
         this.passwordEncoder = passwordEncoder;
-        this.authenticationService = authenticationService;
+        this.authService = authService;
     }
 
     @PostMapping("/register")
@@ -74,7 +74,7 @@ public class AuthController {
 
         log.info("Saved user {}", registeredUser);
 
-        var token = authenticationService.generateToken(
+        var token = authService.generateToken(
             registeredUser.getId(), registeredUser.getEmail(), registeredUser.getRole());
 
         return new AuthResponse(token);
@@ -84,11 +84,7 @@ public class AuthController {
     public AuthResponse login(@RequestBody LoginRequest loginReq) {
         log.info("Login user {}", loginReq.email());
 
-        var user = userRepo.findByEmail(loginReq.email())
-            .orElseThrow(() -> {
-                log.error("Not found user {}", loginReq.email());
-                return new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email does not exist");
-            });
+        var user = userRepo.getUserByEmail(loginReq.email());
 
         if (!passwordEncoder.matches(loginReq.password(), user.getPassword())) {
             log.error("Passwords do not match for user {}", loginReq.email());
@@ -96,16 +92,17 @@ public class AuthController {
         }
 
         Long userId = user.getId();
-        var token = authenticationService.generateToken(userId, user.getEmail(), user.getRole());
+        var token = authService.generateToken(userId, user.getEmail(), user.getRole());
 
-        log.info("Successful login user id {}", userId);
+        log.info("Successful login user id {}, email {}", userId, user.getEmail());
 
         return new AuthResponse(token);
     }
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request) {
-        var userId = authenticationService.getUserIdFromJwt(request);
+//        TODO: think about of make access to logout only to authorized user
+        var userId = authService.extractUserIdFromJwt(request);
         log.info("Logout user {}", userId);
         return ResponseEntity.ok().build();
     }

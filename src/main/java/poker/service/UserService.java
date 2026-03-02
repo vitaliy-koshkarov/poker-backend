@@ -14,7 +14,16 @@ public class UserService {
         this.userRepo = userRepo;
     }
 
-    public User getUserById(Long id) {
-        return userRepo.getUserById(id);
+    public User getUserPlayerById(Long id) {
+        return userRepo.getUserPlayerById(id);
+    }
+
+    public User getUserById(Long userId) {
+        return userRepo.getUserById(userId);
+    }
+
+    public void updateUserPassword(long userId, String password) {
+        userRepo.updatePassword(userId, password);
+        log.info("Password updated user id {}", userId);
     }
 }

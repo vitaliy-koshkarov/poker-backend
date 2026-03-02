@@ -15,13 +15,13 @@ import java.util.Date;
 
 @Service
 @Log4j2
-public class AuthenticationService {
+public class AuthService {
 //    TODO: use values from config file
     private final String secret = "temp-more-long-enough-not-super-secret-key";
     private final long expirationMs = 86_400_000; // 24h
     private final PokerUserDetailService puds;
 
-    public AuthenticationService(PokerUserDetailService pokerUserDetailService) {
+    public AuthService(PokerUserDetailService pokerUserDetailService) {
         this.puds = pokerUserDetailService;
     }
 
@@ -60,7 +60,7 @@ public class AuthenticationService {
         return extractClaims(token).getSubject();
     }
 
-    public Long getUserIdFromJwt(HttpServletRequest request) {
+    public Long extractUserIdFromJwt(HttpServletRequest request) {
         var jwt = request.getHeader("Authorization").substring(7);
         return extractUserId(jwt);
     }

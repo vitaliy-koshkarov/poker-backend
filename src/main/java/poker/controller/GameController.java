@@ -40,7 +40,7 @@ public class GameController {
         var gameTableDTO = GameTableConverter.toDTO(gameTable);
         log.info("Game table data: {}\r\n", gameTableDTO);
 
-        User user = userService.getUserById(userId);
+        User user = userService.getUserPlayerById(userId);
         log.info("User: {}\r\n", user);
 
         return ResponseEntity.ok(gameTableDTO);

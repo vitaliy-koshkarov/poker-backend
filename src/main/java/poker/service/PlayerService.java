@@ -22,4 +22,9 @@ public class PlayerService {
     public Player getPlayerByUserId(long userId) {
         return playerRepo.findPlayerByUserId(userId);
     }
+
+    public void updateProfileInfo(long playerId, String nickname) {
+        playerRepo.updatePlayerNickname(playerId, nickname);
+        log.info("Updated player nickname to {}", nickname);
+    }
 }

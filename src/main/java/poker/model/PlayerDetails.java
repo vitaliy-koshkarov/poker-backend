@@ -14,6 +14,9 @@ import java.util.List;
 public class PlayerDetails implements UserDetails {
     private final Long id;
     private final String email;
+    /**
+     * Nickname of the user. {@link Player#nickname}
+     */
     private final String username;
     private final String password;
     private final Collection<? extends GrantedAuthority> authorities;

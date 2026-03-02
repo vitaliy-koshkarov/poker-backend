@@ -3,70 +3,75 @@ package poker.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import poker.service.AuthenticationService;
+import poker.model.Player;
+import poker.model.PlayerDetails;
+import poker.model.User;
+import poker.service.AuthService;
 import poker.dto.profile.ProfileInfoRequest;
 import poker.dto.profile.ProfileInfoResponse;
 import poker.dto.profile.UpdatePasswordRequest;
-import poker.repository.UserRepository;
+import poker.service.PlayerService;
+import poker.service.UserService;
 
 @RestController
 @RequestMapping("/api/profile")
 @Log4j2
 public class ProfileController {
-    private final UserRepository userRepo;
+    private final UserService userService;
+    private final PlayerService playerService;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationService authenticationService;
+    private final AuthService authService;
 
-    public ProfileController(UserRepository userRepository,
+    public ProfileController(UserService userService,
+                             PlayerService playerService,
                              PasswordEncoder passwordEncoder,
-                             AuthenticationService authenticationService) {
-        this.userRepo = userRepository;
+                             AuthService authService) {
+        this.userService = userService;
+        this.playerService = playerService;
         this.passwordEncoder = passwordEncoder;
-        this.authenticationService = authenticationService;
+        this.authService = authService;
     }
 
     @GetMapping("/getProfileInfo")
-    public ProfileInfoResponse getProfileInfo(HttpServletRequest request) {
-        Long userId = authenticationService.getUserIdFromJwt(request);
-        log.info("getProfileInfo user {}", userId);
-        log.debug("User id {}", userId);
+    public ProfileInfoResponse getProfileInfo() {
+        var playerDetails = ((PlayerDetails) SecurityContextHolder.getContext()
+            .getAuthentication()
+            .getPrincipal());
+        long userId = playerDetails.getId();
 
-        var user = userRepo.findById(userId)
-            .orElseThrow(() -> {
-                log.error("Not found user {}", userId);
-                return new UsernameNotFoundException("Not found user " + userId);
-            });
+        log.info("getProfileInfo user {}", userId);
+
+        var player = playerService.getPlayerByUserId(userId);
 
         var profileInfoResponse = ProfileInfoResponse.builder()
-            .email(user.getEmail())
-            .nickname(user.getPlayer().getNickname())
+            .email(playerDetails.getEmail())
+            .nickname(player.getNickname())
             .build();
-        log.debug("Response {}", profileInfoResponse);
+        log.info("getProfileInfo response {}", profileInfoResponse);
         return profileInfoResponse;
     }
 
     @PostMapping("/updateProfileInfo")
     public ProfileInfoResponse updateProfileInfo(@RequestBody ProfileInfoRequest req) {
-        var email = req.email();
-        var user = userRepo.findByEmail(email)
-            .orElseThrow(() -> {
-                log.error("Not found user {}", email);
-                return new UsernameNotFoundException("Not found user " + email);
-            });
+        var playerDetails = (PlayerDetails) SecurityContextHolder.getContext()
+            .getAuthentication()
+            .getPrincipal();
+        long userId = playerDetails.getId();
 
-        user.getPlayer().setNickname(req.nickname());
-        userRepo.save(user);
-
-        log.info("Update user info {}", user);
+        User user = userService.getUserPlayerById(userId);
+        Player player = user.getPlayer();
+        long playerId = player.getId();
+        playerService.updateProfileInfo(playerId, req.nickname());
+        log.info("Update player id {} profile info", playerId);
 
         var profileInfoResponse = ProfileInfoResponse.builder()
             .email(user.getEmail())
             .nickname(user.getPlayer().getNickname())
             .build();
-        log.debug("Response {}", profileInfoResponse);
+        log.info("updateProfileInfo response {}", profileInfoResponse);
 
         return profileInfoResponse;
     }
@@ -74,14 +79,14 @@ public class ProfileController {
     @PostMapping("/updatePassword")
     public ResponseEntity<?> updatePassword(HttpServletRequest httpServletRequest,
                                             @RequestBody UpdatePasswordRequest req) {
-        Long userId = authenticationService.getUserIdFromJwt(httpServletRequest);
+        Long userId = authService.extractUserIdFromJwt(httpServletRequest);
+        log.info("Change password request user id {}", userId);
 
-        var user = userRepo.findById(userId)
-            .orElseThrow(() -> {
-                log.error("Not found user {}", userId);
-                return new UsernameNotFoundException("Not found user " + userId);
-            });
+        User user = userService.getUserById(userId);
 
+//        TODO: Check and compare:
+//         1. User.id from JWT and SecurityContextHolder
+//         2. current pass from SecurityContextHolder with current pass from request
         var currentPass = req.currentPassword();
         var newPass = req.newPassword();
 
@@ -95,9 +100,9 @@ public class ProfileController {
             return ResponseEntity.badRequest().body("The new password must be different from the current one");
         }
 
-        user.setPassword(passwordEncoder.encode(newPass));
-        userRepo.save(user);
-        log.info("Update password for user {}", userId);
+        String newPassword = passwordEncoder.encode(newPass);
+        userService.updateUserPassword(userId, newPassword);
+        log.info("Update password user id {}", userId);
 
         return ResponseEntity.ok().body("Successfully updated password");
     }

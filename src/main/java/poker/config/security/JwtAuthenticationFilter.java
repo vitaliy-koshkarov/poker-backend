@@ -11,17 +11,17 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import poker.service.AuthenticationService;
+import poker.service.AuthService;
 
 import java.io.IOException;
 
 @Component
 @Log4j2
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    private final AuthenticationService authenticationService;
+    private final AuthService authService;
 
-    public JwtAuthenticationFilter(AuthenticationService authenticationService) {
-        this.authenticationService = authenticationService;
+    public JwtAuthenticationFilter(AuthService authService) {
+        this.authService = authService;
     }
 
     @Override
@@ -37,12 +37,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String jwt = authHeader.substring(7);
-        if (!authenticationService.isTokenValid(jwt)) {
+        if (!authService.isTokenValid(jwt)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        Authentication auth = authenticationService.authenticate(jwt);
+        Authentication auth = authService.authenticate(jwt);
 
         ((AbstractAuthenticationToken) auth).setDetails(
             new WebAuthenticationDetailsSource().buildDetails(request)
@@ -50,8 +50,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        long userId = authenticationService.extractUserId(jwt);
-        var userEmail = authenticationService.extractUserEmail(jwt);
+        long userId = authService.extractUserId(jwt);
+        var userEmail = authService.extractUserEmail(jwt);
 
         log.info("Authenticate user with id {}, email {}", userId, userEmail);
 
