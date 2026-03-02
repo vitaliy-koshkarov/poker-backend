@@ -18,7 +18,7 @@ public interface PlayerRepository extends JpaRepository<Player, Long> {
     @Transactional
     void updatePlayerStatus(Long playerId, PlayerStatus playerStatus);
 
-    @Query("SELECT p FROM Player p JOIN User u ON u.player.id = p.id WHERE u.id = :userId")
+    @Query("SELECT p FROM Player p JOIN User u ON u.playerId = p.id WHERE u.id = :userId")
     @Transactional(readOnly = true)
     Player findPlayerByUserId(@Param("userId") long userId);
 

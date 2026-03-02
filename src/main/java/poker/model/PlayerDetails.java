@@ -21,10 +21,10 @@ public class PlayerDetails implements UserDetails {
     private final String password;
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public PlayerDetails(User user) {
+    public PlayerDetails(User user, Player player) {
         this.id = user.getId();
         this.email = user.getEmail();
-        this.username = user.getPlayer().getNickname();
+        this.username = player.getNickname();
         this.password = user.getPassword();
         this.authorities = List.of((new SimpleGrantedAuthority(user.getRole().name())));
     }

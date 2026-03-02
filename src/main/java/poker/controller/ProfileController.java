@@ -55,25 +55,19 @@ public class ProfileController {
     }
 
     @PostMapping("/updateProfileInfo")
-    public ProfileInfoResponse updateProfileInfo(@RequestBody ProfileInfoRequest req) {
+    public ResponseEntity<?> updateProfileInfo(@RequestBody ProfileInfoRequest req) {
         var playerDetails = (PlayerDetails) SecurityContextHolder.getContext()
             .getAuthentication()
             .getPrincipal();
         long userId = playerDetails.getId();
 
-        User user = userService.getUserPlayerById(userId);
-        Player player = user.getPlayer();
+        Player player = playerService.getPlayerByUserId(userId);
         long playerId = player.getId();
-        playerService.updateProfileInfo(playerId, req.nickname());
+        String newNickname = req.nickname();
+        playerService.updateProfileInfo(playerId, newNickname);
         log.info("Update player id {} profile info", playerId);
 
-        var profileInfoResponse = ProfileInfoResponse.builder()
-            .email(user.getEmail())
-            .nickname(user.getPlayer().getNickname())
-            .build();
-        log.info("updateProfileInfo response {}", profileInfoResponse);
-
-        return profileInfoResponse;
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/updatePassword")

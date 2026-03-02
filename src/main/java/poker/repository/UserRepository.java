@@ -11,17 +11,18 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u FROM User u WHERE u.email = :userEmail")
     @Transactional(readOnly = true)
-    User getUserByEmail(@Param("userEmail") String email);
+    User findUserByEmail(@Param("userEmail") String email);
 
+    @Transactional(readOnly = true)
     boolean existsByEmail(String email);
 
     @Query("SELECT u FROM User u WHERE u.id = :userId")
     @Transactional(readOnly = true)
-    User getUserById(@Param("userId") Long id);
+    User findUserById(@Param("userId") Long id);
 
-    @Query("SELECT u, p FROM User u JOIN Player p ON u.player.id = p.id WHERE u.id = :userId")
+    @Query("SELECT u, p FROM User u JOIN Player p ON u.playerId = p.id WHERE u.id = :userId")
     @Transactional(readOnly = true)
-    User getUserPlayerById(@Param("userId") Long id);
+    User findUserPlayerById(@Param("userId") Long id);
 
     @Query("UPDATE User u SET u.password = :password WHERE u.id = :userId")
     @Modifying

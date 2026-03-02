@@ -14,12 +14,26 @@ public class UserService {
         this.userRepo = userRepo;
     }
 
+    public boolean isUserExistsByEmail(String email) {
+        return userRepo.existsByEmail(email);
+    }
+
+    public User createUser(User user) {
+        var newUser = userRepo.save(user);
+        log.info("User created {}", newUser);
+        return newUser;
+    }
+
+    public User getUserByEmail(String email) {
+        return userRepo.findUserByEmail(email);
+    }
+
     public User getUserPlayerById(Long id) {
-        return userRepo.getUserPlayerById(id);
+        return userRepo.findUserPlayerById(id);
     }
 
     public User getUserById(Long userId) {
-        return userRepo.getUserById(userId);
+        return userRepo.findUserById(userId);
     }
 
     public void updateUserPassword(long userId, String password) {

@@ -18,26 +18,25 @@ import poker.model.User;
 import poker.dto.auth.AuthResponse;
 import poker.dto.auth.LoginRequest;
 import poker.dto.auth.RegistrationRequest;
-import poker.repository.PlayerRepository;
-import poker.repository.UserRepository;
 import poker.service.AuthService;
+import poker.service.PlayerService;
+import poker.service.UserService;
 
 @RestController
 @RequestMapping("/api/auth")
 @Log4j2
 public class AuthController {
-    private final UserRepository userRepo;
-    private final PlayerRepository playerRepo;
+    private final UserService userService;
+    private final PlayerService playerService;
     private final PasswordEncoder passwordEncoder;
     private final AuthService authService;
 
-    public AuthController(UserRepository userRepository,
-                          PlayerRepository playerRepository,
-                          @Qualifier("pokerPasswordEncoder")
-                          PasswordEncoder passwordEncoder,
+    public AuthController(UserService userService,
+                          PlayerService playerService,
+                          @Qualifier("pokerPasswordEncoder") PasswordEncoder passwordEncoder,
                           AuthService authService) {
-        this.userRepo = userRepository;
-        this.playerRepo = playerRepository;
+        this.userService = userService;
+        this.playerService = playerService;
         this.passwordEncoder = passwordEncoder;
         this.authService = authService;
     }
@@ -46,12 +45,12 @@ public class AuthController {
     public AuthResponse register(@RequestBody RegistrationRequest regReq) {
         log.info("Register user with email {}, nickname {}", regReq.email(), regReq.nickname());
 
-        if (userRepo.existsByEmail(regReq.email())) {
+        if (userService.isUserExistsByEmail(regReq.email())) {
             log.error("Email {} already exists", regReq.email());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email taken");
         }
 
-        if (playerRepo.existsByNickname(regReq.nickname())) {
+        if (playerService.isPlayerExistsByNickname(regReq.nickname())) {
             log.error("Nickname {} already exists", regReq.nickname());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nickname taken");
         }
@@ -63,14 +62,16 @@ public class AuthController {
             .currentBet(0)
             .build();
 
+        var newPlayer = playerService.createPlayer(player);
+
         var user = User.builder()
             .email(regReq.email())
             .password(passwordEncoder.encode(regReq.password()))
             .role(Role.ROLE_USER)
-            .player(player)
+            .playerId(newPlayer.getId())
             .build();
 
-        var registeredUser = userRepo.save(user);
+        var registeredUser = userService.createUser(user);
 
         log.info("Saved user {}", registeredUser);
 
@@ -84,7 +85,7 @@ public class AuthController {
     public AuthResponse login(@RequestBody LoginRequest loginReq) {
         log.info("Login user {}", loginReq.email());
 
-        var user = userRepo.getUserByEmail(loginReq.email());
+        var user = userService.getUserByEmail(loginReq.email());
 
         if (!passwordEncoder.matches(loginReq.password(), user.getPassword())) {
             log.error("Passwords do not match for user {}", loginReq.email());
