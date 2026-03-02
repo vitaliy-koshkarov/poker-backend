@@ -34,7 +34,9 @@ public class WebSocketPokerController {
 
         log.debug("SUBSCRIBE authentication {}", authentication);
 
-        var gameTable = gameTableService.getGameTableById(tableId);
+        var gameTable = gameTableService.joinPlayerToGame(userId, tableId);
+        log.info("User id {} joined to game id {}", userId, tableId);
+
         var gameTableDTO = GameTableConverter.toDTO(gameTable);
         log.info("SUBSCRIBE {}", gameTableDTO);
 

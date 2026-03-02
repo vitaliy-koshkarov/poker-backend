@@ -12,6 +12,7 @@ import java.util.List;
 
 @Repository
 public interface GameTableRepository extends JpaRepository<GameTable, Long> {
+    @Transactional(readOnly = true)
     List<GameTable> findAllGamesByOrderByIdAsc();
 
     @Modifying
