@@ -15,22 +15,11 @@ public class PlayerService {
         this.playerRepo = playerRepo;
     }
 
-    public Player getPlayerById(Long id) {
-//        TODO: return stub instance
-        return playerRepo.findById(id)
-            .orElseGet(() -> {
-                log.error("Error get player by id {}", id);
-                return Player.builder()
-                    .id(-1L)
-                    .nickname("empty name")
-                    .status(PlayerStatus.NOT_IN_GAME)
-                    .chips(-1)
-                    .currentBet(-1)
-                    .build();
-            });
+    public void updatePlayerStatus(Long playerId, PlayerStatus playerStatus) {
+        playerRepo.updatePlayerStatus(playerId, playerStatus);
     }
 
-    public Player updatePlayer(Player player) {
-        return playerRepo.save(player);
+    public Player getPlayerByUserId(long userId) {
+        return playerRepo.findPlayerByUserId(userId);
     }
 }

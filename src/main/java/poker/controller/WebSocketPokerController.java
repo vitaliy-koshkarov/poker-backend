@@ -27,15 +27,15 @@ public class WebSocketPokerController {
 
     @SubscribeMapping("/gameTable/{id}")
     public GameTableDTO subscribe(@DestinationVariable("id") Long tableId,
-                                  @AuthenticationPrincipal Authentication authentication) throws Exception {
+                                  @AuthenticationPrincipal Authentication authentication) {
         Long userId = ((PlayerDetails) authentication.getPrincipal()).getId();
 
         log.info("SUBSCRIBE user id {}, game table id {}", userId, tableId);
 
-        log.debug("SUBSCRIBE authentication {}", authentication);
+        log.debug("SUBSCRIBE authentication {}\r\n", authentication);
 
         var gameTable = gameTableService.joinPlayerToGame(userId, tableId);
-        log.info("User id {} joined to game id {}", userId, tableId);
+        log.info("User id {} joined to game id {}\r\n", userId, tableId);
 
         var gameTableDTO = GameTableConverter.toDTO(gameTable);
         log.info("SUBSCRIBE {}", gameTableDTO);
