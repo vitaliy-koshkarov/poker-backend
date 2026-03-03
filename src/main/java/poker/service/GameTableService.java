@@ -87,4 +87,15 @@ public class GameTableService {
 
         return gameTableRepo.findGameTableById(tableId);
     }
+
+    public void removePlayerFromTable(Long userId) {
+        var player = playerService.getPlayerByUserId(userId);
+        long playerId = player.getId();
+        playerService.updatePlayerStatus(playerId, PlayerStatus.NOT_IN_GAME);
+        log.info("Player id {} status updated to {}", playerId, PlayerStatus.NOT_IN_GAME);
+//        TODO:
+//         - find game table
+//         - remove player id from that game (current player ids);
+//         - change player status
+    }
 }

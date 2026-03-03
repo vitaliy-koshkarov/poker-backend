@@ -15,7 +15,6 @@ import poker.dto.game.GameTableConverter;
 import poker.dto.game.GameTableDTO;
 import poker.model.PlayerDetails;
 import poker.service.GameTableService;
-import poker.util.Util;
 
 @Controller
 @Log4j2
@@ -56,9 +55,9 @@ public class WebSocketPokerController {
         var gameTableDTO = GameTableConverter.toDTO(gameTable);
         log.info("SEND {}", gameTableDTO);
 
-        Message<GameTableDTO> message = new GenericMessage<>(gameTableDTO);
-        log.info("SEND {}", message);
+        Message<GameTableDTO> outboundMessage = new GenericMessage<>(gameTableDTO);
+        log.info("SEND {}", outboundMessage);
 
-        return message;
+        return outboundMessage;
     }
 }
