@@ -3,11 +3,9 @@ package poker.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import poker.model.Player;
-import poker.model.PlayerDetails;
 import poker.model.User;
 import poker.service.AuthService;
 import poker.dto.profile.ProfileInfoRequest;
@@ -15,6 +13,7 @@ import poker.dto.profile.ProfileInfoResponse;
 import poker.dto.profile.UpdatePasswordRequest;
 import poker.service.PlayerService;
 import poker.service.UserService;
+import poker.util.Util;
 
 @RestController
 @RequestMapping("/api/profile")
@@ -37,10 +36,8 @@ public class ProfileController {
 
     @GetMapping("/getProfileInfo")
     public ProfileInfoResponse getProfileInfo() {
-        var playerDetails = ((PlayerDetails) SecurityContextHolder.getContext()
-            .getAuthentication()
-            .getPrincipal());
-        long userId = playerDetails.getId();
+        var playerDetails = Util.getPlayerDetailsFronCtx();
+        Long userId = playerDetails.getId();
 
         log.info("getProfileInfo user {}", userId);
 
@@ -56,11 +53,7 @@ public class ProfileController {
 
     @PostMapping("/updateProfileInfo")
     public ResponseEntity<?> updateProfileInfo(@RequestBody ProfileInfoRequest req) {
-        var playerDetails = (PlayerDetails) SecurityContextHolder.getContext()
-            .getAuthentication()
-            .getPrincipal();
-        long userId = playerDetails.getId();
-
+        long userId = Util.getPlayerDetailsFronCtx().getId();
         Player player = playerService.getPlayerByUserId(userId);
         long playerId = player.getId();
         String newNickname = req.nickname();

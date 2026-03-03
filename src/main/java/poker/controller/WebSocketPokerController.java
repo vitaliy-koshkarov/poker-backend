@@ -15,6 +15,7 @@ import poker.dto.game.GameTableConverter;
 import poker.dto.game.GameTableDTO;
 import poker.model.PlayerDetails;
 import poker.service.GameTableService;
+import poker.util.Util;
 
 @Controller
 @Log4j2
@@ -32,10 +33,10 @@ public class WebSocketPokerController {
 
         log.info("SUBSCRIBE user id {}, game table id {}", userId, tableId);
 
-        log.debug("SUBSCRIBE authentication {}\r\n", authentication);
+        log.debug("SUBSCRIBE authentication {}", authentication);
 
         var gameTable = gameTableService.joinPlayerToGame(userId, tableId);
-        log.info("User id {} joined to game id {}\r\n", userId, tableId);
+        log.info("User id {} joined to game id {}", userId, tableId);
 
         var gameTableDTO = GameTableConverter.toDTO(gameTable);
         log.info("SUBSCRIBE {}", gameTableDTO);
@@ -45,16 +46,13 @@ public class WebSocketPokerController {
 
     @MessageMapping("/table/{id}")
     @SendTo("/topic/gameTable/{id}")
-    public Message<GameTableDTO> handleMessage(@DestinationVariable("id") Long tableId,
+    public Message<GameTableDTO> handleMessage(@DestinationVariable("id") Long gameTableId,
                                                @Payload String newGameTableName,
                                                @AuthenticationPrincipal Authentication authentication) {
         Long userId = ((PlayerDetails) authentication.getPrincipal()).getId();
+        log.info("SEND user id {}, game table id {}, new table name {}", userId, gameTableId, newGameTableName);
 
-        log.info("SEND user id {}, game table id {}, new table name {}", userId, tableId, newGameTableName);
-
-        log.debug("SEND authentication {}", authentication);
-
-        var gameTable = gameTableService.updateGameTableName(tableId, newGameTableName);
+        var gameTable = gameTableService.updateGameTableName(gameTableId, newGameTableName);
         var gameTableDTO = GameTableConverter.toDTO(gameTable);
         log.info("SEND {}", gameTableDTO);
 

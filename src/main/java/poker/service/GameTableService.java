@@ -7,7 +7,6 @@ import poker.dto.game.CreateGameTableRequest;
 import poker.dto.game.GameTableConverter;
 import poker.dto.game.GameTableDTO;
 import poker.model.GameTable;
-import poker.model.Pot;
 import poker.repository.GameTableRepository;
 import texasholdem.GameStatus;
 
@@ -15,17 +14,19 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @Log4j2
 public class GameTableService {
     private final GameTableRepository gameTableRepo;
+    private final PotService potService;
     private final PlayerService playerService;
 
     public GameTableService(GameTableRepository gameTableRepository,
+                            PotService potService,
                             PlayerService playerService) {
         this.gameTableRepo = gameTableRepository;
+        this.potService = potService;
         this.playerService = playerService;
     }
 
@@ -40,44 +41,35 @@ public class GameTableService {
         return gameTableDtoList;
     }
 
-    public void addGameTable(CreateGameTableRequest createGameTableRequest) {
-        var pot = Pot.builder()
-            .total(0)
-            .build();
+    public void createGameTable(CreateGameTableRequest createGameTableRequest) {
+        var pot = potService.createPot();
 
-        var gameTable = GameTable.builder()
+        var gt = GameTable.builder()
             .maxPlayers(createGameTableRequest.maxPlayers())
             .currentPlayers(Collections.emptySet())
             .buyIn(createGameTableRequest.buyIn())
             .name(createGameTableRequest.name())
             .status(GameStatus.WAITING_FOR_PLAYERS)
-            .pot(pot)
+            .potId(pot.getId())
             .build();
 
-        var savedGameTable = gameTableRepo.save(gameTable);
-        log.info("Game table saved {}", savedGameTable);
+        var gameTable = gameTableRepo.save(gt);
+        log.info("Game table created {}", gameTable);
     }
 
-    public void removeGameTable(long id) throws Exception {
-        var game = gameTableRepo.findById(id).orElseThrow(() -> new Exception("asd"));
-        log.info("Removed game table {}", game);
-        gameTableRepo.deleteById(id);
+    public void removeGameTable(long gameTableId) {
+        gameTableRepo.deleteById(gameTableId);
+        log.info("Removed game table id {}", gameTableId);
     }
 
-    public GameTable getGameTableById(Long id) throws Exception {
-        return gameTableRepo.findById(id).orElseThrow(() -> {
-            log.error("Fail to get game table data by id {}", id);
-            return new Exception("Fail to get game table data by id " + id);
-        });
+    public GameTable getGameTableById(Long gameTableId) {
+        return gameTableRepo.findGameTableById(gameTableId);
     }
 
-    public GameTable updateGameTableName(Long id, String name) {
-        gameTableRepo.updateGameTableNameById(id, name);
-//        TODO: improve somehow
-        AtomicReference<GameTable> gameTableRef = new AtomicReference<>();
-        gameTableRepo.findById(id).ifPresent(gameTableRef::set);
-
-        return gameTableRef.get();
+    public GameTable updateGameTableName(Long gameTableId, String name) {
+        gameTableRepo.updateGameTableName(gameTableId, name);
+        log.info("Game table name updated to {}", name);
+        return gameTableRepo.findGameTableById(gameTableId);
     }
 
     public GameTable joinPlayerToGame(Long userId, Long tableId) {
@@ -86,13 +78,13 @@ public class GameTableService {
         playerService.updatePlayerStatus(playerId, PlayerStatus.JOIN_THE_GAME);
         log.info("Player id {} status updated to {}", playerId, PlayerStatus.JOIN_THE_GAME);
 
-        var gameTable = gameTableRepo.getGameTableById(tableId);
+        var gameTable = gameTableRepo.findGameTableById(tableId);
         Set<Long> currentPlayers = gameTable.getCurrentPlayers();
         currentPlayers.add(player.getId());
         long gameId = gameTable.getId();
         gameTableRepo.addPlayerToGame(gameId, currentPlayers);
         log.info("Add player id {} to game id {}", playerId, gameId);
 
-        return gameTableRepo.findGameById(tableId);
+        return gameTableRepo.findGameTableById(tableId);
     }
 }

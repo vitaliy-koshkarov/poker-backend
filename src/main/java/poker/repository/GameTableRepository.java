@@ -16,22 +16,18 @@ public interface GameTableRepository extends JpaRepository<GameTable, Long> {
     @Transactional(readOnly = true)
     List<GameTable> findAllGamesByOrderByIdAsc();
 
-    @Modifying
-    @Query(value = "UPDATE GameTable AS gt SET gt.name = :name WHERE gt.id = :id")
-    @Transactional
-    void updateGameTableNameById(@Param("id") Long id, @Param("name") String name);
-
-    @Query("SELECT gt FROM GameTable gt WHERE gt.id = :tableId")
+    @Query("SELECT gt FROM GameTable gt WHERE gt.id = :gameTableId")
     @Transactional(readOnly = true)
-    GameTable getGameTableById(@Param("tableId") Long tableId);
+    GameTable findGameTableById(@Param("gameTableId") Long tableId);
 
+    @Query(value = "UPDATE GameTable AS gt SET gt.name = :name WHERE gt.id = :gameTableId")
     @Modifying
+    @Transactional
+    void updateGameTableName(@Param("gameTableId") Long gameTableId, @Param("name") String name);
+
     @Query("UPDATE GameTable gt SET gt.currentPlayers = :currentPlayersIds WHERE gt.id = :gameId")
+    @Modifying
     @Transactional
     void addPlayerToGame(@Param("gameId") Long gameId,
                          @Param("currentPlayersIds") Set<Long> currentPlayersIds);
-
-    @Query("SELECT gt FROM GameTable gt WHERE gt.id = :gameId")
-    @Transactional(readOnly = true)
-    GameTable findGameById(@Param("gameId") long gameId);
 }

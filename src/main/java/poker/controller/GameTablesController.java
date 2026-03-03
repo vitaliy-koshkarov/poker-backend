@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import poker.dto.game.CreateGameTableRequest;
 import poker.dto.game.GameTableDTO;
 import poker.service.GameTableService;
+import poker.util.Util;
 
 import java.util.List;
 
@@ -28,13 +29,14 @@ public class GameTablesController {
     @PostMapping("/create")
     public ResponseEntity<?> createGameTable(@RequestBody CreateGameTableRequest createGameTableRequest) {
         log.info("Create game table: {}", createGameTableRequest);
-        gameTableService.addGameTable(createGameTableRequest);
+        gameTableService.createGameTable(createGameTableRequest);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/delete/{id}")
-    public void deleteGameTable(@PathVariable Long id) throws Exception {
-        log.info("Remove game table with id {}", id);
+    public void deleteGameTable(@PathVariable Long id) {
+        long userId = Util.getPlayerDetailsFronCtx().getId();
+        log.info("Remove game request, game table id {}, user id {}", id, userId);
         gameTableService.removeGameTable(id);
     }
 }
