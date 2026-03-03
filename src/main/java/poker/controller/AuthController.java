@@ -1,6 +1,5 @@
 package poker.controller;
 
-import common.PlayerStatus;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -12,14 +11,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import poker.model.Player;
-import poker.model.Role;
-import poker.model.User;
 import poker.dto.auth.AuthResponse;
 import poker.dto.auth.LoginRequest;
 import poker.dto.auth.RegistrationRequest;
 import poker.service.AuthService;
 import poker.service.PlayerService;
+import poker.service.PlayerTableService;
 import poker.service.UserService;
 
 @RestController
@@ -30,53 +27,38 @@ public class AuthController {
     private final PlayerService playerService;
     private final PasswordEncoder passwordEncoder;
     private final AuthService authService;
+    private final PlayerTableService playerTableService;
 
     public AuthController(UserService userService,
                           PlayerService playerService,
                           @Qualifier("pokerPasswordEncoder") PasswordEncoder passwordEncoder,
-                          AuthService authService) {
+                          AuthService authService, PlayerTableService playerTableService) {
         this.userService = userService;
         this.playerService = playerService;
         this.passwordEncoder = passwordEncoder;
         this.authService = authService;
+        this.playerTableService = playerTableService;
     }
 
     @PostMapping("/register")
-    public AuthResponse register(@RequestBody RegistrationRequest regReq) {
-        log.info("Register user with email {}, nickname {}", regReq.email(), regReq.nickname());
+    public AuthResponse register(@RequestBody RegistrationRequest registerRequest) {
+        log.info("Register user with email {}, nickname {}", registerRequest.email(), registerRequest.nickname());
 
-        if (userService.isUserExistsByEmail(regReq.email())) {
-            log.error("Email {} already exists", regReq.email());
+        if (userService.isUserExistsByEmail(registerRequest.email())) {
+            log.error("Email {} already exists", registerRequest.email());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email taken");
         }
 
-        if (playerService.isPlayerExistsByNickname(regReq.nickname())) {
-            log.error("Nickname {} already exists", regReq.nickname());
+        if (playerService.isPlayerExistsByNickname(registerRequest.nickname())) {
+            log.error("Nickname {} already exists", registerRequest.nickname());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nickname taken");
         }
 
-        var player = Player.builder()
-            .nickname(regReq.nickname())
-            .status(PlayerStatus.NOT_IN_GAME)
-            .chips(0)
-            .currentBet(0)
-            .build();
+        var player = playerService.createPlayer(registerRequest.nickname());
+        var user = userService.createUser(registerRequest.email(), registerRequest.password(), player.getId());
+        playerTableService.createPlayerTable(user.getId(), player.getId());
 
-        var newPlayer = playerService.createPlayer(player);
-
-        var user = User.builder()
-            .email(regReq.email())
-            .password(passwordEncoder.encode(regReq.password()))
-            .role(Role.ROLE_USER)
-            .playerId(newPlayer.getId())
-            .build();
-
-        var registeredUser = userService.createUser(user);
-
-        log.info("Saved user {}", registeredUser);
-
-        var token = authService.generateToken(
-            registeredUser.getId(), registeredUser.getEmail(), registeredUser.getRole());
+        var token = authService.generateToken(user.getId(), user.getEmail(), user.getRole());
 
         return new AuthResponse(token);
     }
@@ -86,6 +68,11 @@ public class AuthController {
         log.info("Login user {}", loginReq.email());
 
         var user = userService.getUserByEmail(loginReq.email());
+
+        if (user == null) {
+            log.info("User not found by email {}", loginReq.email());
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "User not found");
+        }
 
         if (!passwordEncoder.matches(loginReq.password(), user.getPassword())) {
             log.error("Passwords do not match for user {}", loginReq.email());

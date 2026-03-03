@@ -21,13 +21,14 @@ public class GameTableService {
     private final GameTableRepository gameTableRepo;
     private final PotService potService;
     private final PlayerService playerService;
+    private final PlayerTableService playerTableService;
 
-    public GameTableService(GameTableRepository gameTableRepository,
-                            PotService potService,
-                            PlayerService playerService) {
+    public GameTableService(GameTableRepository gameTableRepository, PotService potService,
+                            PlayerService playerService, PlayerTableService playerTableService) {
         this.gameTableRepo = gameTableRepository;
         this.potService = potService;
         this.playerService = playerService;
+        this.playerTableService = playerTableService;
     }
 
     public List<GameTableDTO> getGameTablesList() {
@@ -76,7 +77,6 @@ public class GameTableService {
         var player = playerService.getPlayerByUserId(userId);
         long playerId = player.getId();
         playerService.updatePlayerStatus(playerId, PlayerStatus.JOIN_THE_GAME);
-        log.info("Player id {} status updated to {}", playerId, PlayerStatus.JOIN_THE_GAME);
 
         var gameTable = gameTableRepo.findGameTableById(tableId);
         Set<Long> currentPlayers = gameTable.getCurrentPlayers();
@@ -84,6 +84,11 @@ public class GameTableService {
         long gameId = gameTable.getId();
         gameTableRepo.addPlayerToGame(gameId, currentPlayers);
         log.info("Add player id {} to game id {}", playerId, gameId);
+
+        var playerTable = playerTableService.getPlayerTableByUserAndPlayerIds(userId, playerId);
+        Set<Long> tableIds = playerTable.getTableIds();
+        tableIds.add(tableId);
+        playerTableService.updatePlayerTable(playerTable.getId(), tableIds, userId);
 
         return gameTableRepo.findGameTableById(tableId);
     }

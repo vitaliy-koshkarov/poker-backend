@@ -19,7 +19,14 @@ public class PlayerService {
         return playerRepo.existsByNickname(nickname);
     }
 
-    public Player createPlayer(Player player) {
+    public Player createPlayer(String nickname) {
+        var player = Player.builder()
+            .nickname(nickname)
+            .status(PlayerStatus.NOT_IN_GAME)
+            .chips(0)
+            .currentBet(0)
+            .build();
+
         var newPlayer = playerRepo.save(player);
         log.info("Player created {}", newPlayer);
         return newPlayer;
@@ -31,10 +38,11 @@ public class PlayerService {
 
     public void updateProfileInfo(long playerId, String nickname) {
         playerRepo.updatePlayerNickname(playerId, nickname);
-        log.info("Updated player nickname to {}", nickname);
+        log.info("Updated player id {} nickname to {}", playerId, nickname);
     }
 
     public void updatePlayerStatus(Long playerId, PlayerStatus playerStatus) {
         playerRepo.updatePlayerStatus(playerId, playerStatus);
+        log.info("Player id {} status updated to {}", playerId, playerStatus);
     }
 }

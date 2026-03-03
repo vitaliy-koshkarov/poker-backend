@@ -31,7 +31,6 @@ public class WebSocketPokerController {
         Long userId = ((PlayerDetails) authentication.getPrincipal()).getId();
 
         log.info("SUBSCRIBE user id {}, game table id {}", userId, tableId);
-
         log.debug("SUBSCRIBE authentication {}", authentication);
 
         var gameTable = gameTableService.joinPlayerToGame(userId, tableId);
