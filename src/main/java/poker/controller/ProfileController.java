@@ -37,7 +37,7 @@ public class ProfileController {
     @GetMapping("/getProfileInfo")
     public ProfileInfoResponse getProfileInfo() {
         var playerDetails = Util.getPlayerDetailsFronCtx();
-        Long userId = playerDetails.getId();
+        Long userId = playerDetails.getUser().getId();
 
         log.info("getProfileInfo user {}", userId);
 
@@ -53,7 +53,7 @@ public class ProfileController {
 
     @PostMapping("/updateProfileInfo")
     public ResponseEntity<?> updateProfileInfo(@RequestBody ProfileInfoRequest req) {
-        long userId = Util.getPlayerDetailsFronCtx().getId();
+        long userId = Util.getPlayerDetailsFronCtx().getUser().getId();
         Player player = playerService.getPlayerByUserId(userId);
         long playerId = player.getId();
         String newNickname = req.nickname();

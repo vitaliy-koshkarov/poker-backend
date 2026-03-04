@@ -7,6 +7,7 @@ import poker.dto.game.CreateGameTableRequest;
 import poker.dto.game.GameTableConverter;
 import poker.dto.game.GameTableDTO;
 import poker.model.GameTable;
+import poker.model.PlayerDetails;
 import poker.repository.GameTableRepository;
 import texasholdem.GameStatus;
 
@@ -73,8 +74,12 @@ public class GameTableService {
         return gameTableRepo.findGameTableById(gameTableId);
     }
 
-    public GameTable joinPlayerToGame(Long userId, Long tableId) {
-        var player = playerService.getPlayerByUserId(userId);
+    public GameTable joinPlayerToGame(Long tableId, PlayerDetails playerDetails) {
+        Long userId = playerDetails.getUser().getId();
+        var player = playerDetails.getPlayer();
+
+        player.setStatus(PlayerStatus.JOIN_THE_GAME);
+        playerDetails.setPlayer(player);
         long playerId = player.getId();
         playerService.updatePlayerStatus(playerId, PlayerStatus.JOIN_THE_GAME);
 
@@ -82,25 +87,45 @@ public class GameTableService {
         Set<Long> currentPlayers = gameTable.getCurrentPlayers();
         currentPlayers.add(player.getId());
         long gameId = gameTable.getId();
-        gameTableRepo.addPlayerToGame(gameId, currentPlayers);
+        gameTableRepo.updateCurrentPlayers(gameId, currentPlayers);
         log.info("Add player id {} to game id {}", playerId, gameId);
 
         var playerTable = playerTableService.getPlayerTableByUserAndPlayerIds(userId, playerId);
         Set<Long> tableIds = playerTable.getTableIds();
         tableIds.add(tableId);
-        playerTableService.updatePlayerTable(playerTable.getId(), tableIds, userId);
+        playerDetails.setTableIds(tableIds);
+
+        Long playerTableId = playerTable.getId();
+        playerTableService.updatePlayerTable(playerTableId, tableIds, userId);
+        log.info("User id {} joined game, player table id {}", userId, playerTableId);
 
         return gameTableRepo.findGameTableById(tableId);
     }
 
-    public void removePlayerFromTable(Long userId) {
-        var player = playerService.getPlayerByUserId(userId);
-        long playerId = player.getId();
+    public void removePlayerFromTable(Long userId, Long playerId, PlayerDetails playerDetails) {
+        playerDetails.getPlayer().setStatus(PlayerStatus.NOT_IN_GAME);
         playerService.updatePlayerStatus(playerId, PlayerStatus.NOT_IN_GAME);
         log.info("Player id {} status updated to {}", playerId, PlayerStatus.NOT_IN_GAME);
-//        TODO:
-//         - find game table
-//         - remove player id from that game (current player ids);
-//         - change player status
+
+        var playerTable = playerTableService.getPlayerTableByUserAndPlayerIds(userId, playerId);
+
+        Set<Long> tableIds = playerTable.getTableIds();
+        log.debug("tableIds {}", tableIds);
+        for (Long tableId : tableIds) {
+            var gameTable = gameTableRepo.findGameTableById(tableId);
+            Set<Long> currentPlayerIds = gameTable.getCurrentPlayers();
+            log.debug("currentPlayerIds {}", currentPlayerIds);
+            currentPlayerIds.remove(playerId);
+            log.debug("currentPlayerIds {}", currentPlayerIds);
+            gameTableRepo.updateCurrentPlayers(tableId, currentPlayerIds);
+        }
+
+        tableIds.clear();
+        log.debug("tableIds {}", tableIds);
+        playerDetails.setTableIds(tableIds);
+
+        Long playerTableId = playerTable.getId();
+        playerTableService.updatePlayerTable(playerTableId, tableIds, userId);
+        log.info("User id {} left game, player table id {}", userId, playerTableId);
     }
 }

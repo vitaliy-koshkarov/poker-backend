@@ -28,6 +28,6 @@ public interface GameTableRepository extends JpaRepository<GameTable, Long> {
     @Query("UPDATE GameTable gt SET gt.currentPlayers = :currentPlayersIds WHERE gt.id = :gameId")
     @Modifying
     @Transactional
-    void addPlayerToGame(@Param("gameId") Long gameId,
-                         @Param("currentPlayersIds") Set<Long> currentPlayersIds);
+    void updateCurrentPlayers(@Param("gameId") Long gameId,
+                              @Param("currentPlayersIds") Set<Long> currentPlayersIds);
 }

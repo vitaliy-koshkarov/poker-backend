@@ -1,6 +1,7 @@
 package poker.model;
 
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -8,24 +9,36 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 @Getter
-@ToString(exclude = {"password"})
+@ToString
 public class PlayerDetails implements UserDetails {
-    private final Long id;
+    private final User user;
+
+    @Setter
+    private Player player;
     private final String email;
-    /**
-     * Nickname of the user. {@link Player#nickname}
-     */
-    private final String username;
-    private final String password;
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public PlayerDetails(User user, Player player) {
-        this.id = user.getId();
+    @Setter
+    private Set<Long> tableIds;
+
+    public PlayerDetails(User user, Player player, Set<Long> tableIds) {
+        this.user = user;
+        this.player = player;
         this.email = user.getEmail();
-        this.username = player.getNickname();
-        this.password = user.getPassword();
         this.authorities = List.of((new SimpleGrantedAuthority(user.getRole().name())));
+        this.tableIds = tableIds;
+    }
+
+    @Override
+    public String getUsername() {
+        return player.getNickname();
+    }
+
+    @Override
+    public String getPassword() {
+        return user.getPassword();
     }
 }

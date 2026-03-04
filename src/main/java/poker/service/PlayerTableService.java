@@ -35,6 +35,5 @@ public class PlayerTableService {
 
     public void updatePlayerTable(Long playerTableId, Set<Long> tableIds, Long userId) {
         playerTableRepo.updatePlayerTable(playerTableId, tableIds);
-        log.info("User id {} joined to game, player table id {}", userId, playerTableId);
     }
 }

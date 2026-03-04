@@ -24,6 +24,9 @@ public class PlayerTable {
     @Column(name = "player_id", nullable = false)
     private Long playerId;
 
+    /**
+     * {@link GameTable#id} of the tables the player is sitting at
+     */
     @Column(name = "table_ids", nullable = false)
     private Set<Long> tableIds;
 }

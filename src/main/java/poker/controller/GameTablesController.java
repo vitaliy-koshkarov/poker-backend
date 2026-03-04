@@ -35,7 +35,7 @@ public class GameTablesController {
 
     @DeleteMapping("/delete/{id}")
     public void deleteGameTable(@PathVariable Long id) {
-        long userId = Util.getPlayerDetailsFronCtx().getId();
+        long userId = Util.getPlayerDetailsFronCtx().getUser().getId();
         log.info("Remove game request, game table id {}, user id {}", id, userId);
         gameTableService.removeGameTable(id);
     }

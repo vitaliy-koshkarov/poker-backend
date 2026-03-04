@@ -29,7 +29,7 @@ public class GameController {
     public ResponseEntity<GameTableDTO> getGameTableById(@PathVariable Long id) {
         log.info("getGameTableById: {}", id);
 
-        Long userId = Util.getPlayerDetailsFronCtx().getId();
+        Long userId = Util.getPlayerDetailsFronCtx().getUser().getId();
         log.info("User id {}", userId);
 
         var gameTable = gameTableService.getGameTableById(id);
