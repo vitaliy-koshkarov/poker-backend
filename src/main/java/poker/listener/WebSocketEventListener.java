@@ -9,21 +9,26 @@ import org.springframework.messaging.support.GenericMessage;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
-import poker.dto.game.GameTableDTO;
+import poker.dto.game.GameDTO;
 import poker.model.PlayerDetails;
+import poker.service.GameService;
 import poker.service.GameTableService;
-
-import java.util.Set;
+import poker.service.PlayerSessionService;
 
 @Component
 @Log4j2
 public class WebSocketEventListener {
-    private final SimpMessagingTemplate simpMessagingTemplate;
+    private final PlayerSessionService playerSessionService;
+    private final GameService gameService;
     private final GameTableService gameTableService;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
-    public WebSocketEventListener(SimpMessagingTemplate simpMessagingTemplate, GameTableService gameTableService) {
-        this.simpMessagingTemplate = simpMessagingTemplate;
+    public WebSocketEventListener(PlayerSessionService playerSessionService, GameService gameService,
+                                  GameTableService gameTableService, SimpMessagingTemplate simpMessagingTemplate) {
+        this.playerSessionService = playerSessionService;
+        this.gameService = gameService;
         this.gameTableService = gameTableService;
+        this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
     @EventListener
@@ -31,43 +36,57 @@ public class WebSocketEventListener {
         log.info("Disconnect event");
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
         log.debug("Accessor: {}", accessor);
+//        String accessorSessionId = accessor.getSessionId();
+//        log.info("Accessor session id {}", accessorSessionId);
 
-        UsernamePasswordAuthenticationToken authentication = (UsernamePasswordAuthenticationToken) event.getUser();
+        var authentication = (UsernamePasswordAuthenticationToken) event.getUser();
         if (authentication == null) {
             return;
         }
 
         var playerDetails = (PlayerDetails) authentication.getPrincipal();
 
-        Set<Long> tableIds = disconnectPlayer(playerDetails);
-        for (Long tableId : tableIds) {
-            var gameTableDTO = GameTableDTO.builder()
-                .id(-1L)
-                .currentPlayers(-1)
-                .maxPlayers(-1)
-                .name("test")
-                .buyIn(-1)
-                .build();
+        String sessionId = event.getSessionId();
+        log.info("Disconnect session id {}", sessionId);
 
-            Message<GameTableDTO> message = new GenericMessage<>(gameTableDTO);
-            String destination = "/topic/gameTable";
-            log.debug("Message {}", message);
-            log.info("Sending message about disconnect to {}/{}", destination, tableId);
-            simpMessagingTemplate.convertAndSend("/topic/gameTable/" + tableId, message);
-        }
+        Long gameId = disconnectPlayer(playerDetails, sessionId);
+
+        var game = gameService.getGameById(gameId);
+        var gameTables = gameTableService.getGameTablesById(gameId);
+
+        var gameDTO = GameDTO.builder()
+            .id(game.getId())
+            .currentPlayers(gameTables.size())
+            .maxPlayers(game.getMaxPlayers())
+            .name(game.getName())
+            .buyIn(game.getBuyIn())
+            .build();
+
+        Message<GameDTO> message = new GenericMessage<>(gameDTO);
+        String destination = "/topic/gameTable/" + gameId;
+
+        log.debug("Message {}", message);
+        log.info("Sending message to {} about player id {} disconnect",
+            destination, playerDetails.getPlayer().getId());
+
+        simpMessagingTemplate.convertAndSend(destination, message);
     }
 
-    private Set<Long> disconnectPlayer(PlayerDetails playerDetails) {
-//        TODO: return game state
+    private Long disconnectPlayer(PlayerDetails playerDetails, String sessionId) {
+//        TODO: return game state?
         Long userId = playerDetails.getUser().getId();
         Long playerId = playerDetails.getPlayer().getId();
-        Set<Long> tableIds = Set.copyOf(playerDetails.getTableIds());
 
 //        TODO: 1 player - 1 game (table) yet
-        gameTableService.removePlayerFromTable(userId, playerId, playerDetails);
-        log.info("Disconnect event user id {} player id {} left the games {}", userId, playerId, tableIds);
+        var playerSession = playerSessionService.remove(sessionId);
+        log.info("Disconnect event, player session {}", playerSession);
+
+        Long gameId = playerSession.gameId();
+        gameService.removePlayerFromGame(userId, playerId, gameId, playerDetails);
+
+        log.info("Disconnect event user id {}, player id {} left game id {}", userId, playerId, gameId);
         log.debug("Disconnect event player details {}", playerDetails);
 
-        return tableIds;
+        return gameId;
     }
 }

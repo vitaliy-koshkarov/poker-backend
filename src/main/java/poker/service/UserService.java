@@ -39,10 +39,6 @@ public class UserService {
         return userRepo.findUserByEmail(email);
     }
 
-    public User getUserPlayerById(Long id) {
-        return userRepo.findUserPlayerById(id);
-    }
-
     public User getUserById(Long userId) {
         return userRepo.findUserById(userId);
     }

@@ -8,7 +8,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-import poker.model.Role;
+import poker.model.User;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
@@ -25,13 +25,14 @@ public class AuthService {
         this.puds = pokerUserDetailService;
     }
 
-    public String generateToken(Long userId, String email, Role role) {
+    public String generateToken(User user) {
         var now = new Date();
+        Long userId = user.getId();
 
         String jwt = Jwts.builder()
             .id(Long.toString(userId))
-            .subject(email)
-            .claim("role", role)
+            .subject(user.getEmail())
+            .claim("role", user.getRole())
             .issuedAt(now)
             .expiration(new Date(now.getTime() + expirationMs))
             .signWith(Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8)), Jwts.SIG.HS256)
@@ -72,7 +73,7 @@ public class AuthService {
     public Authentication authenticate(String jwt) {
         Long userId = extractUserId(jwt);
 
-        var playerDetails = puds.findUserById(userId);
+        var playerDetails = puds.getUserById(userId);
 
         return new UsernamePasswordAuthenticationToken(
             playerDetails,

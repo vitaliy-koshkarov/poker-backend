@@ -9,7 +9,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @ToString
@@ -18,27 +17,24 @@ public class PlayerDetails implements UserDetails {
 
     @Setter
     private Player player;
-    private final String email;
-    private final Collection<? extends GrantedAuthority> authorities;
 
-    @Setter
-    private Set<Long> tableIds;
-
-    public PlayerDetails(User user, Player player, Set<Long> tableIds) {
+    public PlayerDetails(User user, Player player) {
         this.user = user;
         this.player = player;
-        this.email = user.getEmail();
-        this.authorities = List.of((new SimpleGrantedAuthority(user.getRole().name())));
-        this.tableIds = tableIds;
     }
 
     @Override
-    public String getUsername() {
-        return player.getNickname();
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of((new SimpleGrantedAuthority(user.getRole().name())));
     }
 
     @Override
     public String getPassword() {
         return user.getPassword();
+    }
+
+    @Override
+    public String getUsername() {
+        return player.getNickname();
     }
 }

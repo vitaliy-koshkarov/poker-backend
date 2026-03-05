@@ -15,9 +15,10 @@ import poker.dto.auth.AuthResponse;
 import poker.dto.auth.LoginRequest;
 import poker.dto.auth.RegistrationRequest;
 import poker.service.AuthService;
+import poker.service.GameTableService;
 import poker.service.PlayerService;
-import poker.service.PlayerTableService;
 import poker.service.UserService;
+import poker.util.Util;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -27,17 +28,17 @@ public class AuthController {
     private final PlayerService playerService;
     private final PasswordEncoder passwordEncoder;
     private final AuthService authService;
-    private final PlayerTableService playerTableService;
+    private final GameTableService gameTableService;
 
     public AuthController(UserService userService,
                           PlayerService playerService,
                           @Qualifier("pokerPasswordEncoder") PasswordEncoder passwordEncoder,
-                          AuthService authService, PlayerTableService playerTableService) {
+                          AuthService authService, GameTableService gameTableService) {
         this.userService = userService;
         this.playerService = playerService;
         this.passwordEncoder = passwordEncoder;
         this.authService = authService;
-        this.playerTableService = playerTableService;
+        this.gameTableService = gameTableService;
     }
 
     @PostMapping("/register")
@@ -56,9 +57,9 @@ public class AuthController {
 
         var player = playerService.createPlayer(registerRequest.nickname());
         var user = userService.createUser(registerRequest.email(), registerRequest.password(), player.getId());
-        playerTableService.createPlayerTable(user.getId(), player.getId());
+//        gameTableService.createGameTable(user.getId(), player.getId());
 
-        var token = authService.generateToken(user.getId(), user.getEmail(), user.getRole());
+        var token = authService.generateToken(user);
 
         return new AuthResponse(token);
     }
@@ -79,18 +80,17 @@ public class AuthController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Wrong password");
         }
 
-        Long userId = user.getId();
-        var token = authService.generateToken(userId, user.getEmail(), user.getRole());
+        var token = authService.generateToken(user);
 
-        log.info("Successful login user id {}, email {}", userId, user.getEmail());
+        log.info("Successful login user id {}, email {}", user.getId(), user.getEmail());
 
         return new AuthResponse(token);
     }
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request) {
-//        TODO: think about of make access to logout only to authorized user
-        var userId = authService.extractUserIdFromJwt(request);
+//        TODO: check id from JWT
+        Long userId = Util.getPlayerDetailsFronCtx().getUser().getId();
         log.info("Logout user {}", userId);
         return ResponseEntity.ok().build();
     }

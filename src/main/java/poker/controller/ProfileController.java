@@ -44,7 +44,7 @@ public class ProfileController {
         var player = playerService.getPlayerByUserId(userId);
 
         var profileInfoResponse = ProfileInfoResponse.builder()
-            .email(playerDetails.getEmail())
+            .email(playerDetails.getUser().getEmail())
             .nickname(player.getNickname())
             .build();
         log.info("getProfileInfo response {}", profileInfoResponse);
@@ -58,7 +58,7 @@ public class ProfileController {
         long playerId = player.getId();
         String newNickname = req.nickname();
         playerService.updateProfileInfo(playerId, newNickname);
-        log.info("Update player id {} profile info", playerId);
+        log.info("Update profile info, player id {}", playerId);
 
         return ResponseEntity.ok().build();
     }

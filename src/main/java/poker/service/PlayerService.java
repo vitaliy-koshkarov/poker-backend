@@ -38,7 +38,7 @@ public class PlayerService {
 
     public void updateProfileInfo(long playerId, String nickname) {
         playerRepo.updatePlayerNickname(playerId, nickname);
-        log.info("Updated player id {} nickname to {}", playerId, nickname);
+        log.info("Updated nickname to {}, player id {}", nickname, playerId);
     }
 
     public void updatePlayerStatus(Long playerId, PlayerStatus playerStatus) {

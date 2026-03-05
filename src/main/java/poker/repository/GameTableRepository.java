@@ -8,26 +8,25 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import poker.model.GameTable;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 @Repository
 public interface GameTableRepository extends JpaRepository<GameTable, Long> {
-    @Transactional(readOnly = true)
-    List<GameTable> findAllGamesByOrderByIdAsc();
 
-    @Query("SELECT gt FROM GameTable gt WHERE gt.id = :gameTableId")
+    @Query("SELECT gt FROM GameTable gt WHERE gt.userId = :userId AND gt.playerId = :playerId")
     @Transactional(readOnly = true)
-    GameTable findGameTableById(@Param("gameTableId") Long tableId);
+    Collection<GameTable> findGameTablesByUserIdAndPlayerId(@Param("userId") Long userId,
+                                                            @Param("playerId") long playerId);
 
-    @Query(value = "UPDATE GameTable AS gt SET gt.name = :name WHERE gt.id = :gameTableId")
+    @Query("DELETE FROM GameTable gt WHERE gt.userId = :userId AND gt.playerId = :playerId AND gt.gameId = :gameId")
     @Modifying
     @Transactional
-    void updateGameTableName(@Param("gameTableId") Long gameTableId, @Param("name") String name);
+    void removeGameTableByUserIdAndPlayerIdAndGameId(@Param("userId") Long userId,
+                                                     @Param("playerId") Long playerId,
+                                                     @Param("gameId") Long gameId);
 
-    @Query("UPDATE GameTable gt SET gt.currentPlayers = :currentPlayersIds WHERE gt.id = :gameId")
-    @Modifying
-    @Transactional
-    void updateCurrentPlayers(@Param("gameId") Long gameId,
-                              @Param("currentPlayersIds") Set<Long> currentPlayersIds);
+    @Query("SELECT gt FROM GameTable gt WHERE gt.gameId = :gameId")
+    @Transactional(readOnly = true)
+    List<GameTable> findAllGameTablesById(@Param("gameId") Long gameId);
 }
