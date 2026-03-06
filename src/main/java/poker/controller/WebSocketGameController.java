@@ -15,10 +15,15 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import poker.dto.game.GameConverter;
 import poker.dto.game.GameDTO;
+import poker.model.GameTable;
+import poker.model.Player;
 import poker.model.PlayerDetails;
 import poker.service.GameService;
 import poker.service.GameTableService;
+import poker.service.PlayerService;
 import poker.service.WebSocketPlayerSessionService;
+
+import java.util.List;
 
 @Controller
 @Log4j2
@@ -26,13 +31,16 @@ public class WebSocketGameController {
     private final WebSocketPlayerSessionService webSocketPlayerSessionService;
     private final GameService gameService;
     private final GameTableService gameTableService;
+    private final PlayerService playerService;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     public WebSocketGameController(WebSocketPlayerSessionService webSocketPlayerSessionService, GameService gameServicer,
-                                   GameTableService gameTableService, SimpMessagingTemplate simpMessagingTemplate) {
+                                   GameTableService gameTableService, PlayerService playerService,
+                                   SimpMessagingTemplate simpMessagingTemplate) {
         this.webSocketPlayerSessionService = webSocketPlayerSessionService;
         this.gameService = gameServicer;
         this.gameTableService = gameTableService;
+        this.playerService = playerService;
         this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
@@ -57,9 +65,16 @@ public class WebSocketGameController {
 
         log.debug("SUBSCRIBE player details {}", playerDetails);
 
-        var gameTables = gameTableService.getAllPlayersSitDownAtTable(game.getId());
+        var gameTables = gameTableService.getGameTablesByGameId(game.getId());
+        var playerIdsList = gameTables.stream()
+            .map(GameTable::getPlayerId)
+            .toList();
+        log.debug("PlayerIdsList {}", playerIdsList);
 
-        var gameDTO = GameConverter.toDTO(game, gameTables.size());
+        List<Player> players = playerService.getPlayersByIds(playerIdsList);
+        players.forEach(log::debug);
+
+        var gameDTO = GameConverter.toDTO(game, players, gameTables.size());
         log.info("SUBSCRIBE {}", gameDTO);
 
 //        notify other players about some player joined to the game
@@ -81,8 +96,14 @@ public class WebSocketGameController {
         log.info("SEND user id {}, game id {}, new game name {}", userId, gameId, newGameName);
 
         var game = gameService.updateGameName(gameId, newGameName);
-        var gameTables = gameTableService.getAllPlayersSitDownAtTable(game.getId());
-        var gameDTO = GameConverter.toDTO(game, gameTables.size());
+        var gameTables = gameTableService.getGameTablesByGameId(game.getId());
+
+        var playerIdsList = gameTables.stream()
+            .map(GameTable::getPlayerId)
+            .toList();
+        List<Player> players = playerService.getPlayersByIds(playerIdsList);
+
+        var gameDTO = GameConverter.toDTO(game, players, gameTables.size());
         log.info("SEND {}", gameDTO);
 
         Message<GameDTO> outboundMessage = new GenericMessage<>(gameDTO);

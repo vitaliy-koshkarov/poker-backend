@@ -11,12 +11,16 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import poker.dto.game.GameConverter;
 import poker.dto.game.GameDTO;
+import poker.model.GameTable;
+import poker.model.Player;
 import poker.model.PlayerDetails;
 import poker.model.PlayerStatus;
 import poker.service.GameService;
 import poker.service.GameTableService;
 import poker.service.PlayerService;
 import poker.service.WebSocketPlayerSessionService;
+
+import java.util.List;
 
 @Component
 @Log4j2
@@ -58,9 +62,14 @@ public class WebSocketEventListener {
         Long gameId = disconnectPlayer(playerDetails, sessionId);
 
         var game = gameService.getGameById(gameId);
-        var gameTables = gameTableService.getAllPlayersSitDownAtTable(gameId);
+        var gameTables = gameTableService.getGameTablesByGameId(gameId);
 
-        var gameDTO = GameConverter.toDTO(game, gameTables.size());
+        var playerIdsList = gameTables.stream()
+            .map(GameTable::getPlayerId)
+            .toList();
+        List<Player> players = playerService.getPlayersByIds(playerIdsList);
+
+        var gameDTO = GameConverter.toDTO(game, players, gameTables.size());
 
         Message<GameDTO> message = new GenericMessage<>(gameDTO);
         String destination = "/topic/gameTable/" + gameId;

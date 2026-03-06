@@ -6,6 +6,8 @@ import poker.model.Player;
 import poker.model.PlayerStatus;
 import poker.repository.PlayerRepository;
 
+import java.util.List;
+
 @Service
 @Log4j2
 public class PlayerService {
@@ -44,5 +46,9 @@ public class PlayerService {
     public void updatePlayerStatus(Long playerId, Integer playerStatus) {
         playerRepo.updatePlayerStatus(playerId, playerStatus);
         log.info("Player id {} status updated to {}", playerId, playerStatus);
+    }
+
+    public List<Player> getPlayersByIds(List<Long> playerIdsList) {
+        return playerRepo.findAllById(playerIdsList);
     }
 }
