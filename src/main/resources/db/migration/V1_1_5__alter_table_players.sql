@@ -1,4 +1,0 @@
-ALTER TABLE public.players
-ADD COLUMN status TEXT NOT NULL,
-ADD COLUMN chips INT NOT NULL,
-ADD COLUMN current_bet INT NOT NULL;

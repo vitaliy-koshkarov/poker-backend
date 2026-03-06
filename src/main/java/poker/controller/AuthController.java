@@ -1,6 +1,5 @@
 package poker.controller;
 
-import common.PlayerStatus;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -12,70 +11,51 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import poker.model.Player;
-import poker.model.Role;
-import poker.model.User;
 import poker.dto.auth.AuthResponse;
 import poker.dto.auth.LoginRequest;
 import poker.dto.auth.RegistrationRequest;
-import poker.repository.PlayerRepository;
-import poker.repository.UserRepository;
-import poker.service.AuthenticationService;
+import poker.service.AuthService;
+import poker.service.PlayerService;
+import poker.service.UserService;
+import poker.util.Util;
 
 @RestController
 @RequestMapping("/api/auth")
 @Log4j2
 public class AuthController {
-    private final UserRepository userRepo;
-    private final PlayerRepository playerRepo;
+    private final UserService userService;
+    private final PlayerService playerService;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationService authenticationService;
+    private final AuthService authService;
 
-    public AuthController(UserRepository userRepository,
-                          PlayerRepository playerRepository,
-                          @Qualifier("pokerPasswordEncoder")
-                          PasswordEncoder passwordEncoder,
-                          AuthenticationService authenticationService) {
-        this.userRepo = userRepository;
-        this.playerRepo = playerRepository;
+    public AuthController(UserService userService,
+                          PlayerService playerService,
+                          @Qualifier("pokerPasswordEncoder") PasswordEncoder passwordEncoder,
+                          AuthService authService) {
+        this.userService = userService;
+        this.playerService = playerService;
         this.passwordEncoder = passwordEncoder;
-        this.authenticationService = authenticationService;
+        this.authService = authService;
     }
 
     @PostMapping("/register")
-    public AuthResponse register(@RequestBody RegistrationRequest regReq) {
-        log.info("Register user with email {}, nickname {}", regReq.email(), regReq.nickname());
+    public AuthResponse register(@RequestBody RegistrationRequest registerRequest) {
+        log.info("Register user with email {}, nickname {}", registerRequest.email(), registerRequest.nickname());
 
-        if (userRepo.existsByEmail(regReq.email())) {
-            log.error("Email {} already exists", regReq.email());
+        if (userService.isUserExistsByEmail(registerRequest.email())) {
+            log.error("Email {} already exists", registerRequest.email());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email taken");
         }
 
-        if (playerRepo.existsByNickname(regReq.nickname())) {
-            log.error("Nickname {} already exists", regReq.nickname());
+        if (playerService.isPlayerExistsByNickname(registerRequest.nickname())) {
+            log.error("Nickname {} already exists", registerRequest.nickname());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nickname taken");
         }
 
-        var player = Player.builder()
-            .nickname(regReq.nickname())
-            .status(PlayerStatus.NOT_IN_GAME)
-            .chips(0)
-            .currentBet(0)
-            .build();
+        var player = playerService.createPlayer(registerRequest.nickname());
+        var user = userService.createUser(registerRequest.email(), registerRequest.password(), player.getId());
 
-        var user = User.builder()
-            .email(regReq.email())
-            .password(passwordEncoder.encode(regReq.password()))
-            .role(Role.ROLE_USER)
-            .player(player)
-            .build();
-
-        var registeredUser = userRepo.save(user);
-
-        log.info("Saved user {}", registeredUser);
-
-        var token = authenticationService.generateToken(
-            registeredUser.getId(), registeredUser.getEmail(), registeredUser.getRole());
+        var token = authService.generateToken(user);
 
         return new AuthResponse(token);
     }
@@ -84,28 +64,29 @@ public class AuthController {
     public AuthResponse login(@RequestBody LoginRequest loginReq) {
         log.info("Login user {}", loginReq.email());
 
-        var user = userRepo.findByEmail(loginReq.email())
-            .orElseThrow(() -> {
-                log.error("Not found user {}", loginReq.email());
-                return new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email does not exist");
-            });
+        var user = userService.getUserByEmail(loginReq.email());
+
+        if (user == null) {
+            log.info("User not found by email {}", loginReq.email());
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "User not found");
+        }
 
         if (!passwordEncoder.matches(loginReq.password(), user.getPassword())) {
             log.error("Passwords do not match for user {}", loginReq.email());
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Wrong password");
         }
 
-        Long userId = user.getId();
-        var token = authenticationService.generateToken(userId, user.getEmail(), user.getRole());
+        var token = authService.generateToken(user);
 
-        log.info("Successful login user id {}", userId);
+        log.info("Successful login user id {}, email {}", user.getId(), user.getEmail());
 
         return new AuthResponse(token);
     }
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request) {
-        var userId = authenticationService.getUserIdFromJwt(request);
+//        TODO: check id from JWT
+        Long userId = Util.getPlayerDetailsFronCtx().getUser().getId();
         log.info("Logout user {}", userId);
         return ResponseEntity.ok().build();
     }

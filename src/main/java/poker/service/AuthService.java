@@ -8,30 +8,31 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-import poker.model.Role;
+import poker.model.User;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Service
 @Log4j2
-public class AuthenticationService {
+public class AuthService {
 //    TODO: use values from config file
     private final String secret = "temp-more-long-enough-not-super-secret-key";
     private final long expirationMs = 86_400_000; // 24h
     private final PokerUserDetailService puds;
 
-    public AuthenticationService(PokerUserDetailService pokerUserDetailService) {
+    public AuthService(PokerUserDetailService pokerUserDetailService) {
         this.puds = pokerUserDetailService;
     }
 
-    public String generateToken(Long userId, String email, Role role) {
+    public String generateToken(User user) {
         var now = new Date();
+        Long userId = user.getId();
 
         String jwt = Jwts.builder()
             .id(Long.toString(userId))
-            .subject(email)
-            .claim("role", role)
+            .subject(user.getEmail())
+            .claim("role", user.getRole())
             .issuedAt(now)
             .expiration(new Date(now.getTime() + expirationMs))
             .signWith(Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8)), Jwts.SIG.HS256)
@@ -60,7 +61,7 @@ public class AuthenticationService {
         return extractClaims(token).getSubject();
     }
 
-    public Long getUserIdFromJwt(HttpServletRequest request) {
+    public Long extractUserIdFromJwt(HttpServletRequest request) {
         var jwt = request.getHeader("Authorization").substring(7);
         return extractUserId(jwt);
     }
@@ -72,7 +73,7 @@ public class AuthenticationService {
     public Authentication authenticate(String jwt) {
         Long userId = extractUserId(jwt);
 
-        var playerDetails = puds.findUserById(userId);
+        var playerDetails = puds.getUserById(userId);
 
         return new UsernamePasswordAuthenticationToken(
             playerDetails,

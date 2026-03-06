@@ -3,7 +3,7 @@ package poker.dto.game;
 import lombok.Builder;
 
 @Builder
-public record GameTableDTO(
+public record GameDTO(
     long id,
     int currentPlayers,
     int maxPlayers,

@@ -2,9 +2,6 @@ package poker.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import texasholdem.GameStatus;
-
-import java.util.Set;
 
 @Entity
 @Table(schema = "public", name = "game_tables")
@@ -19,23 +16,15 @@ public class GameTable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "max_players", nullable = false)
-    private Integer maxPlayers;
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
-    @Column(name = "current_players_ids", nullable = false)
-    private Set<Long> currentPlayers;
+    @Column(name = "player_id", nullable = false)
+    private Long playerId;
 
-    @Column(name = "buy_in", nullable = false)
-    private Integer buyIn;
-
-    @Column(name = "name", nullable = false)
-    private String name;
-
-    @Column(name = "status", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private GameStatus status;
-
-    @OneToOne(targetEntity = Pot.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "pot_id")
-    private Pot pot;
+    /**
+     * {@link Game#id} of the tables the player is sitting at
+     */
+    @Column(name = "game_id", nullable = false)
+    private Long gameId;
 }

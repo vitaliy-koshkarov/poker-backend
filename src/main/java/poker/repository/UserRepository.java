@@ -1,12 +1,27 @@
 package poker.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 import poker.model.User;
 
-import java.util.Optional;
-
 public interface UserRepository extends JpaRepository<User, Long> {
-    Optional<User> findByEmail(String mail);
 
+    @Query("SELECT u FROM User u WHERE u.email = :userEmail")
+    @Transactional(readOnly = true)
+    User findUserByEmail(@Param("userEmail") String email);
+
+    @Transactional(readOnly = true)
     boolean existsByEmail(String email);
+
+    @Query("SELECT u FROM User u WHERE u.id = :userId")
+    @Transactional(readOnly = true)
+    User findUserById(@Param("userId") Long userId);
+
+    @Query("UPDATE User u SET u.password = :password WHERE u.id = :userId")
+    @Modifying
+    @Transactional
+    void updatePassword(@Param("userId") long userId, @Param("password") String password);
 }
