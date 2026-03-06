@@ -1,6 +1,5 @@
 package poker.listener;
 
-import common.PlayerStatus;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.Message;
@@ -13,6 +12,7 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import poker.dto.game.GameConverter;
 import poker.dto.game.GameDTO;
 import poker.model.PlayerDetails;
+import poker.model.PlayerStatus;
 import poker.service.GameService;
 import poker.service.GameTableService;
 import poker.service.PlayerService;
@@ -85,9 +85,9 @@ public class WebSocketEventListener {
         Long gameId = playerSession.gameId();
         gameTableService.removePlayerFromGameTable(userId, playerId, gameId);
 
-        playerDetails.getPlayer().setStatus(PlayerStatus.NOT_IN_GAME);
+        playerDetails.getPlayer().setStatus(PlayerStatus.NOT_IN_GAME.getStatus());
 
-        playerService.updatePlayerStatus(playerId, PlayerStatus.NOT_IN_GAME);
+        playerService.updatePlayerStatus(playerId, PlayerStatus.NOT_IN_GAME.getStatus());
         log.info("Player id {} status updated to {}", playerId, PlayerStatus.NOT_IN_GAME);
 
         log.info("Disconnect event user id {}, player id {} left game id {}", userId, playerId, gameId);

@@ -2,7 +2,6 @@ package poker.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import texasholdem.GameStatus;
 
 @Entity
 @Table(schema = "public", name = "games")
@@ -27,8 +26,7 @@ public class Game {
     private String name;
 
     @Column(name = "status", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private GameStatus status;
+    private Integer status;
 
     @Column(name = "pot_id", nullable = false)
     private Long potId;

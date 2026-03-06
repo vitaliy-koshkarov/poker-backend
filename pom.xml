@@ -28,7 +28,7 @@
         <spring-security-messaging>6.3.10</spring-security-messaging>
         <postgresql>42.7.8</postgresql>
         <flyway-plugin>11.20.3</flyway-plugin>
-        <core-poker-lib>1.1.1</core-poker-lib>
+<!--        <core-poker-lib>1.1.1</core-poker-lib>-->
         <lombok>1.18.42</lombok>
     </properties>
 
@@ -110,11 +110,11 @@
             <scope>runtime</scope>
         </dependency>
 
-        <dependency>
-            <groupId>kv</groupId>
-            <artifactId>core-poker</artifactId>
-            <version>${core-poker-lib}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>kv</groupId>-->
+<!--            <artifactId>core-poker</artifactId>-->
+<!--            <version>${core-poker-lib}</version>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>org.projectlombok</groupId>

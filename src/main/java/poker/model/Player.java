@@ -1,6 +1,5 @@
 package poker.model;
 
-import common.PlayerStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,8 +20,7 @@ public class Player {
     private String nickname;
 
     @Column(name = "status", nullable = false)
-    @Enumerated(value = EnumType.STRING)
-    private PlayerStatus status;
+    private Integer status;
 
     @Column(name = "chips", nullable = false)
     private Integer chips;

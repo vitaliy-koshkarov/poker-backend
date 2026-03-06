@@ -1,16 +1,12 @@
 package poker.service;
 
-import common.PlayerStatus;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import poker.dto.game.CreateGameRequest;
 import poker.dto.game.GameConverter;
 import poker.dto.game.GameDTO;
-import poker.model.Game;
-import poker.model.GameTable;
-import poker.model.PlayerDetails;
+import poker.model.*;
 import poker.repository.GameRepository;
-import texasholdem.GameStatus;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -52,7 +48,7 @@ public class GameService {
             .maxPlayers(createGameRequest.maxPlayers())
             .buyIn(createGameRequest.buyIn())
             .name(createGameRequest.name())
-            .status(GameStatus.WAITING_FOR_PLAYERS)
+            .status(GameStatus.WAITING_FOR_PLAYERS.getStatus())
             .potId(pot.getId())
             .build();
 
@@ -78,9 +74,9 @@ public class GameService {
     public Game joinPlayerToGame(Long gameId, PlayerDetails playerDetails) {
 //        Update player's status
         var player = playerDetails.getPlayer();
-        player.setStatus(PlayerStatus.JOIN_THE_GAME);
+        player.setStatus(PlayerStatus.JOIN_THE_GAME.getStatus());
         long playerId = player.getId();
-        playerService.updatePlayerStatus(playerId, PlayerStatus.JOIN_THE_GAME);
+        playerService.updatePlayerStatus(playerId, PlayerStatus.JOIN_THE_GAME.getStatus());
 
 //        Player sits down to game table
         var game = gameRepo.findGameById(gameId);
