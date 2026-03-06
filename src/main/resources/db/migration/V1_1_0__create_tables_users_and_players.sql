@@ -11,9 +11,10 @@ CREATE TABLE public.players
 (
     id          BIGSERIAL PRIMARY KEY,
     nickname    TEXT UNIQUE NOT NULL,
-    status      TEXT        NOT NULL,
+    status      INT         NOT NULL,
     chips       INT         NOT NULL,
     current_bet INT         NOT NULL
 );
 
-ALTER TABLE public.users ADD CONSTRAINT fk_user_player FOREIGN KEY (player_id) REFERENCES players (id);
+ALTER TABLE public.users
+    ADD CONSTRAINT fk_user_player FOREIGN KEY (player_id) REFERENCES players (id);

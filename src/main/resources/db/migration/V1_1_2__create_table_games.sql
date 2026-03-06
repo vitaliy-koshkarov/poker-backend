@@ -3,7 +3,7 @@ CREATE TABLE public.games(
     max_players INT NOT NULL,
     buy_in INT NOT NULL,
     name TEXT NOT NULL,
-    status TEXT NOT NULL,
+    status INT NOT NULL,
     pot_id BIGINT NOT NULL,
     CONSTRAINT fk_pot_game FOREIGN KEY (pot_id) REFERENCES public.pots (id)
 );
