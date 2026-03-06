@@ -28,5 +28,5 @@ public interface GameTableRepository extends JpaRepository<GameTable, Long> {
 
     @Query("SELECT gt FROM GameTable gt WHERE gt.gameId = :gameId")
     @Transactional(readOnly = true)
-    List<GameTable> findAllGameTablesById(@Param("gameId") Long gameId);
+    List<GameTable> findAllGameTablesByGameId(@Param("gameId") Long gameId);
 }

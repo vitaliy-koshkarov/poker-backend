@@ -32,7 +32,7 @@ public class GameTableService {
         gameTableRepo.removeGameTableByUserIdAndPlayerIdAndGameId(userId, playerId, gameId);
     }
 
-    public List<GameTable> getGameTablesById(Long gameId) {
-        return gameTableRepo.findAllGameTablesById(gameId);
+    public List<GameTable> getAllPlayersSitDownAtTable(Long gameId) {
+        return gameTableRepo.findAllGameTablesByGameId(gameId);
     }
 }

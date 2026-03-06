@@ -6,11 +6,10 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.GenericMessage;
-import org.springframework.messaging.support.MessageHeaderAccessor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -19,19 +18,22 @@ import poker.dto.game.GameDTO;
 import poker.model.PlayerDetails;
 import poker.service.GameService;
 import poker.service.GameTableService;
-import poker.service.PlayerSessionService;
+import poker.service.WebSocketPlayerSessionService;
 
 @Controller
 @Log4j2
 public class WebSocketGameController {
-    private final PlayerSessionService playerSessionService;
+    private final WebSocketPlayerSessionService webSocketPlayerSessionService;
     private final GameService gameService;
     private final GameTableService gameTableService;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
-    public WebSocketGameController(PlayerSessionService playerSessionService, GameService gameServicer, GameTableService gameTableService) {
-        this.playerSessionService = playerSessionService;
+    public WebSocketGameController(WebSocketPlayerSessionService webSocketPlayerSessionService, GameService gameServicer,
+                                   GameTableService gameTableService, SimpMessagingTemplate simpMessagingTemplate) {
+        this.webSocketPlayerSessionService = webSocketPlayerSessionService;
         this.gameService = gameServicer;
         this.gameTableService = gameTableService;
+        this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
     @SubscribeMapping("/gameTable/{id}")
@@ -46,19 +48,26 @@ public class WebSocketGameController {
         log.debug("SUBSCRIBE authentication {}", authentication);
 
         var game = gameService.joinPlayerToGame(gameId, playerDetails);
-        var gameTables = gameTableService.getGameTablesById(gameId);
 
         Long playerId = playerDetails.getPlayer().getId();
         String sessionID = stompHeaderAccessor.getSessionId();
 
-        playerSessionService.addSession(userId, playerId, gameId, sessionID);
+        webSocketPlayerSessionService.addSession(userId, playerId, game.getId(), sessionID);
         log.info("SUBSCRIBE user id {} joined to game id {}", userId, gameId);
 
         log.debug("SUBSCRIBE player details {}", playerDetails);
 
+        var gameTables = gameTableService.getAllPlayersSitDownAtTable(game.getId());
+
         var gameDTO = GameConverter.toDTO(game, gameTables.size());
         log.info("SUBSCRIBE {}", gameDTO);
 
+//        notify other players about some player joined to the game
+        String destination = "/topic/gameTable/" + gameId;
+        Message<GameDTO> message = new GenericMessage<>(gameDTO);
+        simpMessagingTemplate.convertAndSend(destination, message);
+
+//        return initial game state to subscribed user
         return gameDTO;
     }
 
@@ -72,13 +81,14 @@ public class WebSocketGameController {
         log.info("SEND user id {}, game id {}, new game name {}", userId, gameId, newGameName);
 
         var game = gameService.updateGameName(gameId, newGameName);
-        var gameTables = gameTableService.getGameTablesById(game.getId());
+        var gameTables = gameTableService.getAllPlayersSitDownAtTable(game.getId());
         var gameDTO = GameConverter.toDTO(game, gameTables.size());
         log.info("SEND {}", gameDTO);
 
         Message<GameDTO> outboundMessage = new GenericMessage<>(gameDTO);
         log.info("SEND {}", outboundMessage);
 
+//        return game state
         return outboundMessage;
     }
 }

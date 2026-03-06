@@ -12,7 +12,7 @@ import poker.model.PlayerDetails;
 import poker.repository.GameRepository;
 import texasholdem.GameStatus;
 
-import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 @Service
@@ -32,16 +32,17 @@ public class GameService {
     }
 
     public List<GameDTO> getGamesList() {
+        List<GameDTO> gameDTOList = new LinkedList<>();
         List<Game> games = gameRepo.findAllGamesByOrderByIdAsc();
 
-//        TODO: return correct current players count
-        List<GameTable> gameTables = Collections.emptyList();
+        List<GameTable> gameTables;
         for (Game game : games) {
-            gameTables = gameTableService.getGameTablesById(game.getId());
+            gameTables = gameTableService.getAllPlayersSitDownAtTable(game.getId());
+            GameDTO gameDTO = GameConverter.toDTO(game, gameTables.size());
+            gameDTOList.add(gameDTO);
         }
-        log.debug("GameTable count {}", gameTables.size());
 
-        return GameConverter.toDTOList(games, gameTables);
+        return gameDTOList;
     }
 
     public void createGame(CreateGameRequest createGameRequest) {
@@ -81,7 +82,7 @@ public class GameService {
         long playerId = player.getId();
         playerService.updatePlayerStatus(playerId, PlayerStatus.JOIN_THE_GAME);
 
-//        Add player to game table
+//        Player sits down to game table
         var game = gameRepo.findGameById(gameId);
         Long userId = playerDetails.getUser().getId();
         var gameTable = gameTableService.createGameTable(userId, playerId, game.getId());
@@ -89,14 +90,5 @@ public class GameService {
         log.info("User id {} joined game, game id {}, game table id {}", userId, game.getId(), gameTable.getId());
 
         return game;
-    }
-
-    public void removePlayerFromGame(Long userId, Long playerId, Long gameId, PlayerDetails playerDetails) {
-        playerDetails.getPlayer().setStatus(PlayerStatus.NOT_IN_GAME);
-        playerService.updatePlayerStatus(playerId, PlayerStatus.NOT_IN_GAME);
-        log.info("Player id {} status updated to {}", playerId, PlayerStatus.NOT_IN_GAME);
-
-        gameTableService.removePlayerFromGameTable(userId, playerId, gameId);
-        log.info("Remove user id {}, player id {}, from game id {}", userId, playerId, gameId);
     }
 }

@@ -15,7 +15,6 @@ import poker.dto.auth.AuthResponse;
 import poker.dto.auth.LoginRequest;
 import poker.dto.auth.RegistrationRequest;
 import poker.service.AuthService;
-import poker.service.GameTableService;
 import poker.service.PlayerService;
 import poker.service.UserService;
 import poker.util.Util;
@@ -28,17 +27,15 @@ public class AuthController {
     private final PlayerService playerService;
     private final PasswordEncoder passwordEncoder;
     private final AuthService authService;
-    private final GameTableService gameTableService;
 
     public AuthController(UserService userService,
                           PlayerService playerService,
                           @Qualifier("pokerPasswordEncoder") PasswordEncoder passwordEncoder,
-                          AuthService authService, GameTableService gameTableService) {
+                          AuthService authService) {
         this.userService = userService;
         this.playerService = playerService;
         this.passwordEncoder = passwordEncoder;
         this.authService = authService;
-        this.gameTableService = gameTableService;
     }
 
     @PostMapping("/register")
@@ -57,7 +54,6 @@ public class AuthController {
 
         var player = playerService.createPlayer(registerRequest.nickname());
         var user = userService.createUser(registerRequest.email(), registerRequest.password(), player.getId());
-//        gameTableService.createGameTable(user.getId(), player.getId());
 
         var token = authService.generateToken(user);
 
