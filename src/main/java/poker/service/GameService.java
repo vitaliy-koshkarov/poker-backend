@@ -8,7 +8,6 @@ import poker.dto.game.GameDTO;
 import poker.model.*;
 import poker.repository.GameRepository;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -35,7 +34,7 @@ public class GameService {
         List<GameTable> gameTables;
         for (Game game : games) {
             gameTables = gameTableService.getGameTablesByGameId(game.getId());
-            GameDTO gameDTO = GameConverter.toDTO(game, Collections.emptyList(), gameTables.size());
+            GameDTO gameDTO = GameConverter.toDTO(game, gameTables.size());
             gameDTOList.add(gameDTO);
         }
 

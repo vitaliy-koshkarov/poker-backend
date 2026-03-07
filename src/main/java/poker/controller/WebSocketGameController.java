@@ -14,7 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import poker.dto.game.GameConverter;
-import poker.dto.game.GameDTO;
+import poker.dto.game.GameStateDTO;
 import poker.model.GameTable;
 import poker.model.Player;
 import poker.model.PlayerDetails;
@@ -45,7 +45,7 @@ public class WebSocketGameController {
     }
 
     @SubscribeMapping("/gameTable/{id}")
-    public GameDTO subscribe(@DestinationVariable("id") Long gameId,
+    public GameStateDTO subscribe(@DestinationVariable("id") Long gameId,
                              @AuthenticationPrincipal Authentication authentication,
                              StompHeaderAccessor stompHeaderAccessor) {
         var playerDetails = ((PlayerDetails) authentication.getPrincipal());
@@ -74,26 +74,33 @@ public class WebSocketGameController {
         List<Player> players = playerService.getPlayersByIds(playerIdsList);
         players.forEach(log::debug);
 
-        var gameDTO = GameConverter.toDTO(game, players, gameTables.size());
-        log.info("SUBSCRIBE {}", gameDTO);
+        var gameDTO = GameConverter.toDTO(game, gameTables.size());
+        var gameStateDTO = GameStateDTO.builder()
+            .game(gameDTO)
+            .players(players)
+            .build();
+
+        log.info("SUBSCRIBE {}", gameStateDTO);
 
 //        notify other players about some player joined to the game
         String destination = "/topic/gameTable/" + gameId;
-        Message<GameDTO> message = new GenericMessage<>(gameDTO);
+        Message<GameStateDTO> message = new GenericMessage<>(gameStateDTO);
         simpMessagingTemplate.convertAndSend(destination, message);
 
 //        return initial game state to subscribed user
-        return gameDTO;
+        return gameStateDTO;
     }
 
     @MessageMapping("/table/{id}")
     @SendTo("/topic/gameTable/{id}")
-    public Message<GameDTO> handleMessage(@DestinationVariable("id") Long gameId,
+    public Message<GameStateDTO> handleMessage(@DestinationVariable("id") Long gameId,
                                           @Payload String newGameName,
                                           @AuthenticationPrincipal Authentication authentication) {
         var playerDetails = ((PlayerDetails) authentication.getPrincipal());
         Long userId = playerDetails.getUser().getId();
         log.info("SEND user id {}, game id {}, new game name {}", userId, gameId, newGameName);
+
+//        TODO: implement strategy to handle various actions from players
 
         var game = gameService.updateGameName(gameId, newGameName);
         var gameTables = gameTableService.getGameTablesByGameId(game.getId());
@@ -103,10 +110,15 @@ public class WebSocketGameController {
             .toList();
         List<Player> players = playerService.getPlayersByIds(playerIdsList);
 
-        var gameDTO = GameConverter.toDTO(game, players, gameTables.size());
-        log.info("SEND {}", gameDTO);
+        var gameDTO = GameConverter.toDTO(game, gameTables.size());
+        var gameStateDTO = GameStateDTO.builder()
+            .game(gameDTO)
+            .players(players)
+            .build();
 
-        Message<GameDTO> outboundMessage = new GenericMessage<>(gameDTO);
+        log.info("SEND {}", gameStateDTO);
+
+        Message<GameStateDTO> outboundMessage = new GenericMessage<>(gameStateDTO);
         log.info("SEND {}", outboundMessage);
 
 //        return game state

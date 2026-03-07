@@ -10,7 +10,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import poker.dto.game.GameConverter;
-import poker.dto.game.GameDTO;
+import poker.dto.game.GameStateDTO;
 import poker.model.GameTable;
 import poker.model.Player;
 import poker.model.PlayerDetails;
@@ -69,9 +69,13 @@ public class WebSocketEventListener {
             .toList();
         List<Player> players = playerService.getPlayersByIds(playerIdsList);
 
-        var gameDTO = GameConverter.toDTO(game, players, gameTables.size());
+        var gameDTO = GameConverter.toDTO(game, gameTables.size());
+        var gameStateDTO = GameStateDTO.builder()
+            .game(gameDTO)
+            .players(players)
+            .build();
 
-        Message<GameDTO> message = new GenericMessage<>(gameDTO);
+        Message<GameStateDTO> message = new GenericMessage<>(gameStateDTO);
         String destination = "/topic/gameTable/" + gameId;
 
         log.debug("Message {}", message);

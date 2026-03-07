@@ -1,9 +1,6 @@
 package poker.dto.game;
 
 import lombok.Builder;
-import poker.model.Player;
-
-import java.util.List;
 
 @Builder
 public record GameDTO(
@@ -12,6 +9,5 @@ public record GameDTO(
     int maxPlayers,
     int buyIn,
     int status,
-    String name,
-    List<Player> players) {
+    String name) {
 }
