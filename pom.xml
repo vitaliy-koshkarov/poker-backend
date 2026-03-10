@@ -27,6 +27,7 @@
         <jwt>0.13.0</jwt>
         <spring-security-messaging>6.3.10</spring-security-messaging>
         <postgresql>42.7.8</postgresql>
+        <hypersistence-utils-hibernate-63>3.15.2</hypersistence-utils-hibernate-63>
         <flyway-plugin>11.20.3</flyway-plugin>
 <!--        <core-poker-lib>1.1.1</core-poker-lib>-->
         <lombok>1.18.42</lombok>
@@ -81,6 +82,13 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>${postgresql}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.hypersistence</groupId>
+            <artifactId>hypersistence-utils-hibernate-63</artifactId>
+            <version>${hypersistence-utils-hibernate-63}</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
