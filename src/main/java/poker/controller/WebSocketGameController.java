@@ -15,6 +15,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import poker.dto.game.GameConverter;
 import poker.dto.game.GameStateDTO;
+import poker.game.GameState;
+import poker.game.PlayerAction;
 import poker.model.GameTable;
 import poker.model.Player;
 import poker.model.PlayerDetails;
@@ -65,6 +67,8 @@ public class WebSocketGameController {
 
         log.debug("SUBSCRIBE player details {}", playerDetails);
 
+        gameService.registerGame(game.getId());
+
         var gameTables = gameTableService.getGameTablesByGameId(game.getId());
         var playerIdsList = gameTables.stream()
             .map(GameTable::getPlayerId)
@@ -101,6 +105,9 @@ public class WebSocketGameController {
         log.info("SEND user id {}, game id {}, new game name {}", userId, gameId, newGameName);
 
 //        TODO: implement strategy to handle various actions from players
+        GameState gameState = gameService.handleAction(gameId, -1L, PlayerAction.STUB);
+        log.info("Game state {}", gameState);
+//        TODO: broadcast game state to other players
 
         var game = gameService.updateGameName(gameId, newGameName);
         var gameTables = gameTableService.getGameTablesByGameId(game.getId());
