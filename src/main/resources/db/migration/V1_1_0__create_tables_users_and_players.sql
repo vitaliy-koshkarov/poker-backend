@@ -1,10 +1,11 @@
 CREATE TABLE public.users
 (
-    id        BIGSERIAL PRIMARY KEY,
-    email     TEXT UNIQUE NOT NULL,
-    password  TEXT        NOT NULL,
-    role      TEXT        NOT NULL,
-    player_id BIGINT      NOT NULL
+    id         BIGSERIAL PRIMARY KEY,
+    email      TEXT UNIQUE NOT NULL,
+    password   TEXT        NOT NULL,
+    role       TEXT        NOT NULL,
+    player_id  BIGINT      NOT NULL,
+    created_at TIMESTAMP   NOT NULL
 );
 
 CREATE TABLE public.players
@@ -13,7 +14,8 @@ CREATE TABLE public.players
     nickname    TEXT UNIQUE NOT NULL,
     status      INT         NOT NULL,
     chips       INT         NOT NULL,
-    current_bet INT         NOT NULL
+    current_bet INT         NOT NULL,
+    created_at  TIMESTAMP   NOT NULL
 );
 
 ALTER TABLE public.users

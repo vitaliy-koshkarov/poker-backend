@@ -3,6 +3,8 @@ package poker.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.sql.Timestamp;
+
 @Entity
 @Table(schema = "public", name = "games")
 @NoArgsConstructor
@@ -30,4 +32,7 @@ public class Game {
 
     @Column(name = "pot_id", nullable = false)
     private Long potId;
+
+    @Column(name = "created_at", nullable = false)
+    private Timestamp createdAt;
 }

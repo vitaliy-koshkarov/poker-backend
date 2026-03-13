@@ -6,6 +6,7 @@ import poker.model.Player;
 import poker.model.PlayerStatus;
 import poker.repository.PlayerRepository;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 @Service
@@ -21,12 +22,13 @@ public class PlayerService {
         return playerRepo.existsByNickname(nickname);
     }
 
-    public Player createPlayer(String nickname) {
+    public Player createPlayer(String nickname, Timestamp now) {
         var player = Player.builder()
             .nickname(nickname)
             .status(PlayerStatus.NOT_IN_GAME.getStatus())
             .chips(0)
             .currentBet(0)
+            .createdAt(now)
             .build();
 
         var newPlayer = playerRepo.save(player);

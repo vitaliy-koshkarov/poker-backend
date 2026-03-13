@@ -7,6 +7,8 @@ import poker.model.Role;
 import poker.model.User;
 import poker.repository.UserRepository;
 
+import java.sql.Timestamp;
+
 @Service
 @Log4j2
 public class UserService {
@@ -22,12 +24,13 @@ public class UserService {
         return userRepo.existsByEmail(email);
     }
 
-    public User createUser(String email, String password, Long playerId) {
+    public User createUser(String email, String password, Long playerId, Timestamp now) {
         var user = User.builder()
             .email(email)
             .password(passwordEncoder.encode(password))
             .role(Role.ROLE_USER)
             .playerId(playerId)
+            .createdAt(now)
             .build();
 
         var newUser = userRepo.save(user);

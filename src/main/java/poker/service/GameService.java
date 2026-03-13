@@ -13,6 +13,7 @@ import poker.model.*;
 import poker.repository.GameRepository;
 import poker.game.GameRegistry;
 
+import java.sql.Timestamp;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -58,6 +59,7 @@ public class GameService {
             .name(createGameRequest.name())
             .status(GameStatus.WAITING_FOR_PLAYERS.getStatus())
             .potId(pot.getId())
+            .createdAt(new Timestamp(System.currentTimeMillis()))
             .build();
 
         var newGame = gameRepo.save(game);

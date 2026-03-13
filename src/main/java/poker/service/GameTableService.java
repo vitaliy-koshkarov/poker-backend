@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import poker.model.GameTable;
 import poker.repository.GameTableRepository;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 @Service
@@ -21,6 +22,7 @@ public class GameTableService {
             .userId(userId)
             .playerId(playerId)
             .gameId(gameId)
+            .createdAt(new Timestamp(System.currentTimeMillis()))
             .build();
 
         var newGameTable = gameTableRepo.save(gameTable);

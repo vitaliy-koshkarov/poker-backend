@@ -19,6 +19,8 @@ import poker.service.PlayerService;
 import poker.service.UserService;
 import poker.util.Util;
 
+import java.sql.Timestamp;
+
 @RestController
 @RequestMapping("/api/auth")
 @Log4j2
@@ -52,8 +54,9 @@ public class AuthController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nickname taken");
         }
 
-        var player = playerService.createPlayer(registerRequest.nickname());
-        var user = userService.createUser(registerRequest.email(), registerRequest.password(), player.getId());
+        var now = new Timestamp(System.currentTimeMillis());
+        var player = playerService.createPlayer(registerRequest.nickname(), now);
+        var user = userService.createUser(registerRequest.email(), registerRequest.password(), player.getId(), now);
 
         var token = authService.generateToken(user);
 
