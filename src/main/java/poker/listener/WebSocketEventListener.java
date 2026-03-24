@@ -9,6 +9,8 @@ import org.springframework.messaging.support.GenericMessage;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
+import poker.dto.player.PlayerConverter;
+import poker.dto.player.PlayerDTO;
 import poker.dto.game.GameConverter;
 import poker.dto.game.GameStateDTO;
 import poker.model.GameTable;
@@ -68,11 +70,12 @@ public class WebSocketEventListener {
             .map(GameTable::getPlayerId)
             .toList();
         List<Player> players = playerService.getPlayersByIds(playerIdsList);
+        List<PlayerDTO> playerDTOList = PlayerConverter.toDTO(players);
 
         var gameDTO = GameConverter.toDTO(game, gameTables.size());
         var gameStateDTO = GameStateDTO.builder()
-            .game(gameDTO)
-            .players(players)
+            .gameDTO(gameDTO)
+            .playerDTOList(playerDTOList)
             .build();
 
         Message<GameStateDTO> message = new GenericMessage<>(gameStateDTO);

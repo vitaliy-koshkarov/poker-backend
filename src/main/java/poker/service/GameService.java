@@ -5,31 +5,23 @@ import org.springframework.stereotype.Service;
 import poker.dto.game.CreateGameRequest;
 import poker.dto.game.GameConverter;
 import poker.dto.game.GameDTO;
-import poker.game.GameEngine;
-import poker.game.GameEvent;
-import poker.game.GameState;
-import poker.game.PlayerAction;
 import poker.model.*;
 import poker.repository.GameRepository;
-import poker.game.GameRegistry;
 
 import java.sql.Timestamp;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @Log4j2
 public class GameService {
-    private final GameRegistry gameRegistry;
     private final GameRepository gameRepo;
     private final PotService potService;
     private final PlayerService playerService;
     private final GameTableService gameTableService;
 
-    public GameService(GameRegistry gameRegistry, GameRepository gameRepository, PotService potService,
+    public GameService(GameRepository gameRepository, PotService potService,
                        PlayerService playerService, GameTableService gameTableService) {
-        this.gameRegistry = gameRegistry;
         this.gameRepo = gameRepository;
         this.potService = potService;
         this.playerService = playerService;
@@ -96,22 +88,5 @@ public class GameService {
         log.info("User id {} joined game, game id {}, game table id {}", userId, game.getId(), gameTable.getId());
 
         return game;
-    }
-
-    public void registerGame(Long gameId) {
-        GameEngine gameEngine = gameRegistry.registerGame(gameId);
-        log.info("Registered game id {}, game state {}", gameId, gameEngine.getGameState());
-    }
-
-    public GameState handleAction(Long gameId, Long playerId, PlayerAction action) {
-        log.info("Handling action {} from player id {}", action, playerId);
-        GameEngine engine = gameRegistry.getGameEngine(gameId);
-        GameEvent gameEvent = engine.handleAction(playerId, action);
-        UUID gameEventUuid = gameEvent.getEventUuid();
-        log.info("Game event UUID {} player id {}", gameEventUuid, playerId);
-//        TODO: save game event in DB
-        GameState gameState = engine.getGameState();
-        log.info("Game state after handling action {} from player id {}", gameState, playerId);
-        return gameState;
     }
 }

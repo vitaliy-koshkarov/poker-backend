@@ -13,17 +13,17 @@ import org.springframework.messaging.support.GenericMessage;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import poker.dto.player.PlayerConverter;
+import poker.dto.player.PlayerDTO;
 import poker.dto.game.GameConverter;
+import poker.dto.game.GameDTO;
 import poker.dto.game.GameStateDTO;
 import poker.game.GameState;
 import poker.game.PlayerAction;
 import poker.model.GameTable;
 import poker.model.Player;
 import poker.model.PlayerDetails;
-import poker.service.GameService;
-import poker.service.GameTableService;
-import poker.service.PlayerService;
-import poker.service.WebSocketPlayerSessionService;
+import poker.service.*;
 
 import java.util.List;
 
@@ -34,15 +34,17 @@ public class WebSocketGameController {
     private final GameService gameService;
     private final GameTableService gameTableService;
     private final PlayerService playerService;
+    private final GameManagerService gameManagerService;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     public WebSocketGameController(WebSocketPlayerSessionService webSocketPlayerSessionService, GameService gameServicer,
                                    GameTableService gameTableService, PlayerService playerService,
-                                   SimpMessagingTemplate simpMessagingTemplate) {
+                                   GameManagerService gameManagerService, SimpMessagingTemplate simpMessagingTemplate) {
         this.webSocketPlayerSessionService = webSocketPlayerSessionService;
         this.gameService = gameServicer;
         this.gameTableService = gameTableService;
         this.playerService = playerService;
+        this.gameManagerService = gameManagerService;
         this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
@@ -67,7 +69,7 @@ public class WebSocketGameController {
 
         log.debug("SUBSCRIBE player details {}", playerDetails);
 
-        gameService.registerGame(game.getId());
+        gameManagerService.registerGame(game.getId());
 
         var gameTables = gameTableService.getGameTablesByGameId(game.getId());
         var playerIdsList = gameTables.stream()
@@ -78,10 +80,12 @@ public class WebSocketGameController {
         List<Player> players = playerService.getPlayersByIds(playerIdsList);
         players.forEach(log::debug);
 
+        List<PlayerDTO> playerDTOList = PlayerConverter.toDTO(players);
+
         var gameDTO = GameConverter.toDTO(game, gameTables.size());
         var gameStateDTO = GameStateDTO.builder()
-            .game(gameDTO)
-            .players(players)
+            .gameDTO(gameDTO)
+            .playerDTOList(playerDTOList)
             .build();
 
         log.info("SUBSCRIBE {}", gameStateDTO);
@@ -105,7 +109,7 @@ public class WebSocketGameController {
         log.info("SEND user id {}, game id {}, new game name {}", userId, gameId, newGameName);
 
 //        TODO: implement strategy to handle various actions from players
-        GameState gameState = gameService.handleAction(gameId, -1L, PlayerAction.STUB);
+        GameState gameState = gameManagerService.handleAction(gameId, -1L, PlayerAction.STUB);
         log.info("Game state {}", gameState);
 //        TODO: broadcast game state to other players
 
@@ -116,11 +120,12 @@ public class WebSocketGameController {
             .map(GameTable::getPlayerId)
             .toList();
         List<Player> players = playerService.getPlayersByIds(playerIdsList);
+        List<PlayerDTO> playerDTOList = PlayerConverter.toDTO(players);
 
-        var gameDTO = GameConverter.toDTO(game, gameTables.size());
-        var gameStateDTO = GameStateDTO.builder()
-            .game(gameDTO)
-            .players(players)
+        GameDTO gameDTO = GameConverter.toDTO(game, gameTables.size());
+        GameStateDTO gameStateDTO = GameStateDTO.builder()
+            .gameDTO(gameDTO)
+            .playerDTOList(playerDTOList)
             .build();
 
         log.info("SEND {}", gameStateDTO);
