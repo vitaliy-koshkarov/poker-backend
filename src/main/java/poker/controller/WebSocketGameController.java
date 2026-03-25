@@ -20,7 +20,6 @@ import poker.dto.game.GameDTO;
 import poker.dto.game.GameStateDTO;
 import poker.game.GameState;
 import poker.game.PlayerAction;
-import poker.model.GameStatus;
 import poker.model.GameTable;
 import poker.model.Player;
 import poker.model.PlayerDetails;
@@ -76,7 +75,7 @@ public class WebSocketGameController {
         var playerIdsList = gameTables.stream()
             .map(GameTable::getPlayerId)
             .toList();
-        log.debug("PlayerIdsList {}", playerIdsList);
+        log.debug("SUBSCRIBE playerIdsList {}", playerIdsList);
 
         List<Player> players = playerService.getPlayersByIds(playerIdsList);
         players.forEach(log::debug);
@@ -112,7 +111,7 @@ public class WebSocketGameController {
         GameState gameState = gameManagerService.handleAction(gameId, playerId, PlayerAction.STUB);
         log.info("Start game id {}, game state {}", gameId, gameState);
 
-        gameService.updateGameState(gameId, GameStatus.START);
+        gameService.startGame(gameId);
 
         var game = gameService.getGameById(gameId);
         var gameTables = gameTableService.getGameTablesByGameId(gameId);

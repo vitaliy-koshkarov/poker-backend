@@ -84,8 +84,10 @@ public class GameService {
         return game;
     }
 
-    public void updateGameState(Long gameId, GameStatus gameStatus) {
-        gameRepo.updateGameStatus(gameId, gameStatus.getStatus());
-        log.info("Game id {} status updated to {}", gameId, gameStatus);
+    public void startGame(Long gameId) {
+        var now = new Timestamp(System.currentTimeMillis());
+        var startGameStatus = GameStatus.START;
+        gameRepo.startGame(gameId, startGameStatus.getStatus(), now);
+        log.info("Game id {} status updated to {}, datetime {}", gameId, startGameStatus, now);
     }
 }

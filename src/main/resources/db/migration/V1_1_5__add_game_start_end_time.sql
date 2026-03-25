@@ -1,0 +1,1 @@
+ALTER TABLE public.games ADD COLUMN started_at TIMESTAMP, ADD COLUMN ended_at TIMESTAMP;

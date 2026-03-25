@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import poker.model.Game;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 @Repository
@@ -19,8 +20,8 @@ public interface GameRepository extends JpaRepository<Game, Long> {
     @Transactional(readOnly = true)
     Game findGameById(@Param("gameId") Long gameId);
 
-    @Query(value = "UPDATE Game AS g SET g.status = :gameStatus WHERE g.id = :gameId")
+    @Query(value = "UPDATE Game AS g SET g.status = :gameStatus, g.startedAt = :now WHERE g.id = :gameId")
     @Modifying
     @Transactional
-    void updateGameStatus(Long gameId, Integer gameStatus);
+    void startGame(Long gameId, Integer gameStatus, Timestamp now);
 }

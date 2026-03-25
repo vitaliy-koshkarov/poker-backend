@@ -35,4 +35,10 @@ public class Game {
 
     @Column(name = "created_at", nullable = false)
     private Timestamp createdAt;
+
+    @Column(name = "started_at")
+    private Timestamp startedAt;
+
+    @Column(name = "ended_at")
+    private Timestamp endedAt;
 }

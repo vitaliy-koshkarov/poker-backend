@@ -79,14 +79,13 @@ public class WebSocketEventListener {
             .build();
 
         Message<GameStateDTO> message = new GenericMessage<>(gameStateDTO);
-        String destination = "/topic/gameTable/" + gameId;
-
         log.debug("Message {}", message);
-        log.info("Sending message to {} about player id {} disconnect",
-            destination, playerDetails.getPlayer().getId());
+        String destination = "/topic/gameTable/" + gameId;
 
 //        Notify other players about some player disconnected and update game state
         simpMessagingTemplate.convertAndSend(destination, message);
+
+        log.info("Player {} disconnected from {}", playerDetails.getPlayer().getId(), destination);
     }
 
     private Long disconnectPlayer(PlayerDetails playerDetails, String sessionId) {
