@@ -70,7 +70,7 @@ public class WebSocketEventListener {
             .map(GameTable::getPlayerId)
             .toList();
         List<Player> players = playerService.getPlayersByIds(playerIdsList);
-        List<PlayerDTO> playerDTOList = PlayerConverter.toDTO(players);
+        List<PlayerDTO> playerDTOList = PlayerConverter.toListDTO(players);
 
         var gameDTO = GameConverter.toDTO(game, gameTables.size());
         var gameStateDTO = GameStateDTO.builder()

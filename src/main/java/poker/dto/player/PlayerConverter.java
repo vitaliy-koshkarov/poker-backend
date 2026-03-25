@@ -7,7 +7,7 @@ import java.util.List;
 
 public class PlayerConverter {
 
-    public static LinkedList<PlayerDTO> toDTO(List<Player> players) {
+    public static LinkedList<PlayerDTO> toListDTO(List<Player> players) {
         var playerDTOList = new LinkedList<PlayerDTO>();
         for (Player player : players) {
             var playerDTO = PlayerDTO.builder()

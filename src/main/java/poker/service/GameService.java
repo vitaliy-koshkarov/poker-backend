@@ -67,12 +67,6 @@ public class GameService {
         return gameRepo.findGameById(gameId);
     }
 
-    public Game updateGameName(Long gameId, String name) {
-        gameRepo.updateGameName(gameId, name);
-        log.info("Game name updated to {}", name);
-        return gameRepo.findGameById(gameId);
-    }
-
     public Game joinPlayerToGame(Long gameId, PlayerDetails playerDetails) {
 //        Update player's status
         var player = playerDetails.getPlayer();
@@ -88,5 +82,10 @@ public class GameService {
         log.info("User id {} joined game, game id {}, game table id {}", userId, game.getId(), gameTable.getId());
 
         return game;
+    }
+
+    public void updateGameState(Long gameId, GameStatus gameStatus) {
+        gameRepo.updateGameStatus(gameId, gameStatus.getStatus());
+        log.info("Game id {} status updated to {}", gameId, gameStatus);
     }
 }

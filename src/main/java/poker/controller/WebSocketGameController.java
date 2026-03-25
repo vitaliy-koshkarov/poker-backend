@@ -20,6 +20,7 @@ import poker.dto.game.GameDTO;
 import poker.dto.game.GameStateDTO;
 import poker.game.GameState;
 import poker.game.PlayerAction;
+import poker.model.GameStatus;
 import poker.model.GameTable;
 import poker.model.Player;
 import poker.model.PlayerDetails;
@@ -80,7 +81,7 @@ public class WebSocketGameController {
         List<Player> players = playerService.getPlayersByIds(playerIdsList);
         players.forEach(log::debug);
 
-        List<PlayerDTO> playerDTOList = PlayerConverter.toDTO(players);
+        List<PlayerDTO> playerDTOList = PlayerConverter.toListDTO(players);
 
         var gameDTO = GameConverter.toDTO(game, gameTables.size());
         var gameStateDTO = GameStateDTO.builder()
@@ -99,28 +100,28 @@ public class WebSocketGameController {
         return gameStateDTO;
     }
 
-    @MessageMapping("/table/{id}")
+    @MessageMapping("/table/{id}/startGame")
     @SendTo("/topic/gameTable/{id}")
-    public Message<GameStateDTO> handleMessage(@DestinationVariable("id") Long gameId,
-                                          @Payload String newGameName,
-                                          @AuthenticationPrincipal Authentication authentication) {
+    public Message<GameStateDTO> startGame(@DestinationVariable("id") Long gameId,
+                                           @AuthenticationPrincipal Authentication authentication) {
         var playerDetails = ((PlayerDetails) authentication.getPrincipal());
         Long userId = playerDetails.getUser().getId();
-        log.info("SEND user id {}, game id {}, new game name {}", userId, gameId, newGameName);
+        log.info("Start game game id {}, user id {}", gameId, userId);
 
-//        TODO: implement strategy to handle various actions from players
-        GameState gameState = gameManagerService.handleAction(gameId, -1L, PlayerAction.STUB);
-        log.info("Game state {}", gameState);
-//        TODO: broadcast game state to other players
+        Long playerId = playerDetails.getPlayer().getId();
+        GameState gameState = gameManagerService.handleAction(gameId, playerId, PlayerAction.STUB);
+        log.info("Start game id {}, game state {}", gameId, gameState);
 
-        var game = gameService.updateGameName(gameId, newGameName);
-        var gameTables = gameTableService.getGameTablesByGameId(game.getId());
+        gameService.updateGameState(gameId, GameStatus.START);
+
+        var game = gameService.getGameById(gameId);
+        var gameTables = gameTableService.getGameTablesByGameId(gameId);
 
         var playerIdsList = gameTables.stream()
             .map(GameTable::getPlayerId)
             .toList();
         List<Player> players = playerService.getPlayersByIds(playerIdsList);
-        List<PlayerDTO> playerDTOList = PlayerConverter.toDTO(players);
+        List<PlayerDTO> playerDTOList = PlayerConverter.toListDTO(players);
 
         GameDTO gameDTO = GameConverter.toDTO(game, gameTables.size());
         GameStateDTO gameStateDTO = GameStateDTO.builder()
@@ -128,9 +129,28 @@ public class WebSocketGameController {
             .playerDTOList(playerDTOList)
             .build();
 
-        log.info("SEND {}", gameStateDTO);
+        log.info("Start game, gameStateDTO {}", gameStateDTO);
 
         Message<GameStateDTO> outboundMessage = new GenericMessage<>(gameStateDTO);
+        log.info("Start game, message {}", outboundMessage);
+
+        return outboundMessage;
+    }
+
+    @MessageMapping("/table/{id}")
+    @SendTo("/topic/gameTable/{id}")
+    public Message<String> handlePlayerAction(@DestinationVariable("id") Long gameId,
+                                              @Payload String newGameName,
+                                              @AuthenticationPrincipal Authentication authentication) {
+        var playerDetails = ((PlayerDetails) authentication.getPrincipal());
+        Long userId = playerDetails.getUser().getId();
+        log.info("SEND user id {}, game id {}, new game name {}", userId, gameId, newGameName);
+
+//        TODO: implement strategy to handle various actions from players
+        GameState gameState = gameManagerService.handleAction(gameId, -1L, PlayerAction.STUB);
+        log.info("Game state {}", gameState);
+
+        Message<String> outboundMessage = new GenericMessage<>("OK");
         log.info("SEND {}", outboundMessage);
 
 //        return game state
