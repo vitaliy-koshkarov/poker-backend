@@ -41,4 +41,7 @@ public class Game {
 
     @Column(name = "ended_at")
     private Timestamp endedAt;
+
+    @Column(name = "creator_player_id", nullable = false)
+    private Long creatorPlayerId;
 }

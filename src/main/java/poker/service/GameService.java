@@ -42,7 +42,7 @@ public class GameService {
         return gameDTOList;
     }
 
-    public void createGame(CreateGameRequest createGameRequest) {
+    public void createGame(Long creatorPlayerId, CreateGameRequest createGameRequest) {
         var pot = potService.createPot();
 
         var game = Game.builder()
@@ -52,10 +52,11 @@ public class GameService {
             .status(GameStatus.WAITING_FOR_PLAYERS.getStatus())
             .potId(pot.getId())
             .createdAt(new Timestamp(System.currentTimeMillis()))
+            .creatorPlayerId(creatorPlayerId)
             .build();
 
         var newGame = gameRepo.save(game);
-        log.info("Game created {}", newGame);
+        log.info("Game created {} by player {}", newGame, creatorPlayerId);
     }
 
     public void removeGame(long gameId) {

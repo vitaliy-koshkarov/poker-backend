@@ -99,14 +99,20 @@ public class WebSocketGameController {
     }
 
     @MessageMapping("/table/{id}/startGame")
-    @SendTo("/topic/gameTable/{id}")
-    public Message<GameStateDTO> startGame(@DestinationVariable("id") Long gameId,
+    public void startGame(@DestinationVariable("id") Long gameId,
                                            @AuthenticationPrincipal Authentication authentication) {
         var playerDetails = ((PlayerDetails) authentication.getPrincipal());
         Long userId = playerDetails.getUser().getId();
-        log.info("Start game game id {}, user id {}", gameId, userId);
-
         Long playerId = playerDetails.getPlayer().getId();
+        log.info("Start game game id {}, user id {}, player id {}", gameId, userId, playerId);
+
+        var game = gameService.getGameById(gameId);
+        if (!game.getCreatorPlayerId().equals(playerId)) {
+            log.info("Player id {} is trying to start the game {} without permission", playerId, gameId);
+//            TODO: register game event
+            return;
+        }
+
         GameState gameState = gameManagerService.handleAction(gameId, playerId, PlayerAction.STUB);
         log.info("Start game id {}, game state {}", gameId, gameState);
 
@@ -116,7 +122,7 @@ public class WebSocketGameController {
         Message<GameStateDTO> outboundMessage = new GenericMessage<>(gameStateDTO);
         log.info("Start game, message {}", outboundMessage);
 
-        return outboundMessage;
+        simpMessagingTemplate.convertAndSend("/topic/gameTable/" + gameId, outboundMessage);
     }
 
     @MessageMapping("/table/{id}")
