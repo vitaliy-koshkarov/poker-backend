@@ -85,15 +85,8 @@ public class GameService {
         return game;
     }
 
-    public void startGame(Game game) {
-        Long gameId = game.getId();
-        var startGameStatus = GameStatus.START;
-        var now = new Timestamp(System.currentTimeMillis());
-
-        game.setStatus(startGameStatus.getStatus());
-        game.setStartedAt(now);
-
-        gameRepo.startGame(gameId, startGameStatus.getStatus(), now);
-        log.info("Game id {} status updated to {}, datetime {}", gameId, startGameStatus, now);
+    public void updateGame(Game game) {
+        gameRepo.save(game);
+        log.info("Updated game {}", game);
     }
 }

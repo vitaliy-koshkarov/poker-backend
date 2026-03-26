@@ -54,9 +54,8 @@ public class PlayerService {
         return playerRepo.findAllById(playerIdsList);
     }
 
-    public void preparePlayersForGame(List<Long> playerIdList, Integer chips) {
-        var playerStaus = PlayerStatus.IN_GAME.getStatus();
-        playerRepo.startGameForPlayers(playerIdList, playerStaus, chips);
-        log.info("Players {} updated status {} chips {}", playerIdList, playerStaus, chips);
+    public void updatePlayers(List<Player> players) {
+        playerRepo.saveAll(players);
+        log.info("Updated players {}", players);
     }
 }

@@ -13,36 +13,25 @@ import org.springframework.messaging.support.GenericMessage;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import poker.dto.player.PlayerConverter;
-import poker.dto.player.PlayerDTO;
-import poker.dto.game.GameConverter;
 import poker.dto.game.GameStateDTO;
-import poker.game.GameState;
 import poker.game.PlayerAction;
-import poker.model.GameTable;
-import poker.model.Player;
 import poker.model.PlayerDetails;
-import poker.service.*;
-
-import java.util.List;
+import poker.service.GameManagerService;
+import poker.service.GameService;
+import poker.service.WebSocketPlayerSessionService;
 
 @Controller
 @Log4j2
 public class WebSocketGameController {
     private final WebSocketPlayerSessionService webSocketPlayerSessionService;
     private final GameService gameService;
-    private final GameTableService gameTableService;
-    private final PlayerService playerService;
     private final GameManagerService gameManagerService;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     public WebSocketGameController(WebSocketPlayerSessionService webSocketPlayerSessionService, GameService gameServicer,
-                                   GameTableService gameTableService, PlayerService playerService,
                                    GameManagerService gameManagerService, SimpMessagingTemplate simpMessagingTemplate) {
         this.webSocketPlayerSessionService = webSocketPlayerSessionService;
         this.gameService = gameServicer;
-        this.gameTableService = gameTableService;
-        this.playerService = playerService;
         this.gameManagerService = gameManagerService;
         this.simpMessagingTemplate = simpMessagingTemplate;
     }
@@ -69,23 +58,7 @@ public class WebSocketGameController {
         log.debug("SUBSCRIBE player details {}", playerDetails);
 
         gameManagerService.registerGame(game.getId());
-
-        var gameTables = gameTableService.getGameTablesByGameId(game.getId());
-        var playerIdsList = gameTables.stream()
-            .map(GameTable::getPlayerId)
-            .toList();
-        log.debug("SUBSCRIBE playerIdsList {}", playerIdsList);
-
-        List<Player> players = playerService.getPlayersByIds(playerIdsList);
-        players.forEach(log::debug);
-
-        List<PlayerDTO> playerDTOList = PlayerConverter.toListDTO(players);
-
-        var gameDTO = GameConverter.toDTO(game, gameTables.size());
-        var gameStateDTO = GameStateDTO.builder()
-            .gameDTO(gameDTO)
-            .playerDTOList(playerDTOList)
-            .build();
+        var gameStateDTO = gameManagerService.handleAction(gameId, playerId, PlayerAction.JOIN_GAME);
 
         log.info("SUBSCRIBE {}", gameStateDTO);
 
@@ -109,14 +82,10 @@ public class WebSocketGameController {
         var game = gameService.getGameById(gameId);
         if (!game.getCreatorPlayerId().equals(playerId)) {
             log.info("Player id {} is trying to start the game {} without permission", playerId, gameId);
-//            TODO: register game event
             return;
         }
 
-        GameState gameState = gameManagerService.handleAction(gameId, playerId, PlayerAction.STUB);
-        log.info("Start game id {}, game state {}", gameId, gameState);
-
-        GameStateDTO gameStateDTO = gameManagerService.startGame(gameId);
+        GameStateDTO gameStateDTO = gameManagerService.handleAction(gameId, playerId, PlayerAction.START_GAME);
         log.info("Start game, gameStateDTO {}", gameStateDTO);
 
         Message<GameStateDTO> outboundMessage = new GenericMessage<>(gameStateDTO);
@@ -135,8 +104,8 @@ public class WebSocketGameController {
         log.info("SEND user id {}, game id {}, new game name {}", userId, gameId, newGameName);
 
 //        TODO: implement strategy to handle various actions from players
-        GameState gameState = gameManagerService.handleAction(gameId, -1L, PlayerAction.STUB);
-        log.info("Game state {}", gameState);
+//        GameState gameState = gameManagerService.handleAction(gameId, -1L, PlayerAction.START_GAME);
+//        log.info("Game state {}", gameState);
 
         Message<String> outboundMessage = new GenericMessage<>("OK");
         log.info("SEND {}", outboundMessage);

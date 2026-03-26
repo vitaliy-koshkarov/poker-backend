@@ -1,19 +1,15 @@
 package poker.game;
 
-import lombok.Getter;
+import poker.model.Player;
+import poker.model.Pot;
 
+import java.util.List;
 import java.util.UUID;
 
-public class GameState {
-    @Getter
-    private final UUID uuidGameState;
-
-    public GameState(UUID uuidGameState) {
-        this.uuidGameState = uuidGameState;
-    }
-
-    @Override
-    public String toString() {
-        return "GameState{" + uuidGameState + "}";
-    }
+public record GameState(UUID uuidGameState,
+                        Long dealerId,
+                        Long activePlayerId,
+                        List<Player> players,
+                        List<Object> communityCards,
+                        Pot pot) {
 }

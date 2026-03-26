@@ -44,4 +44,10 @@ public class Game {
 
     @Column(name = "creator_player_id", nullable = false)
     private Long creatorPlayerId;
+
+    @Column(name = "dealer_id")
+    private Long dealerId;
+
+    @Column(name = "active_player_id")
+    private Long activePlayerId;
 }

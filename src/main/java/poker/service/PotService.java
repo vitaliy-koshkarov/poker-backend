@@ -22,4 +22,8 @@ public class PotService {
         log.info("Created pot {}", newPot);
         return newPot;
     }
+
+    public Pot getPotById(Long potId) {
+        return potRepo.getPotById(potId);
+    }
 }

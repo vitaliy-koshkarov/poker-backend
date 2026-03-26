@@ -5,11 +5,12 @@ import lombok.Getter;
 import lombok.ToString;
 
 @AllArgsConstructor
-@ToString
 @Getter
+@ToString
 public enum PlayerAction {
-    STUB(0, "");
+    JOIN_GAME(0, "Player join to the game"),
+    START_GAME(1, "Start game");
 
-    private final int status;
+    private final int type;
     private final String description;
 }
