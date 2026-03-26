@@ -19,7 +19,7 @@ public enum PlayerStatus {
     /**
      * Player sat down at the table and can play
      */
-    SAT_DOWN_AT_THE_TABLE(2),
+    IN_GAME(2),
     /**
      * Player is waiting actions from other players
      */

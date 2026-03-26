@@ -16,7 +16,6 @@ import org.springframework.stereotype.Controller;
 import poker.dto.player.PlayerConverter;
 import poker.dto.player.PlayerDTO;
 import poker.dto.game.GameConverter;
-import poker.dto.game.GameDTO;
 import poker.dto.game.GameStateDTO;
 import poker.game.GameState;
 import poker.game.PlayerAction;
@@ -111,23 +110,7 @@ public class WebSocketGameController {
         GameState gameState = gameManagerService.handleAction(gameId, playerId, PlayerAction.STUB);
         log.info("Start game id {}, game state {}", gameId, gameState);
 
-        gameService.startGame(gameId);
-
-        var game = gameService.getGameById(gameId);
-        var gameTables = gameTableService.getGameTablesByGameId(gameId);
-
-        var playerIdsList = gameTables.stream()
-            .map(GameTable::getPlayerId)
-            .toList();
-        List<Player> players = playerService.getPlayersByIds(playerIdsList);
-        List<PlayerDTO> playerDTOList = PlayerConverter.toListDTO(players);
-
-        GameDTO gameDTO = GameConverter.toDTO(game, gameTables.size());
-        GameStateDTO gameStateDTO = GameStateDTO.builder()
-            .gameDTO(gameDTO)
-            .playerDTOList(playerDTOList)
-            .build();
-
+        GameStateDTO gameStateDTO = gameManagerService.startGame(gameId);
         log.info("Start game, gameStateDTO {}", gameStateDTO);
 
         Message<GameStateDTO> outboundMessage = new GenericMessage<>(gameStateDTO);

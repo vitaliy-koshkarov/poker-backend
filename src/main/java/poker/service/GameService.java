@@ -84,9 +84,14 @@ public class GameService {
         return game;
     }
 
-    public void startGame(Long gameId) {
-        var now = new Timestamp(System.currentTimeMillis());
+    public void startGame(Game game) {
+        Long gameId = game.getId();
         var startGameStatus = GameStatus.START;
+        var now = new Timestamp(System.currentTimeMillis());
+
+        game.setStatus(startGameStatus.getStatus());
+        game.setStartedAt(now);
+
         gameRepo.startGame(gameId, startGameStatus.getStatus(), now);
         log.info("Game id {} status updated to {}, datetime {}", gameId, startGameStatus, now);
     }

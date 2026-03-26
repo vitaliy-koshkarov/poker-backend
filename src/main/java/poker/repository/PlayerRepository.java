@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import poker.model.Player;
 
+import java.util.List;
+
 @Repository
 public interface PlayerRepository extends JpaRepository<Player, Long> {
     boolean existsByNickname(String nickname);
@@ -25,4 +27,9 @@ public interface PlayerRepository extends JpaRepository<Player, Long> {
     @Modifying
     @Transactional
     void updatePlayerNickname(@Param("playerId") long playerId, @Param("nickname") String nickname);
+
+    @Query("UPDATE Player p SET p.chips = :chips, p.status = :status WHERE p.id IN (:playerIdList)")
+    @Modifying
+    @Transactional
+    void startGameForPlayers(List<Long> playerIdList, Integer status, Integer chips);
 }
