@@ -4,6 +4,7 @@ import lombok.extern.log4j.Log4j2;
 import poker.model.*;
 import poker.model.event.EventData;
 import poker.model.event.GameEvent;
+import poker.util.Util;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -30,8 +31,8 @@ public class GameEngineStub implements GameEngine {
         var now = new Timestamp(System.currentTimeMillis());
         game.setStatus(GameStatus.START.getStatus());
         game.setStartedAt(now);
-        game.setDealerId(0L);
-        game.setActivePlayerId(0L);
+        game.setDealerId(Util.DEFAULT_LONG_VALUE);
+        game.setActivePlayerId(Util.DEFAULT_LONG_VALUE);
 
 
         UUID uuid = UUID.randomUUID();

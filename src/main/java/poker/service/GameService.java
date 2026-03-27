@@ -7,6 +7,7 @@ import poker.dto.game.GameConverter;
 import poker.dto.game.GameDTO;
 import poker.model.*;
 import poker.repository.GameRepository;
+import poker.util.Util;
 
 import java.sql.Timestamp;
 import java.util.LinkedList;
@@ -53,6 +54,8 @@ public class GameService {
             .potId(pot.getId())
             .createdAt(new Timestamp(System.currentTimeMillis()))
             .creatorPlayerId(creatorPlayerId)
+            .dealerId(Util.DEFAULT_LONG_VALUE)
+            .activePlayerId(Util.DEFAULT_LONG_VALUE)
             .build();
 
         var newGame = gameRepo.save(game);

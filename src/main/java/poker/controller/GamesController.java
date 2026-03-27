@@ -30,10 +30,10 @@ public class GamesController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createGame(@AuthenticationPrincipal Authentication authentication,
-                                        @RequestBody CreateGameRequest createGameRequest) {
-        var playerDetails = ((PlayerDetails) authentication.getPrincipal());
-        Long creatorPlayerId = playerDetails.getPlayer().getId();
+    public ResponseEntity<?> createGame(@RequestBody CreateGameRequest createGameRequest) {
+        Long creatorPlayerId = Util.getPlayerDetailsFronCtx()
+            .getPlayer()
+            .getId();
         log.info("Create game {} from player {}", createGameRequest, creatorPlayerId);
         gameService.createGame(creatorPlayerId, createGameRequest);
         return ResponseEntity.ok().build();

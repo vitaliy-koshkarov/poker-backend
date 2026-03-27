@@ -1,9 +1,9 @@
 package poker.dto.game;
 
 import poker.model.Game;
+import poker.util.Util;
 
 public class GameConverter {
-    private final static int DEFAULT_INT_VALUE = 0;
 
     public static GameDTO toDTO(Game game, int currentPlayers) {
         return GameDTO.builder()
@@ -14,8 +14,8 @@ public class GameConverter {
             .status(game.getStatus())
             .name(game.getName())
             .creatorPlayerId(game.getCreatorPlayerId())
-            .dealerId(game.getDealerId() != null ? game.getDealerId() : DEFAULT_INT_VALUE)
-            .activePlayerId(game.getActivePlayerId() != null ? game.getActivePlayerId() : DEFAULT_INT_VALUE)
+            .dealerId(game.getDealerId() != null ? game.getDealerId() : Util.DEFAULT_LONG_VALUE)
+            .activePlayerId(game.getActivePlayerId() != null ? game.getActivePlayerId() : Util.DEFAULT_LONG_VALUE)
             .build();
     }
 }

@@ -33,6 +33,15 @@ public class Game {
     @Column(name = "pot_id", nullable = false)
     private Long potId;
 
+    @Column(name = "creator_player_id", nullable = false)
+    private Long creatorPlayerId;
+
+    @Column(name = "dealer_id", nullable = false)
+    private Long dealerId;
+
+    @Column(name = "active_player_id", nullable = false)
+    private Long activePlayerId;
+
     @Column(name = "created_at", nullable = false)
     private Timestamp createdAt;
 
@@ -41,13 +50,4 @@ public class Game {
 
     @Column(name = "ended_at")
     private Timestamp endedAt;
-
-    @Column(name = "creator_player_id", nullable = false)
-    private Long creatorPlayerId;
-
-    @Column(name = "dealer_id")
-    private Long dealerId;
-
-    @Column(name = "active_player_id")
-    private Long activePlayerId;
 }

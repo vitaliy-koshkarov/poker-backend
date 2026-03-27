@@ -1,1 +1,0 @@
-ALTER TABLE public.games ADD COLUMN creator_player_id BIGINT NOT NULL DEFAULT 0;

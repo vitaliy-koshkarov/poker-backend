@@ -12,6 +12,8 @@ import java.security.Principal;
 @Component
 @Log4j2
 public class Util {
+    public static final long DEFAULT_LONG_VALUE = 0;
+
     public static PlayerDetails getPlayerDetailsFronCtx() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         log.debug("Authentication {}", authentication);
