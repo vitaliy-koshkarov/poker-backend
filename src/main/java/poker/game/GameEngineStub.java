@@ -39,8 +39,9 @@ public class GameEngineStub implements GameEngine {
         this.gameState = new GameState(uuid, dealerId, activePlayerId, players, communityCards, pot);
 
         var eventData = EventData.builder()
-            .value("start game")
+            .value(PlayerAction.START_GAME.getDescription())
             .build();
+
         return GameEvent.builder()
             .gameId(game.getId())
             .playerId(playerId)
