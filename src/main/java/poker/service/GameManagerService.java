@@ -70,11 +70,37 @@ public class GameManagerService {
             var playerIdsList = gameTables.stream()
                 .map(GameTable::getPlayerId)
                 .toList();
-            log.debug("SUBSCRIBE playerIdsList {}", playerIdsList);
 
             List<Player> players = playerService.getPlayersByIds(playerIdsList);
-            players.forEach(log::debug);
+            List<PlayerDTO> playerDTOList = PlayerConverter.toListDTO(players);
 
+            var gameDTO = GameConverter.toDTO(game, gameTables.size());
+
+            return GameStateDTO.builder()
+                .gameDTO(gameDTO)
+                .playerDTOList(playerDTOList)
+                .build();
+        } else if (action.equals(PlayerAction.DISCONNECT)) {
+            var disconnectPlayerEvent = GameEvent.builder()
+                .gameId(gameId)
+                .playerId(playerId)
+                .type(action.getType())
+                .data(EventData.builder()
+                    .value("player disconnected")
+                    .build()
+                )
+                .createdAt(new Timestamp(System.currentTimeMillis()))
+                .build();
+
+            eventId = gameEventService.saveEvent(disconnectPlayerEvent);
+            log.info("Registered game event {} by player {}", eventId, playerId);
+
+            var gameTables = gameTableService.getGameTablesByGameId(game.getId());
+            var playerIdsList = gameTables.stream()
+                .map(GameTable::getPlayerId)
+                .toList();
+
+            List<Player> players = playerService.getPlayersByIds(playerIdsList);
             List<PlayerDTO> playerDTOList = PlayerConverter.toListDTO(players);
 
             var gameDTO = GameConverter.toDTO(game, gameTables.size());

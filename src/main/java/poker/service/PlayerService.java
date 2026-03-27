@@ -45,9 +45,9 @@ public class PlayerService {
         log.info("Updated nickname to {}, player id {}", nickname, playerId);
     }
 
-    public void updatePlayerStatus(Long playerId, Integer playerStatus) {
-        playerRepo.updatePlayerStatus(playerId, playerStatus);
-        log.info("Player id {} status updated to {}", playerId, playerStatus);
+    public void updatePlayer(Player player) {
+        var updatedPlayer = playerRepo.save(player);
+        log.info("Updated player {}", updatedPlayer);
     }
 
     public List<Player> getPlayersByIds(List<Long> playerIdsList) {

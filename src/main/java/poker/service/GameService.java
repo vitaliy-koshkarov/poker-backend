@@ -72,13 +72,13 @@ public class GameService {
 //        Update player's status
         var player = playerDetails.getPlayer();
         player.setStatus(PlayerStatus.JOIN_THE_GAME.getStatus());
-        long playerId = player.getId();
-        playerService.updatePlayerStatus(playerId, PlayerStatus.JOIN_THE_GAME.getStatus());
+//        TODO: check game state
+        playerService.updatePlayer(player);
 
 //        Player sits down to game table
         var game = gameRepo.findGameById(gameId);
         Long userId = playerDetails.getUser().getId();
-        var gameTable = gameTableService.createGameTable(userId, playerId, game.getId());
+        var gameTable = gameTableService.createGameTable(userId, player.getId(), game.getId());
 
         log.info("User id {} joined game, game id {}, game table id {}", userId, game.getId(), gameTable.getId());
 

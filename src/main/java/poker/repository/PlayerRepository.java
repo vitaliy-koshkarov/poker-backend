@@ -14,11 +14,6 @@ import java.util.List;
 public interface PlayerRepository extends JpaRepository<Player, Long> {
     boolean existsByNickname(String nickname);
 
-    @Query("UPDATE Player p SET p.status = :playerStatus WHERE p.id = :playerId")
-    @Modifying
-    @Transactional
-    void updatePlayerStatus(Long playerId, Integer playerStatus);
-
     @Query("SELECT p FROM Player p JOIN User u ON u.playerId = p.id WHERE u.id = :userId")
     @Transactional(readOnly = true)
     Player findPlayerByUserId(@Param("userId") long userId);
@@ -27,9 +22,4 @@ public interface PlayerRepository extends JpaRepository<Player, Long> {
     @Modifying
     @Transactional
     void updatePlayerNickname(@Param("playerId") long playerId, @Param("nickname") String nickname);
-
-    @Query("UPDATE Player p SET p.chips = :chips, p.status = :status WHERE p.id IN (:playerIdList)")
-    @Modifying
-    @Transactional
-    void startGameForPlayers(List<Long> playerIdList, Integer status, Integer chips);
 }
