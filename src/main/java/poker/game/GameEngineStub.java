@@ -30,8 +30,8 @@ public class GameEngineStub implements GameEngine {
         var now = new Timestamp(System.currentTimeMillis());
         game.setStatus(GameStatus.START.getStatus());
         game.setStartedAt(now);
-        game.setDealerId(-1L);
-        game.setActivePlayerId(-1L);
+        game.setDealerId(0L);
+        game.setActivePlayerId(0L);
 
 
         UUID uuid = UUID.randomUUID();
