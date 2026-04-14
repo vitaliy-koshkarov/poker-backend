@@ -9,13 +9,12 @@ import lombok.ToString;
 @ToString
 public enum GameStatus {
     WAITING_FOR_PLAYERS(0),
-    START(1),
-    PRE_FLOP(2),
-    FLOP(3),
-    TURN(4),
-    RIVER(5),
-    SHOWDOWN(6),
-    END(7);
+    PRE_FLOP(1),
+    FLOP(2),
+    TURN(3),
+    RIVER(4),
+    SHOWDOWN(5),
+    END(6);
 
     private final int status;
 }

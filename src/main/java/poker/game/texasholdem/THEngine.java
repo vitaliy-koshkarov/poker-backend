@@ -6,7 +6,6 @@ import poker.game.GameState;
 import poker.game.PlayerAction;
 import poker.model.Game;
 import poker.model.Player;
-import poker.model.Pot;
 import poker.model.event.GameEvent;
 
 import java.util.ArrayList;
@@ -24,15 +23,31 @@ public class THEngine implements GameEngine {
         this.table = table;
     }
 
-    public GameEvent handleAction(Game game, Long playerId, Long dealerId, Long activePlayerId,
-                           List<Player> players, List<Object> communityCards, PlayerAction action, Pot pot) {
+    @Override
+    public GameEvent handleAction(PlayerAction action, long playerId, Game game, List<Player> players) {
 //        TODO: implement logic
-        return null;
+
+        if (PlayerAction.START_GAME.equals(action)) {
+            newGame();
+        } else if (PlayerAction.CHECK.equals(action)) {
+        } else if (PlayerAction.BET.equals(action)) {
+        } else if (PlayerAction.ALL_IN.equals(action)) {
+        } else if (PlayerAction.FOLD.equals(action)) {
+        }
+
+        var gameEvent = GameEvent.builder().build();
+        log.info("Handled action {} from player {}", action, playerId);
+        return gameEvent;
     }
 
     public GameState getGameState() {
 //        TODO: implement logic
         return null;
+    }
+
+    private void newGame() {
+        table.startNewGame();
+        preFlop();
     }
 
     private void nextPhase() {
@@ -47,8 +62,10 @@ public class THEngine implements GameEngine {
     }
 
     private void preFlop() {
-        table.startNewGame();
         table.setGameStatus(PRE_FLOP);
+        table.betBlinds();
+        table.defineCurrentPlayer();
+        table.dealStartHands();
     }
 
     private void flop() {
@@ -103,6 +120,8 @@ public class THEngine implements GameEngine {
         log.info("Winners {}", winners);
         table.getPot().distributeReward(winners);
 //        winners.forEach(Player::takeReward);
+
+        table.moveDealer();
     }
 
     private void waitingNewPlayers() {

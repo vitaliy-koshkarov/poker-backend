@@ -37,11 +37,6 @@ public class GameManagerService {
         this.potService = potService;
     }
 
-    public void registerGame(Long gameId) {
-        GameEngine gameEngine = gameRegistry.registerGame(gameId);
-        log.info("Registered gameDTO id {}, gameDTO state {}", gameId, gameEngine.getGameState());
-    }
-
     public GameStateDTO handleAction(Long gameId, Long playerId, PlayerAction action) {
         log.info("Register action {} from player id {}", action, playerId);
 
@@ -124,10 +119,12 @@ public class GameManagerService {
             Long dealerId = game.getDealerId();
             Long activePlayerId = game.getActivePlayerId();
 
-            List<Object> communityCards = Collections.emptyList(); // TODO: community cards are in engine and GameEvent.data in DB
-
+            gameRegistry.registerGame(gameId, game.getBuyIn());
             var gameEngine = gameRegistry.getGameEngine(gameId);
-            var startGameEvent = gameEngine.handleAction(game, playerId, dealerId, activePlayerId, players, communityCards, action, pot);
+            log.info("Registered gameDTO id {}, gameDTO state {}", gameId, gameEngine.getGameState());
+
+            var startGameEvent = gameEngine.handleAction(action, playerId, game, players);
+//            List<Object> communityCards = Collections.emptyList(); // TODO: community cards are in engine and GameEvent.data in DB
 
             eventId = gameEventService.saveEvent(startGameEvent);
 

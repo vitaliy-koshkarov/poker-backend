@@ -57,7 +57,6 @@ public class WebSocketGameController {
 
         log.debug("SUBSCRIBE player details {}", playerDetails);
 
-        gameManagerService.registerGame(game.getId());
         var gameStateDTO = gameManagerService.handleAction(gameId, playerId, PlayerAction.JOIN_GAME);
 
         log.info("SUBSCRIBE {}", gameStateDTO);

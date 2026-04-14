@@ -10,6 +10,5 @@ public record GameState(UUID uuidGameState,
                         Long dealerId,
                         Long activePlayerId,
                         List<Player> players,
-                        List<Object> communityCards,
                         Pot pot) {
 }

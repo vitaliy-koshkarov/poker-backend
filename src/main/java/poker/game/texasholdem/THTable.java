@@ -2,6 +2,7 @@ package poker.game.texasholdem;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
 import poker.model.GameStatus;
 import poker.model.PlayerStatus;
 
@@ -9,9 +10,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import static poker.model.GameStatus.*;
-
 @Getter
+@Log4j2
 public class THTable {
     private final long id;
 
@@ -24,33 +24,42 @@ public class THTable {
     private final THPot pot;
 
     private final List<THPlayer> players;
-    private final int maxPlayers;
-    private int currentPlayer;
+    private int currentPlayerIdx;
+    private int currentPlayerPosition;
 
+    private int dealerIdx;
     private int dealerPosition;
+
+    private int smallBlindIdx;
+    private int smallBlindPosition;
+
+    private int bigBlindIdx;
+    private int bigBlindPosition;
 
     private int smallBlind;
     private int bigBlind;
 
     private int minRaise;
 
-    public THTable(int id, GameStatus gameStatus, int maxPlayers, int smallBlind, int bigBlind) {
+    public THTable(long id, GameStatus gameStatus, int smallBlind, int bigBlind) {
         this.id = id;
         this.gameStatus = gameStatus;
         this.deck = new THDeck();
         this.communityCards = new ArrayList<>();
         this.pot = new THPot();
         this.players = new ArrayList<>();
-        this.maxPlayers = maxPlayers;
         this.smallBlind = smallBlind;
         this.bigBlind = bigBlind;
         this.minRaise = bigBlind;
-    }
 
-    public void addPlayer(THPlayer player) {
-        if (gameStatus == WAITING_FOR_PLAYERS) {
-            players.add(player);
-        }
+        this.dealerIdx = 0;
+        this.dealerPosition = 1;
+
+        this.smallBlindIdx = 1;
+        this.smallBlindPosition = 2;
+
+        this.bigBlindIdx = 2;
+        this.bigBlindPosition = 3;
     }
 
     public void removePlayer(THPlayer player) {
@@ -73,25 +82,40 @@ public class THTable {
         communityCards.clear();
         players.forEach(THPlayer::refresh);
 
-        moveDealer();
-
         deck.shuffle();
 
         betBlinds();
+        defineCurrentPlayer();
         dealStartHands();
+    }
+
+    public void moveDealer() {
+        dealerIdx++;
+        if (dealerIdx >= players.size() - 1) {
+            dealerIdx = 0;
+        }
+        dealerPosition = dealerIdx + 1;
+
+        smallBlindIdx = (dealerIdx + 1) % players.size();
+        smallBlindPosition = smallBlindIdx + 1;
+
+        bigBlindIdx = (dealerIdx + 2) % players.size();
+        bigBlindPosition = bigBlindIdx + 1;
+        log.debug("Game {}, dealer position {}", id, dealerPosition);
     }
 
     @Override
     public String toString() {
-        return "TexasHoldemTable{id: " + id + ", status: " + gameStatus + ", deck size: " + deck.getSize()
-            + ", community cards: " + communityCards + ", " + pot
-            + ", Players{" + playersInfo() + ", current player position: " + currentPlayer
-            + ", dealer position: " + dealerPosition + ", small blind: " + smallBlind
-            + ", big blind: " + bigBlind + ", min raise: " + minRaise
+        return "TexasHoldemTable{id " + id + ", deck size " + deck.getSize()
+            + ", community cards " + communityCards + ", " + pot
+            + ", Players{" + playersInfo() + ", current player idx " + currentPlayerIdx
+            + ", current player position " + currentPlayerPosition
+            + ", dealer position " + dealerPosition + ", small blind " + smallBlind
+            + ", big blind " + bigBlind + ", min raise " + minRaise
             + "}";
     }
 
-    private void dealStartHands() {
+    void dealStartHands() {
         for (int i = 0; i < 2; i++) {
             for (THPlayer player : players) {
                 player.getCards().add(deck.dealCard());
@@ -99,25 +123,19 @@ public class THTable {
         }
     }
 
-    private void betBlinds() {
+    void betBlinds() {
         setBlind(getSmallBlindPosition(), smallBlind);
         setBlind(getBigBlindPosition(), bigBlind);
 
         minRaise = bigBlind;
-
-        currentPlayer = (dealerPosition + 3) % players.size();
     }
 
-    private void moveDealer() {
-        dealerPosition = (dealerPosition + 1) % players.size();
-    }
-
-    private int getSmallBlindPosition() {
-        return (dealerPosition + 1) % players.size();
-    }
-
-    private int getBigBlindPosition() {
-        return (dealerPosition + 2) % players.size();
+    void defineCurrentPlayer() {
+        currentPlayerIdx++;
+        if (currentPlayerIdx >= players.size() - 1) {
+            currentPlayerIdx = 0;
+        }
+        currentPlayerPosition = currentPlayerIdx + 1;
     }
 
     private void setBlind(int blindPosition, int blind) {
