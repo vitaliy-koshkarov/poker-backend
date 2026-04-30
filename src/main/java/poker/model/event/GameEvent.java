@@ -34,7 +34,7 @@ public class GameEvent {
     @Type(JsonBinaryType.class)
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "data", columnDefinition = "jsonb", nullable = false)
-    private EventData data;
+    private GameEventData gameEventData;
 
     @Column(name = "created_at", nullable = false)
     private Timestamp createdAt;

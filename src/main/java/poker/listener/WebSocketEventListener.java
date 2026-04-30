@@ -68,6 +68,12 @@ public class WebSocketEventListener {
         log.info("Player {} disconnected from {}", playerId, destination);
     }
 
+    /**
+     * Removes player's session, updates {@link Player#status} and removes from {@link GameTable}
+     * @param playerDetails object with user and player data
+     * @param sessionId web socket session of the player
+     * @return {@link Game#id}
+     */
     private Long disconnectPlayer(PlayerDetails playerDetails, String sessionId) {
         Long userId = playerDetails.getUser().getId();
         Long playerId = playerDetails.getPlayer().getId();

@@ -14,6 +14,8 @@ import java.sql.Timestamp;
 @Builder
 @ToString
 public class GameTable {
+//    TODO: think to rename the entity to avoid misunderstanding its purpose
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

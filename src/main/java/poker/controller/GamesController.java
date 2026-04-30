@@ -2,12 +2,10 @@ package poker.controller;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import poker.dto.game.CreateGameRequest;
 import poker.dto.game.GameDTO;
-import poker.model.PlayerDetails;
+import poker.game.GameRegistry;
 import poker.service.GameService;
 import poker.util.Util;
 
@@ -18,9 +16,11 @@ import java.util.List;
 @Log4j2
 public class GamesController {
     private final GameService gameService;
+    private final GameRegistry gameRegistry;
 
-    public GamesController(GameService gameService) {
+    public GamesController(GameService gameService, GameRegistry gameRegistry) {
         this.gameService = gameService;
+        this.gameRegistry = gameRegistry;
     }
 
     @GetMapping
@@ -35,7 +35,11 @@ public class GamesController {
             .getPlayer()
             .getId();
         log.info("Create game {} from player {}", createGameRequest, creatorPlayerId);
-        gameService.createGame(creatorPlayerId, createGameRequest);
+
+        Long gameId = gameService.createGame(creatorPlayerId, createGameRequest);
+
+        gameRegistry.registerGame(gameId, createGameRequest.buyIn());
+
         return ResponseEntity.ok().build();
     }
 

@@ -87,6 +87,8 @@ public class THTable {
         betBlinds();
         defineCurrentPlayer();
         dealStartHands();
+
+        gameStatus = GameStatus.PRE_FLOP;
     }
 
     public void moveDealer() {

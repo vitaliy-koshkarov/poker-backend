@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 @Log4j2
 public class WebSocketPlayerSessionService {
-//    TODO: store player sessions somewhere and restore them after app reboot
+//    TODO: store player sessions somewhere and restore them after app reboot?
 
     /**
      * Key - web socket session id. Value = {@link PlayerSession}

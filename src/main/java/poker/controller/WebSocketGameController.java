@@ -102,7 +102,9 @@ public class WebSocketGameController {
         Long userId = playerDetails.getUser().getId();
         log.info("SEND user id {}, game id {}, new game name {}", userId, gameId, newGameName);
 
-//        TODO: implement strategy to handle various actions from players
+//        TODO:
+//         1. Take action as a method parameter
+//         2. Implement strategy to handle various actions from players
 //        GameState gameState = gameManagerService.handleAction(gameId, -1L, PlayerAction.START_GAME);
 //        log.info("Game state {}", gameState);
 

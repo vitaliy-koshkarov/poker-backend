@@ -22,7 +22,7 @@ public class GameRegistry {
         GameEngine engine = new THEngine(thTable);
 
         gameEngineMap.put(gameId, engine);
-        log.info("Game engine added to game engine registry");
+        log.info("Game engine added to game engine registry, game id {}", gameId);
     }
 
     public GameEngine getGameEngine(Long gameId) {

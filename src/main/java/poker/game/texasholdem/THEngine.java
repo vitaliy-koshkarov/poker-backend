@@ -2,16 +2,13 @@ package poker.game.texasholdem;
 
 import lombok.extern.log4j.Log4j2;
 import poker.game.GameEngine;
-import poker.game.GameState;
 import poker.game.PlayerAction;
 import poker.model.Game;
 import poker.model.Player;
-import poker.model.event.GameEvent;
+import poker.model.event.GameEventData;
+import poker.model.event.PlayerEventInfo;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static poker.model.GameStatus.*;
 
@@ -24,30 +21,41 @@ public class THEngine implements GameEngine {
     }
 
     @Override
-    public GameEvent handleAction(PlayerAction action, long playerId, Game game, List<Player> players) {
-//        TODO: implement logic
+    public void handleAction(PlayerAction action, long playerId, Game game, List<Player> players) {
+//        TODO: Implement logic. Update game state and player's status in-memory
 
-        if (PlayerAction.START_GAME.equals(action)) {
-            newGame();
-        } else if (PlayerAction.CHECK.equals(action)) {
-        } else if (PlayerAction.BET.equals(action)) {
-        } else if (PlayerAction.ALL_IN.equals(action)) {
-        } else if (PlayerAction.FOLD.equals(action)) {
+        switch (action) {
+            case JOIN_GAME -> log.info("Player id {} joined to game id {}", playerId, game.getId());
+            case START_GAME -> newGame();
+            case DISCONNECT -> log.info("Player id {} disconnected from game id {}", playerId, game.getId());
+            case FOLD -> log.info("Player id {} fold, game id {}", playerId, game.getId());
+            case CHECK -> log.info("Player id {} check, game id {}", playerId, game.getId());
+            case BET -> log.info("Player id {} bet game id {}", playerId, game.getId());
+            case ALL_IN -> log.info("Player id {} all-in game id {}", playerId, game.getId());
         }
-
-        var gameEvent = GameEvent.builder().build();
-        log.info("Handled action {} from player {}", action, playerId);
-        return gameEvent;
     }
 
-    public GameState getGameState() {
-//        TODO: implement logic
-        return null;
+    @Override
+    public GameEventData getGameEventData() {
+        var playerEventInfoList = new LinkedList<PlayerEventInfo>();
+        for (THPlayer thPlayer : table.getPlayers()) {
+            var playerEventInfo = PlayerEventInfo.builder()
+                .id(thPlayer.getId())
+                .playerStatus(thPlayer.getStatus().getStatus())
+                .bet(thPlayer.getCurrentBet())
+                .cards(thPlayer.getCards())
+                .build();
+            playerEventInfoList.add(playerEventInfo);
+        }
+
+        return GameEventData.builder()
+            .communityCards(table.getCommunityCards())
+            .playerEventInfo(playerEventInfoList)
+            .build();
     }
 
     private void newGame() {
         table.startNewGame();
-        preFlop();
     }
 
     private void nextPhase() {
