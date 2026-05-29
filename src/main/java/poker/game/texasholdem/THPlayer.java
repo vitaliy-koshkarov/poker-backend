@@ -1,6 +1,7 @@
 package poker.game.texasholdem;
 
 import lombok.Getter;
+import lombok.Setter;
 import poker.model.PlayerStatus;
 
 import java.util.ArrayList;
@@ -10,12 +11,13 @@ import java.util.List;
 public class THPlayer {
     private final int id;
     private final String nickname;
+
+    @Setter
     private PlayerStatus status;
     private final List<Card> cards;
     private int chips;
     private int currentBet;
 
-//    TODO: deal player's cards
     public THPlayer(int id, String name, int chips) {
         this.id = id;
         this.nickname = name;
@@ -36,11 +38,7 @@ public class THPlayer {
     public void refresh() {
         cards.clear();
         currentBet = 0;
-        if (chips == 0) {
-            status = PlayerStatus.IN_GAME;
-        } else {
-            status = PlayerStatus.ACTIVE;
-        }
+        status = PlayerStatus.WAIT;
     }
 
     public void takeReward(int reward) {

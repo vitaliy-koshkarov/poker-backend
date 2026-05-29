@@ -13,6 +13,8 @@ import java.util.List;
 @Getter
 @Log4j2
 public class THTable {
+//    TODO: map: [playerId -> playerPosition] on the table (in 'players' list) ?
+
     private final long id;
 
     @Setter
@@ -24,17 +26,11 @@ public class THTable {
     private final THPot pot;
 
     private final List<THPlayer> players;
-    private int currentPlayerIdx;
-    private int currentPlayerPosition;
 
     private int dealerIdx;
-    private int dealerPosition;
-
     private int smallBlindIdx;
-    private int smallBlindPosition;
-
     private int bigBlindIdx;
-    private int bigBlindPosition;
+    private int activePlayerIdx;
 
     private int smallBlind;
     private int bigBlind;
@@ -52,14 +48,9 @@ public class THTable {
         this.bigBlind = bigBlind;
         this.minRaise = bigBlind;
 
-        this.dealerIdx = 0;
-        this.dealerPosition = 1;
-
-        this.smallBlindIdx = 1;
-        this.smallBlindPosition = 2;
-
-        this.bigBlindIdx = 2;
-        this.bigBlindPosition = 3;
+        defineDealerIdx();
+        defineBlindIndices();
+        defineActivePlayer();
     }
 
     public void removePlayer(THPlayer player) {
@@ -76,7 +67,7 @@ public class THTable {
         return activePlayers;
     }
 
-    public void startNewGame() {
+    public void setUpNewRound() {
         pot.refresh();
 
         communityCards.clear();
@@ -84,36 +75,24 @@ public class THTable {
 
         deck.shuffle();
 
+        defineDealerIdx();
+        defineBlindIndices();
+        defineActivePlayer();
+
         betBlinds();
-        defineCurrentPlayer();
+        minRaise = bigBlind;
         dealStartHands();
 
         gameStatus = GameStatus.PRE_FLOP;
-    }
-
-    public void moveDealer() {
-        dealerIdx++;
-        if (dealerIdx >= players.size() - 1) {
-            dealerIdx = 0;
-        }
-        dealerPosition = dealerIdx + 1;
-
-        smallBlindIdx = (dealerIdx + 1) % players.size();
-        smallBlindPosition = smallBlindIdx + 1;
-
-        bigBlindIdx = (dealerIdx + 2) % players.size();
-        bigBlindPosition = bigBlindIdx + 1;
-        log.debug("Game {}, dealer position {}", id, dealerPosition);
     }
 
     @Override
     public String toString() {
         return "TexasHoldemTable{id " + id + ", deck size " + deck.getSize()
             + ", community cards " + communityCards + ", " + pot
-            + ", Players{" + playersInfo() + ", current player idx " + currentPlayerIdx
-            + ", current player position " + currentPlayerPosition
-            + ", dealer position " + dealerPosition + ", small blind " + smallBlind
-            + ", big blind " + bigBlind + ", min raise " + minRaise
+            + ", Players{" + playersInfo() + ", dealer idx " + dealerIdx
+            + ", small blind idx " + smallBlindIdx + ", big blind idx " + bigBlindIdx
+            + ", active player idx " + activePlayerIdx + ", min raise " + minRaise
             + "}";
     }
 
@@ -126,24 +105,14 @@ public class THTable {
     }
 
     void betBlinds() {
-        setBlind(getSmallBlindPosition(), smallBlind);
-        setBlind(getBigBlindPosition(), bigBlind);
-
-        minRaise = bigBlind;
+        setBlind(getSmallBlindIdx(), smallBlind);
+        setBlind(getBigBlindIdx(), bigBlind);
     }
 
-    void defineCurrentPlayer() {
-        currentPlayerIdx++;
-        if (currentPlayerIdx >= players.size() - 1) {
-            currentPlayerIdx = 0;
-        }
-        currentPlayerPosition = currentPlayerIdx + 1;
-    }
-
-    private void setBlind(int blindPosition, int blind) {
-        var smallBlindPlayer = players.get(blindPosition);
-        smallBlindPlayer.bet(blind);
-        pot.addPlayerBet(smallBlindPlayer, blind);
+    private void setBlind(int blindIdx, int blind) {
+        var playerWithBlind = players.get(blindIdx);
+        playerWithBlind.bet(blind);
+        pot.addPlayerBet(playerWithBlind, blind);
     }
 
     private String playersInfo() {
@@ -160,5 +129,33 @@ public class THTable {
         sb.delete(sb.length() - 2, sb.length());
         sb.append("}");
         return sb.toString();
+    }
+
+    private void defineDealerIdx() {
+        dealerIdx++;
+        if (dealerIdx >= players.size()) {
+            dealerIdx = 0;
+        }
+    }
+
+    private void defineBlindIndices() {
+        smallBlindIdx = dealerIdx + 1;
+        if (smallBlindIdx >= players.size()) {
+            smallBlindIdx = 0;
+        }
+
+        bigBlindIdx = smallBlindIdx + 1;
+        if (bigBlindIdx >= players.size()) {
+            bigBlindIdx = 0;
+        }
+    }
+
+    private void defineActivePlayer() {
+        activePlayerIdx = bigBlindIdx + 1;
+        if (activePlayerIdx >= players.size()) {
+            activePlayerIdx = 0;
+        }
+        players.get(activePlayerIdx)
+            .setStatus(PlayerStatus.ACTIVE);
     }
 }

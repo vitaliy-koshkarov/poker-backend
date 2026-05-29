@@ -14,11 +14,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class GameRegistry {
     private final Map<Long, GameEngine> gameEngineMap = new ConcurrentHashMap<>();
 
-    public void registerGame(Long gameId, int butIn) {
-        int smallBlind = butIn / 100;
-        int bigBlind = butIn / 50;
+    public void registerGame(Long gameId, int buyIn) {
+//        TODO: externalize to service's parameters
+        int smallBlind = buyIn / 100;
+        int bigBlind = buyIn / 50;
 
-        var thTable = new THTable(gameId, GameStatus.PRE_FLOP, smallBlind, bigBlind);
+        var thTable = new THTable(gameId, GameStatus.WAITING_FOR_PLAYERS, smallBlind, bigBlind);
         GameEngine engine = new THEngine(thTable);
 
         gameEngineMap.put(gameId, engine);

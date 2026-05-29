@@ -4,7 +4,6 @@ import lombok.extern.log4j.Log4j2;
 import poker.game.GameEngine;
 import poker.game.PlayerAction;
 import poker.model.Game;
-import poker.model.Player;
 import poker.model.event.GameEventData;
 import poker.model.event.PlayerEventInfo;
 
@@ -21,12 +20,16 @@ public class THEngine implements GameEngine {
     }
 
     @Override
-    public void handleAction(PlayerAction action, long playerId, Game game, List<Player> players) {
+    public void handleAction(PlayerAction action, long playerId, Game game) {
 //        TODO: Implement logic. Update game state and player's status in-memory
 
         switch (action) {
             case JOIN_GAME -> log.info("Player id {} joined to game id {}", playerId, game.getId());
-            case START_GAME -> newGame();
+            case START_GAME -> {
+                newGame();
+                log.info("Started new round, game id {}", game.getId());
+                log.info("{}", table);
+            }
             case DISCONNECT -> log.info("Player id {} disconnected from game id {}", playerId, game.getId());
             case FOLD -> log.info("Player id {} fold, game id {}", playerId, game.getId());
             case CHECK -> log.info("Player id {} check, game id {}", playerId, game.getId());
@@ -55,7 +58,7 @@ public class THEngine implements GameEngine {
     }
 
     private void newGame() {
-        table.startNewGame();
+        table.setUpNewRound();
     }
 
     private void nextPhase() {
@@ -72,7 +75,6 @@ public class THEngine implements GameEngine {
     private void preFlop() {
         table.setGameStatus(PRE_FLOP);
         table.betBlinds();
-        table.defineCurrentPlayer();
         table.dealStartHands();
     }
 
@@ -129,7 +131,7 @@ public class THEngine implements GameEngine {
         table.getPot().distributeReward(winners);
 //        winners.forEach(Player::takeReward);
 
-        table.moveDealer();
+//        table.moveDealer();
     }
 
     private void waitingNewPlayers() {

@@ -46,7 +46,7 @@ public class GameManagerService {
         var players = playerService.getPlayersByIds(playerIdsList);
 
 //        update game state in-memory
-        gameEngine.handleAction(action, playerId, game, players);
+        gameEngine.handleAction(action, playerId, game);
 
 //        update game state in DB
         if (PlayerAction.JOIN_GAME.equals(action)) {
