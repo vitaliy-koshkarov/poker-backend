@@ -37,24 +37,30 @@ public class THTable {
 
     private int minRaise;
 
-    public THTable(long id, GameStatus gameStatus, int smallBlind, int bigBlind) {
+    public THTable(long id, THPot thPot, GameStatus gameStatus, int smallBlind, int bigBlind) {
         this.id = id;
         this.gameStatus = gameStatus;
         this.deck = new THDeck();
         this.communityCards = new ArrayList<>();
-        this.pot = new THPot();
+        this.pot = thPot;
         this.players = new ArrayList<>();
         this.smallBlind = smallBlind;
         this.bigBlind = bigBlind;
-        this.minRaise = bigBlind;
-
-        defineDealerIdx();
-        defineBlindIndices();
-        defineActivePlayer();
     }
 
-    public void removePlayer(THPlayer player) {
-        players.remove(player);
+    public void addPlayer(THPlayer thPlayer) {
+        players.add(thPlayer);
+    }
+
+    public void removePlayer(Long playerId) {
+        THPlayer thPlayerToRemove = null;
+        for (THPlayer thPlayer : players) {
+            if (thPlayer.getId() == playerId) {
+                thPlayerToRemove = thPlayer;
+                break;
+            }
+        }
+        players.remove(thPlayerToRemove);
     }
 
     public List<THPlayer> getActivePlayers() {
@@ -80,7 +86,7 @@ public class THTable {
         defineActivePlayer();
 
         betBlinds();
-        minRaise = bigBlind;
+        minRaise = bigBlind - smallBlindIdx;
         dealStartHands();
 
         gameStatus = GameStatus.PRE_FLOP;

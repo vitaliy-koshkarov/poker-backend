@@ -36,9 +36,9 @@ public class GamesController {
             .getId();
         log.info("Create game {} from player {}", createGameRequest, creatorPlayerId);
 
-        Long gameId = gameService.createGame(creatorPlayerId, createGameRequest);
+        var game = gameService.createGame(creatorPlayerId, createGameRequest);
 
-        gameRegistry.registerGame(gameId, createGameRequest.buyIn());
+        gameRegistry.registerGame(game);
 
         return ResponseEntity.ok().build();
     }

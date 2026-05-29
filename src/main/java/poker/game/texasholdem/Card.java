@@ -1,6 +1,8 @@
 package poker.game.texasholdem;
 
-public record Card(Rank rank, Suit suit) implements Comparable<Card> {
+import java.io.Serializable;
+
+public record Card(Rank rank, Suit suit) implements Comparable<Card>, Serializable {
     @Override
     public String toString() {
         return rank.getShortName() + suit.getSymbol();

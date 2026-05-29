@@ -3,7 +3,9 @@ package poker.game;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 import poker.game.texasholdem.THEngine;
+import poker.game.texasholdem.THPot;
 import poker.game.texasholdem.THTable;
+import poker.model.Game;
 import poker.model.GameStatus;
 
 import java.util.Map;
@@ -14,12 +16,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class GameRegistry {
     private final Map<Long, GameEngine> gameEngineMap = new ConcurrentHashMap<>();
 
-    public void registerGame(Long gameId, int buyIn) {
-//        TODO: externalize to service's parameters
-        int smallBlind = buyIn / 100;
-        int bigBlind = buyIn / 50;
+    public void registerGame(Game game) {
+//        TODO: externalize blinds to service's parameters
+        Long gameId = game.getId();
 
-        var thTable = new THTable(gameId, GameStatus.WAITING_FOR_PLAYERS, smallBlind, bigBlind);
+        var thPot = new THPot(game.getPotId());
+        var thTable = new THTable(gameId, thPot, GameStatus.WAITING_FOR_PLAYERS, 5, 10);
         GameEngine engine = new THEngine(thTable);
 
         gameEngineMap.put(gameId, engine);

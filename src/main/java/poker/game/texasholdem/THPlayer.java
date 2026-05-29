@@ -9,7 +9,7 @@ import java.util.List;
 
 @Getter
 public class THPlayer {
-    private final int id;
+    private final long id;
     private final String nickname;
 
     @Setter
@@ -18,7 +18,7 @@ public class THPlayer {
     private int chips;
     private int currentBet;
 
-    public THPlayer(int id, String name, int chips) {
+    public THPlayer(long id, String name, int chips) {
         this.id = id;
         this.nickname = name;
         this.chips = chips;

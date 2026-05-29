@@ -21,18 +21,18 @@ public class WebSocketEventListener {
     private final GameTableService gameTableService;
     private final PlayerService playerService;
     private final SimpMessagingTemplate simpMessagingTemplate;
-    private final GameManagerService gameManagerService;
+    private final GameEngineService gameEngineService;
 
     public WebSocketEventListener(WebSocketPlayerSessionService webSocketPlayerSessionService,
                                   GameTableService gameTableService,
                                   PlayerService playerService,
                                   SimpMessagingTemplate simpMessagingTemplate,
-                                  GameManagerService gameManagerService) {
+                                  GameEngineService gameEngineService) {
         this.webSocketPlayerSessionService = webSocketPlayerSessionService;
         this.gameTableService = gameTableService;
         this.playerService = playerService;
         this.simpMessagingTemplate = simpMessagingTemplate;
-        this.gameManagerService = gameManagerService;
+        this.gameEngineService = gameEngineService;
     }
 
     @EventListener
@@ -56,7 +56,7 @@ public class WebSocketEventListener {
         Long gameId = disconnectPlayer(playerDetails, sessionId);
         Long playerId = playerDetails.getPlayer().getId();
 
-        var gameStateDTO = gameManagerService.handleAction(gameId, playerId, PlayerAction.DISCONNECT);
+        var gameStateDTO = gameEngineService.handleAction(gameId, playerId, PlayerAction.DISCONNECT);
 
         Message<GameStateDTO> message = new GenericMessage<>(gameStateDTO);
         log.debug("Message {}", message);

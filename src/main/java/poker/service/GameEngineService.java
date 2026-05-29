@@ -14,16 +14,16 @@ import java.util.ArrayList;
 
 @Service
 @Log4j2
-public class GameManagerService {
+public class GameEngineService {
     private final GameRegistry gameRegistry;
     private final GameService gameService;
     private final PlayerService playerService;
     private final GameTableService gameTableService;
     private final GameEventService gameEventService;
 
-    public GameManagerService(GameRegistry gameRegistry, GameService gameService,
-                              PlayerService playerService, GameTableService gameTableService,
-                              GameEventService gameEventService) {
+    public GameEngineService(GameRegistry gameRegistry, GameService gameService,
+                             PlayerService playerService, GameTableService gameTableService,
+                             GameEventService gameEventService) {
         this.gameRegistry = gameRegistry;
         this.gameService = gameService;
         this.playerService = playerService;
@@ -44,9 +44,10 @@ public class GameManagerService {
             playerIdsList.add(gameTable.getPlayerId());
         }
         var players = playerService.getPlayersByIds(playerIdsList);
+        var player = playerService.getPlayerById(playerId);
 
 //        update game state in-memory
-        gameEngine.handleAction(action, playerId, game);
+        gameEngine.handleAction(action, game, player);
 
 //        update game state in DB
         if (PlayerAction.JOIN_GAME.equals(action)) {
@@ -79,7 +80,7 @@ public class GameManagerService {
             .build();
 
         Long eventId = gameEventService.saveEvent(gameEvent);
-        log.info("Handled action {} from player id {}, event id {}", playerId, action, eventId);
+        log.info("Handled action {} from player id {}, event id {}", action, playerId, eventId);
 
         var gameDTO = GameConverter.toDTO(game, gameTableList.size());
         var playerDTOList = PlayerConverter.toListDTO(players);

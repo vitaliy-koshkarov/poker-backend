@@ -4,8 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class THPot {
+    private final long id;
     private int total;
     private final Map<THPlayer, Integer> playerBets = new HashMap<>();
+
+    public THPot(long id) {
+        this.id = id;
+    }
 
     public void addPlayerBet(THPlayer player, int bet) {
         total += bet;
@@ -30,7 +35,7 @@ public class THPot {
 
     @Override
     public String toString() {
-        return "THPot{total: " + total + ", players bet:{" + playersBet() + "}";
+        return "THPot{id: " + id + ", total: " + total + ", players bet:{" + playersBet() + "}";
     }
 
     private String playersBet() {

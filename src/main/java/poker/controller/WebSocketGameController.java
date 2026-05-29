@@ -16,7 +16,7 @@ import org.springframework.stereotype.Controller;
 import poker.dto.game.GameStateDTO;
 import poker.game.PlayerAction;
 import poker.model.PlayerDetails;
-import poker.service.GameManagerService;
+import poker.service.GameEngineService;
 import poker.service.GameService;
 import poker.service.WebSocketPlayerSessionService;
 
@@ -25,14 +25,14 @@ import poker.service.WebSocketPlayerSessionService;
 public class WebSocketGameController {
     private final WebSocketPlayerSessionService webSocketPlayerSessionService;
     private final GameService gameService;
-    private final GameManagerService gameManagerService;
+    private final GameEngineService gameEngineService;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     public WebSocketGameController(WebSocketPlayerSessionService webSocketPlayerSessionService, GameService gameServicer,
-                                   GameManagerService gameManagerService, SimpMessagingTemplate simpMessagingTemplate) {
+                                   GameEngineService gameEngineService, SimpMessagingTemplate simpMessagingTemplate) {
         this.webSocketPlayerSessionService = webSocketPlayerSessionService;
         this.gameService = gameServicer;
-        this.gameManagerService = gameManagerService;
+        this.gameEngineService = gameEngineService;
         this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
@@ -57,7 +57,7 @@ public class WebSocketGameController {
 
         log.debug("SUBSCRIBE player details {}", playerDetails);
 
-        var gameStateDTO = gameManagerService.handleAction(gameId, playerId, PlayerAction.JOIN_GAME);
+        var gameStateDTO = gameEngineService.handleAction(gameId, playerId, PlayerAction.JOIN_GAME);
 
         log.info("SUBSCRIBE {}", gameStateDTO);
 
@@ -76,7 +76,7 @@ public class WebSocketGameController {
         var playerDetails = ((PlayerDetails) authentication.getPrincipal());
         Long userId = playerDetails.getUser().getId();
         Long playerId = playerDetails.getPlayer().getId();
-        log.info("Start game game id {}, user id {}, player id {}", gameId, userId, playerId);
+        log.info("Start game id {}, user id {}, player id {}", gameId, userId, playerId);
 
         var game = gameService.getGameById(gameId);
         if (!game.getCreatorPlayerId().equals(playerId)) {
@@ -84,7 +84,7 @@ public class WebSocketGameController {
             return;
         }
 
-        GameStateDTO gameStateDTO = gameManagerService.handleAction(gameId, playerId, PlayerAction.START_GAME);
+        GameStateDTO gameStateDTO = gameEngineService.handleAction(gameId, playerId, PlayerAction.START_GAME);
         log.info("Start game, gameStateDTO {}", gameStateDTO);
 
         Message<GameStateDTO> outboundMessage = new GenericMessage<>(gameStateDTO);

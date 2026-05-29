@@ -43,7 +43,7 @@ public class GameService {
         return gameDTOList;
     }
 
-    public Long createGame(Long creatorPlayerId, CreateGameRequest createGameRequest) {
+    public Game createGame(Long creatorPlayerId, CreateGameRequest createGameRequest) {
         var pot = potService.createPot();
 
         var game = Game.builder()
@@ -61,12 +61,18 @@ public class GameService {
         var newGame = gameRepo.save(game);
         log.info("Game created {} by player id {}", newGame, creatorPlayerId);
 
-        return newGame.getId();
+        return newGame;
     }
 
-    public void removeGame(long gameId) {
+    public void removeGame(Long gameId) {
+        var game = gameRepo.findGameById(gameId);
+        Long potId = game.getPotId();
+
         gameRepo.deleteById(gameId);
         log.info("Removed game id {}", gameId);
+
+        potService.deleteById(potId);
+        log.info("Removed pot id {}", potId);
     }
 
     public Game getGameById(Long gameId) {

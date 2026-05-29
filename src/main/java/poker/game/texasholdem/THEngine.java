@@ -4,6 +4,7 @@ import lombok.extern.log4j.Log4j2;
 import poker.game.GameEngine;
 import poker.game.PlayerAction;
 import poker.model.Game;
+import poker.model.Player;
 import poker.model.event.GameEventData;
 import poker.model.event.PlayerEventInfo;
 
@@ -20,22 +21,31 @@ public class THEngine implements GameEngine {
     }
 
     @Override
-    public void handleAction(PlayerAction action, long playerId, Game game) {
+    public void handleAction(PlayerAction action, Game game, Player player) {
 //        TODO: Implement logic. Update game state and player's status in-memory
+        long playerId = player.getId();
 
         switch (action) {
-            case JOIN_GAME -> log.info("Player id {} joined to game id {}", playerId, game.getId());
+            case JOIN_GAME -> {
+                var thPlayer = new THPlayer(playerId, player.getNickname(), game.getBuyIn());
+                table.addPlayer(thPlayer);
+                log.info("Player id {} joined to game id {}", playerId, game.getId());
+            }
             case START_GAME -> {
                 newGame();
                 log.info("Started new round, game id {}", game.getId());
-                log.info("{}", table);
             }
-            case DISCONNECT -> log.info("Player id {} disconnected from game id {}", playerId, game.getId());
+            case DISCONNECT -> {
+                table.removePlayer(playerId);
+                log.info("Player id {} disconnected from game id {}", playerId, game.getId());
+            }
             case FOLD -> log.info("Player id {} fold, game id {}", playerId, game.getId());
             case CHECK -> log.info("Player id {} check, game id {}", playerId, game.getId());
             case BET -> log.info("Player id {} bet game id {}", playerId, game.getId());
             case ALL_IN -> log.info("Player id {} all-in game id {}", playerId, game.getId());
         }
+
+        log.info("{}", table);
     }
 
     @Override
@@ -43,7 +53,7 @@ public class THEngine implements GameEngine {
         var playerEventInfoList = new LinkedList<PlayerEventInfo>();
         for (THPlayer thPlayer : table.getPlayers()) {
             var playerEventInfo = PlayerEventInfo.builder()
-                .id(thPlayer.getId())
+                .playerId(thPlayer.getId())
                 .playerStatus(thPlayer.getStatus().getStatus())
                 .bet(thPlayer.getCurrentBet())
                 .cards(thPlayer.getCards())
