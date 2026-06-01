@@ -68,6 +68,9 @@ public class GameService {
         var game = gameRepo.findGameById(gameId);
         Long potId = game.getPotId();
 
+        gameTableService.deleteGameTableByIdGameId(gameId);
+        log.info("Removed game table with game id {}", gameId);
+
         gameRepo.deleteById(gameId);
         log.info("Removed game id {}", gameId);
 
@@ -79,17 +82,31 @@ public class GameService {
         return gameRepo.findGameById(gameId);
     }
 
+    /**
+     * Updates player's status to {@link PlayerStatus#JOIN_THE_GAME} and chips to {@link Game#getBuyIn()}.</br>
+     * Created {@link GameTable} entity
+     * @param gameId {@link Game#getId()}
+     * @param playerDetails {@link PlayerDetails} with info of this {@link User} and {@link Player}
+     * @return {@link Game} the player joins
+     */
     public Game joinPlayerToGame(Long gameId, PlayerDetails playerDetails) {
-//        Update player's status
-        var player = playerDetails.getPlayer();
-        player.setStatus(PlayerStatus.JOIN_THE_GAME.getStatus());
-//        TODO: check game state
-        playerService.updatePlayer(player);
-
-//        Player sits down to game table
         var game = gameRepo.findGameById(gameId);
+        var player = playerDetails.getPlayer();
         Long userId = playerDetails.getUser().getId();
-        var gameTable = gameTableService.createGameTable(userId, player.getId(), game.getId());
+
+        var gameTable = gameTableService.getGameTableByGameIdAndPlayerId(gameId, player.getId());
+        log.info("PLAYER {} JOIN, GAME TABLE {}", player.getId(), gameTable);
+        if (gameTable != null) {
+            log.info("PLAYER {} CHIPS {}", player.getId(), player.getChips());
+            player.setChips(player.getChips());
+        } else {
+            player.setChips(game.getBuyIn());
+
+            gameTable = gameTableService.createGameTable(userId, player.getId(), game.getId());
+        }
+        player.setStatus(PlayerStatus.JOIN_THE_GAME.getStatus());
+
+        playerService.updatePlayer(player);
 
         log.info("User id {} joined, game id {}, game table id {}", userId, game.getId(), gameTable.getId());
 

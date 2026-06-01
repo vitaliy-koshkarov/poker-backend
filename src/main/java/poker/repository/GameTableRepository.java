@@ -29,4 +29,13 @@ public interface GameTableRepository extends JpaRepository<GameTable, Long> {
     @Query("SELECT gt FROM GameTable gt WHERE gt.gameId = :gameId")
     @Transactional(readOnly = true)
     List<GameTable> findAllGameTablesByGameId(@Param("gameId") Long gameId);
+
+    @Query("SELECT gt FROM GameTable gt WHERE gt.gameId = :gameId AND gt.playerId = :playerId")
+    @Transactional
+    GameTable findGameTableByGameIdAndPlayerId(@Param("gameId") Long gameId, @Param("playerId") Long playerId);
+
+    @Query("DELETE FROM GameTable gt WHERE gt.gameId = :gameId")
+    @Modifying
+    @Transactional
+    void removeGameTableByGameId(@Param("gameId") Long gameId);
 }

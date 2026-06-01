@@ -16,20 +16,17 @@ import poker.service.*;
 
 @Component
 @Log4j2
-public class WebSocketEventListener {
+public class WebSocketDisconnectEventListener {
     private final WebSocketPlayerSessionService webSocketPlayerSessionService;
-    private final GameTableService gameTableService;
     private final PlayerService playerService;
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final GameEngineService gameEngineService;
 
-    public WebSocketEventListener(WebSocketPlayerSessionService webSocketPlayerSessionService,
-                                  GameTableService gameTableService,
-                                  PlayerService playerService,
-                                  SimpMessagingTemplate simpMessagingTemplate,
-                                  GameEngineService gameEngineService) {
+    public WebSocketDisconnectEventListener(WebSocketPlayerSessionService webSocketPlayerSessionService,
+                                            PlayerService playerService,
+                                            SimpMessagingTemplate simpMessagingTemplate,
+                                            GameEngineService gameEngineService) {
         this.webSocketPlayerSessionService = webSocketPlayerSessionService;
-        this.gameTableService = gameTableService;
         this.playerService = playerService;
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.gameEngineService = gameEngineService;
@@ -69,10 +66,10 @@ public class WebSocketEventListener {
     }
 
     /**
-     * Removes player's session, updates {@link Player#status} and removes from {@link GameTable}
+     * Removes player's session, updates {@link Player#getStatus()} and removes from {@link GameTable}
      * @param playerDetails object with user and player data
      * @param sessionId web socket session of the player
-     * @return {@link Game#id}
+     * @return {@link Game#getId()}
      */
     private Long disconnectPlayer(PlayerDetails playerDetails, String sessionId) {
         Long userId = playerDetails.getUser().getId();
@@ -81,12 +78,13 @@ public class WebSocketEventListener {
         var playerSession = webSocketPlayerSessionService.removeSession(sessionId);
         log.info("Disconnect event, player session {}", playerSession);
 
-        Long gameId = playerSession.gameId();
-        gameTableService.removePlayerFromGameTable(userId, playerId, gameId);
-
         Player player = playerDetails.getPlayer();
         player.setStatus(PlayerStatus.NOT_IN_GAME.getStatus());
+//        TODO: 1. Check the reason of disconnection
+//              2. Set chips to 0 after N minutes
         playerService.updatePlayer(player);
+
+        Long gameId = playerSession.gameId();
 
         log.info("Disconnect event user id {}, player id {} left game id {}", userId, playerId, gameId);
         log.debug("Disconnect event player details {}", playerDetails);

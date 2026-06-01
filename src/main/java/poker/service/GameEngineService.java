@@ -6,6 +6,8 @@ import poker.dto.game.GameConverter;
 import poker.dto.game.GameStateDTO;
 import poker.dto.player.PlayerConverter;
 import poker.game.*;
+import poker.game.texasholdem.THEngine;
+import poker.model.GameStatus;
 import poker.model.GameTable;
 import poker.model.event.GameEvent;
 
@@ -44,17 +46,27 @@ public class GameEngineService {
             playerIdsList.add(gameTable.getPlayerId());
         }
         var players = playerService.getPlayersByIds(playerIdsList);
-        var player = playerService.getPlayerById(playerId);
+        var actionInitiatorPlayer = playerService.getPlayerById(playerId);
 
 //        update game state in-memory
-        gameEngine.handleAction(action, game, player);
+        gameEngine.handleAction(action, game, actionInitiatorPlayer);
 
 //        update game state in DB
         if (PlayerAction.JOIN_GAME.equals(action)) {
-//            todo: update game state here. Player's state is updated in controller during Subscribe
+//            player updates in SUBSCRIBE Controller method
             log.info("Player id {} joined to game id {}", playerId, gameId);
         } else if (PlayerAction.START_GAME.equals(action)) {
-//            todo: update game state here
+            game.setStatus(GameStatus.PRE_FLOP.getStatus());
+            game.setStartedAt(new Timestamp(System.currentTimeMillis()));
+
+            long dealerId = ((THEngine) gameEngine).getDealerId();
+            game.setDealerId(dealerId);
+
+            long activePlayerId = ((THEngine) gameEngine).getActivePlayerId();
+            game.setActivePlayerId(activePlayerId);
+
+            gameService.updateGame(game);
+//            TODO: update player's statuses
 //            playerService.updatePlayers(players);
 //            gameService.updateGame(game);
             log.info("Player id {} started game id {}", playerId, gameId);

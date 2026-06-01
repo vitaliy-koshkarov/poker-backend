@@ -67,6 +67,20 @@ public class THEngine implements GameEngine {
             .build();
     }
 
+    public long getActivePlayerId() {
+        int activePlayerIdx = table.getActivePlayerIdx();
+        return table.getPlayers()
+            .get(activePlayerIdx)
+            .getId();
+    }
+
+    public long getDealerId() {
+        int dealerIdx = table.getDealerIdx();
+        return table.getPlayers()
+            .get(dealerIdx)
+            .getId();
+    }
+
     private void newGame() {
         table.setUpNewRound();
     }

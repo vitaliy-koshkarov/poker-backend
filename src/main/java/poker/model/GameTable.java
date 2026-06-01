@@ -27,7 +27,7 @@ public class GameTable {
     private Long playerId;
 
     /**
-     * {@link Game#id} of the tables the player is sitting at
+     * {@link Game#getId()} of the tables the player is sitting at
      */
     @Column(name = "game_id", nullable = false)
     private Long gameId;
