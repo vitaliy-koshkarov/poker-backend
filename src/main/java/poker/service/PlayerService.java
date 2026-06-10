@@ -10,7 +10,7 @@ import poker.repository.PlayerRepository;
 import java.sql.Timestamp;
 import java.util.List;
 
-@Service
+@Service("PlayerService")
 @Log4j2
 public class PlayerService {
     private final PlayerRepository playerRepo;

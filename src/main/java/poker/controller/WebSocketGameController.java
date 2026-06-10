@@ -44,6 +44,10 @@ public class WebSocketGameController {
         log.debug("SUBSCRIBE player details {}", playerDetails);
         Long userId = playerDetails.getUser().getId();
 
+//        TODO:
+//          1. Do "gameService.joinPlayerToGame(gameId, playerDetails)" inside handlePlayerAction()
+//          2. Create session after (if) successful handling
+
         log.info("SUBSCRIBE user id {}, game id {}", userId, gameId);
         log.debug("SUBSCRIBE authentication {}", authentication);
 
@@ -57,7 +61,7 @@ public class WebSocketGameController {
 
         log.debug("SUBSCRIBE player details {}", playerDetails);
 
-        var gameStateDTO = gameEngineService.handleAction(gameId, playerId, PlayerAction.JOIN_GAME);
+        var gameStateDTO = gameEngineService.handlePlayerAction(gameId, playerId, PlayerAction.JOIN_GAME);
 
         log.info("SUBSCRIBE {}", gameStateDTO);
 
@@ -84,7 +88,7 @@ public class WebSocketGameController {
             return;
         }
 
-        GameStateDTO gameStateDTO = gameEngineService.handleAction(gameId, playerId, PlayerAction.START_GAME);
+        GameStateDTO gameStateDTO = gameEngineService.handlePlayerAction(gameId, playerId, PlayerAction.START_GAME);
         log.info("Start game, gameStateDTO {}", gameStateDTO);
 
         Message<GameStateDTO> outboundMessage = new GenericMessage<>(gameStateDTO);
@@ -102,9 +106,7 @@ public class WebSocketGameController {
         Long userId = playerDetails.getUser().getId();
         log.info("SEND user id {}, game id {}, new game name {}", userId, gameId, newGameName);
 
-//        TODO:
-//         1. Take action as a method parameter
-//         2. Implement strategy to handle various actions from players
+//        TODO: take action as a method parameter
 //        GameState gameState = gameManagerService.handleAction(gameId, -1L, PlayerAction.START_GAME);
 //        log.info("Game state {}", gameState);
 

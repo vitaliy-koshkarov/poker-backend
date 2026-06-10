@@ -53,7 +53,7 @@ public class WebSocketDisconnectEventListener {
         Long gameId = disconnectPlayer(playerDetails, sessionId);
         Long playerId = playerDetails.getPlayer().getId();
 
-        var gameStateDTO = gameEngineService.handleAction(gameId, playerId, PlayerAction.DISCONNECT);
+        var gameStateDTO = gameEngineService.handlePlayerAction(gameId, playerId, PlayerAction.DISCONNECT);
 
         Message<GameStateDTO> message = new GenericMessage<>(gameStateDTO);
         log.debug("Message {}", message);

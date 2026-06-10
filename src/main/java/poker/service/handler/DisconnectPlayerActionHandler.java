@@ -6,14 +6,22 @@ import org.springframework.stereotype.Component;
 import poker.game.GameEngine;
 import poker.game.playeraction.PlayerActions;
 import poker.model.Game;
+import poker.model.Player;
 
 @Component(value = PlayerActions.DISCONNECT)
 @Log4j2
 @ToString
 public class DisconnectPlayerActionHandler implements PlayerActionHandler {
     @Override
-    public void handleAction(GameEngine gameEngine, Game game, Long playerId) {
+    public void handleAction(GameEngine gameEngine, Game game, Player player) {
+        long playerId = player.getId();
+        var thTable = gameEngine.getTable();
+        thTable.removePlayer(playerId);
+        log.info("Player id {} {} game id {}", playerId, PlayerActions.DISCONNECT, game.getId());
+        log.info("{}", gameEngine.getTable());
+
+
 //        player's status updates in WebSocketEventListener
-        log.info("Player id {} {} from game id {}", playerId, PlayerActions.DISCONNECT, game.getId());
+        log.info("Player id {} {} from game id {}", player.getId(), PlayerActions.DISCONNECT, game.getId());
     }
 }

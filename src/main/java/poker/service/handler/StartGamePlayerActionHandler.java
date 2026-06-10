@@ -7,8 +7,10 @@ import org.springframework.stereotype.Component;
 import poker.game.GameEngine;
 import poker.game.playeraction.PlayerActions;
 import poker.game.texasholdem.THEngine;
+import poker.game.texasholdem.THTable;
 import poker.model.Game;
 import poker.model.GameStatus;
+import poker.model.Player;
 import poker.service.GameService;
 
 import java.sql.Timestamp;
@@ -25,8 +27,11 @@ public class StartGamePlayerActionHandler implements PlayerActionHandler {
     }
 
     @Override
-    public void handleAction(GameEngine gameEngine, Game game, Long playerId) {
-        long gameId = game.getId();
+    public void handleAction(GameEngine gameEngine, Game game, Player player) {
+        newGame(gameEngine.getTable());
+        log.info("{} new round, game id {}", PlayerActions.START_GAME, game.getId());
+        log.info("{}", gameEngine.getTable());
+
 
         game.setStatus(GameStatus.PRE_FLOP.getStatus());
         game.setStartedAt(new Timestamp(System.currentTimeMillis()));
@@ -41,6 +46,10 @@ public class StartGamePlayerActionHandler implements PlayerActionHandler {
 //         TODO: update player's statuses
 //         playerService.updatePlayers(players);
 //         gameService.updateGame(game);
-        log.info("Player id {} {} game id {}", playerId, PlayerActions.START_GAME, gameId);
+        log.info("Player id {} {} game id {}", player.getId(), PlayerActions.START_GAME, game.getId());
+    }
+
+    private void newGame(THTable table) {
+        table.setUpNewRound();
     }
 }

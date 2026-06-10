@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import poker.model.Pot;
 import poker.repository.PotRepository;
 
-@Service
+@Service("PotService")
 @Log4j2
 public class PotService {
     private final PotRepository potRepo;

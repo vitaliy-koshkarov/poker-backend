@@ -16,10 +16,10 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Map;
 
-@Service
+@Service("GameEngineService")
 @Log4j2
 public class GameEngineService {
-    private final Map<String, PlayerActionHandler> playerActionsMap;
+    private final Map<String, PlayerActionHandler> playerActionHandlerMap;
     private final GameRegistry gameRegistry;
     private final GameService gameService;
     private final PlayerService playerService;
@@ -27,11 +27,10 @@ public class GameEngineService {
     private final GameEventService gameEventService;
 
     @Autowired
-    public GameEngineService(Map<String, PlayerActionHandler> playerActionsMap, GameRegistry gameRegistry,
+    public GameEngineService(Map<String, PlayerActionHandler> playerActionHandlerMap, GameRegistry gameRegistry,
                              GameService gameService, PlayerService playerService,
                              GameTableService gameTableService, GameEventService gameEventService) {
-        this.playerActionsMap = playerActionsMap;
-        log.debug("Player actions map: {}", playerActionsMap);
+        this.playerActionHandlerMap = playerActionHandlerMap;
         this.gameRegistry = gameRegistry;
         this.gameService = gameService;
         this.playerService = playerService;
@@ -39,7 +38,7 @@ public class GameEngineService {
         this.gameEventService = gameEventService;
     }
 
-    public GameStateDTO handleAction(Long gameId, Long playerId, PlayerAction action) {
+    public GameStateDTO handlePlayerAction(Long gameId, Long playerId, PlayerAction action) {
         log.info("Handling action {} from player id {}", action, playerId);
 
         var gameEngine = gameRegistry.getGameEngine(gameId);
@@ -54,13 +53,9 @@ public class GameEngineService {
         var players = playerService.getPlayersByIds(playerIdsList);
         var actionInitiatorPlayer = playerService.getPlayerById(playerId);
 
-//        update game state in-memory
-        gameEngine.handleAction(action, game, actionInitiatorPlayer);
-
-//        update game state in DB
-        var playerActionHandler = playerActionsMap.get(action.getActionName());
+        var playerActionHandler = playerActionHandlerMap.get(action.getActionName());
         if (playerActionHandler != null) {
-            playerActionHandler.handleAction(gameEngine, game, playerId);
+            playerActionHandler.handleAction(gameEngine, game, actionInitiatorPlayer);
         } else {
             log.info("Suspicious action {} from player id {} in game id {}", action, playerId, game.getId());
         }

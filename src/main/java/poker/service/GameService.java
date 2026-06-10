@@ -14,7 +14,7 @@ import java.sql.Timestamp;
 import java.util.LinkedList;
 import java.util.List;
 
-@Service
+@Service("GameService")
 @Log4j2
 @ToString
 public class GameService {
