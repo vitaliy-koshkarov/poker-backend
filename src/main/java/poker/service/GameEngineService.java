@@ -55,7 +55,7 @@ public class GameEngineService {
 
         var playerActionHandler = playerActionHandlerMap.get(action.getActionName());
         if (playerActionHandler != null) {
-            playerActionHandler.handleAction(gameEngine, game, actionInitiatorPlayer);
+            playerActionHandler.handleAction(gameEngine, game, actionInitiatorPlayer, players);
         } else {
             log.info("Suspicious action {} from player id {} in game id {}", action, playerId, game.getId());
         }

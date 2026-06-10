@@ -8,13 +8,15 @@ import poker.game.playeraction.PlayerActions;
 import poker.model.Game;
 import poker.model.Player;
 
+import java.util.List;
+
 @Component(value = PlayerActions.DISCONNECT)
 @Log4j2
 @ToString
 public class DisconnectPlayerActionHandler implements PlayerActionHandler {
     @Override
-    public void handleAction(GameEngine gameEngine, Game game, Player player) {
-        long playerId = player.getId();
+    public void handleAction(GameEngine gameEngine, Game game, Player actionInitiatorPlayer, List<Player> players) {
+        long playerId = actionInitiatorPlayer.getId();
         var thTable = gameEngine.getTable();
         thTable.removePlayer(playerId);
         log.info("Player id {} {} game id {}", playerId, PlayerActions.DISCONNECT, game.getId());
@@ -22,6 +24,6 @@ public class DisconnectPlayerActionHandler implements PlayerActionHandler {
 
 
 //        player's status updates in WebSocketEventListener
-        log.info("Player id {} {} from game id {}", player.getId(), PlayerActions.DISCONNECT, game.getId());
+        log.info("Player id {} {} from game id {}", actionInitiatorPlayer.getId(), PlayerActions.DISCONNECT, game.getId());
     }
 }
