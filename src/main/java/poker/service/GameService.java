@@ -1,5 +1,6 @@
 package poker.service;
 
+import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import poker.dto.game.CreateGameRequest;
@@ -15,6 +16,7 @@ import java.util.List;
 
 @Service
 @Log4j2
+@ToString
 public class GameService {
     private final GameRepository gameRepo;
     private final PotService potService;
@@ -95,7 +97,6 @@ public class GameService {
         Long userId = playerDetails.getUser().getId();
 
         var gameTable = gameTableService.getGameTableByGameIdAndPlayerId(gameId, player.getId());
-        log.info("PLAYER {} JOIN, GAME TABLE {}", player.getId(), gameTable);
         if (gameTable != null) {
             log.info("PLAYER {} CHIPS {}", player.getId(), player.getChips());
             player.setChips(player.getChips());
@@ -104,6 +105,8 @@ public class GameService {
 
             gameTable = gameTableService.createGameTable(userId, player.getId(), game.getId());
         }
+        log.info("PLAYER {} JOIN, GAME TABLE {}", player.getId(), gameTable);
+
         player.setStatus(PlayerStatus.JOIN_THE_GAME.getStatus());
 
         playerService.updatePlayer(player);

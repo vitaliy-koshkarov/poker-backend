@@ -1,5 +1,6 @@
 package poker.game;
 
+import poker.game.playeraction.PlayerAction;
 import poker.model.Game;
 import poker.model.Player;
 import poker.model.event.GameEventData;

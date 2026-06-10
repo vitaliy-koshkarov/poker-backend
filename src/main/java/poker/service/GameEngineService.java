@@ -1,31 +1,37 @@
 package poker.service;
 
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import poker.dto.game.GameConverter;
 import poker.dto.game.GameStateDTO;
 import poker.dto.player.PlayerConverter;
 import poker.game.*;
-import poker.game.texasholdem.THEngine;
-import poker.model.GameStatus;
+import poker.game.playeraction.PlayerAction;
 import poker.model.GameTable;
 import poker.model.event.GameEvent;
+import poker.service.handler.PlayerActionHandler;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Map;
 
 @Service
 @Log4j2
 public class GameEngineService {
+    private final Map<String, PlayerActionHandler> playerActionsMap;
     private final GameRegistry gameRegistry;
     private final GameService gameService;
     private final PlayerService playerService;
     private final GameTableService gameTableService;
     private final GameEventService gameEventService;
 
-    public GameEngineService(GameRegistry gameRegistry, GameService gameService,
-                             PlayerService playerService, GameTableService gameTableService,
-                             GameEventService gameEventService) {
+    @Autowired
+    public GameEngineService(Map<String, PlayerActionHandler> playerActionsMap, GameRegistry gameRegistry,
+                             GameService gameService, PlayerService playerService,
+                             GameTableService gameTableService, GameEventService gameEventService) {
+        this.playerActionsMap = playerActionsMap;
+        log.debug("Player actions map: {}", playerActionsMap);
         this.gameRegistry = gameRegistry;
         this.gameService = gameService;
         this.playerService = playerService;
@@ -52,31 +58,9 @@ public class GameEngineService {
         gameEngine.handleAction(action, game, actionInitiatorPlayer);
 
 //        update game state in DB
-        if (PlayerAction.JOIN_GAME.equals(action)) {
-//            player updates in SUBSCRIBE Controller method
-            log.info("Player id {} joined to game id {}", playerId, gameId);
-        } else if (PlayerAction.START_GAME.equals(action)) {
-            game.setStatus(GameStatus.PRE_FLOP.getStatus());
-            game.setStartedAt(new Timestamp(System.currentTimeMillis()));
-
-            long dealerId = ((THEngine) gameEngine).getDealerId();
-            game.setDealerId(dealerId);
-
-            long activePlayerId = ((THEngine) gameEngine).getActivePlayerId();
-            game.setActivePlayerId(activePlayerId);
-
-            gameService.updateGame(game);
-//            TODO: update player's statuses
-//            playerService.updatePlayers(players);
-//            gameService.updateGame(game);
-            log.info("Player id {} started game id {}", playerId, gameId);
-        } else if (PlayerAction.DISCONNECT.equals(action)) {
-//            player's status updates in WebSocketEventListener
-            log.info("Player id {} disconnected from game id {}", playerId, gameId);
-        } else if (PlayerAction.FOLD.equals(action)) {
-        } else if (PlayerAction.BET.equals(action)) {
-        } else if (PlayerAction.CHECK.equals(action)) {
-        } else if (PlayerAction.ALL_IN.equals(action)) {
+        var playerActionHandler = playerActionsMap.get(action.getActionName());
+        if (playerActionHandler != null) {
+            playerActionHandler.handleAction(gameEngine, game, playerId);
         } else {
             log.info("Suspicious action {} from player id {} in game id {}", action, playerId, game.getId());
         }

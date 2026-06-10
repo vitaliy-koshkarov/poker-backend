@@ -2,7 +2,7 @@ package poker.game.texasholdem;
 
 import lombok.extern.log4j.Log4j2;
 import poker.game.GameEngine;
-import poker.game.PlayerAction;
+import poker.game.playeraction.PlayerAction;
 import poker.model.Game;
 import poker.model.Player;
 import poker.model.event.GameEventData;
