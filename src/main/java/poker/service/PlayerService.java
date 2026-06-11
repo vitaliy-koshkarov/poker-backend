@@ -3,7 +3,9 @@ package poker.service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import poker.model.Player;
+import poker.model.PlayerDetails;
 import poker.model.PlayerStatus;
 import poker.repository.PlayerRepository;
 
@@ -19,6 +21,7 @@ public class PlayerService {
         this.playerRepo = playerRepo;
     }
 
+    @Transactional(readOnly = true)
     public boolean isPlayerExistsByNickname(String nickname) {
         return playerRepo.existsByNickname(nickname);
     }
@@ -37,6 +40,7 @@ public class PlayerService {
         return newPlayer;
     }
 
+    @Transactional(readOnly = true)
     public Player getPlayerByUserId(long userId) {
         return playerRepo.findPlayerByUserId(userId);
     }
@@ -46,7 +50,10 @@ public class PlayerService {
             .orElseThrow(() -> new EntityNotFoundException("Not found player by id " + playerId));
     }
 
-    public void updateProfileInfo(long playerId, String nickname) {
+    @Transactional(rollbackFor = Exception.class)
+    public void updateProfileInfo(PlayerDetails playerDetails, String nickname) {
+        log.info("Update nickname request to {}", nickname);
+        long playerId = playerDetails.getPlayer().getId();
         playerRepo.updatePlayerNickname(playerId, nickname);
         log.info("Updated nickname to {}, player id {}", nickname, playerId);
     }

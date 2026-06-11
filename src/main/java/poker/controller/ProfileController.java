@@ -5,8 +5,6 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import poker.model.Player;
-import poker.model.User;
 import poker.service.AuthService;
 import poker.dto.profile.ProfileInfoRequest;
 import poker.dto.profile.ProfileInfoResponse;
@@ -53,12 +51,9 @@ public class ProfileController {
 
     @PostMapping("/updateProfileInfo")
     public ResponseEntity<?> updateProfileInfo(@RequestBody ProfileInfoRequest req) {
-        long userId = Util.getPlayerDetailsFronCtx().getUser().getId();
-        Player player = playerService.getPlayerByUserId(userId);
-        long playerId = player.getId();
-        String newNickname = req.nickname();
-        playerService.updateProfileInfo(playerId, newNickname);
-        log.info("Update profile info, player id {}", playerId);
+        var playerDetails = Util.getPlayerDetailsFronCtx();
+
+        playerService.updateProfileInfo(playerDetails, req.nickname());
 
         return ResponseEntity.ok().build();
     }
@@ -69,7 +64,7 @@ public class ProfileController {
         Long userId = authService.extractUserIdFromJwt(httpServletRequest);
         log.info("Change password request user id {}", userId);
 
-        User user = userService.getUserById(userId);
+        var playerDetails = Util.getPlayerDetailsFronCtx();
 
 //        TODO: Check and compare:
 //         1. User.id from JWT and SecurityContextHolder
@@ -77,13 +72,13 @@ public class ProfileController {
         var currentPass = req.currentPassword();
         var newPass = req.newPassword();
 
-        if (!passwordEncoder.matches(currentPass, user.getPassword())) {
+        if (!passwordEncoder.matches(currentPass, playerDetails.getUser().getPassword())) {
             log.error("Passwords do not match for user {}", userId);
             return ResponseEntity.badRequest().body("Wrong current password");
         }
 
         if (currentPass.equals(newPass)) {
-            log.info("The passwords are no different");
+            log.info("The passwords must be different");
             return ResponseEntity.badRequest().body("The new password must be different from the current one");
         }
 

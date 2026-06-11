@@ -52,10 +52,14 @@ public class AuthController {
         }
 
         var now = new Timestamp(System.currentTimeMillis());
-        var player = playerService.createPlayer(registerRequest.nickname(), now);
-        var user = userService.createUser(registerRequest.email(), registerRequest.password(), player.getId(), now);
 
-        var token = authService.generateToken(user);
+        var user = userService.createUser(registerRequest.email(), registerRequest.password(),
+            registerRequest.nickname(), now);
+
+        String token = "";
+        if (user != null) {
+            token = authService.generateToken(user);
+        }
 
         return new AuthResponse(token);
     }

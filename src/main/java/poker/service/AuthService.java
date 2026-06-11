@@ -8,6 +8,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import poker.model.User;
 
 import java.nio.charset.StandardCharsets;
@@ -70,6 +71,7 @@ public class AuthService {
         return extractClaims(token).get("role", String.class);
     }
 
+    @Transactional(readOnly = true)
     public Authentication authenticate(String jwt) {
         long userId = extractUserId(jwt);
 

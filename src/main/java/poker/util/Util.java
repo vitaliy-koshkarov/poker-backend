@@ -4,12 +4,10 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 import poker.model.PlayerDetails;
 
 import java.security.Principal;
 
-@Component
 @Log4j2
 public class Util {
     public static final long DEFAULT_LONG_VALUE = 0;

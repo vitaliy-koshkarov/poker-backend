@@ -1,8 +1,10 @@
 package poker.service;
 
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import poker.model.Role;
 import poker.model.User;
 import poker.repository.UserRepository;
@@ -14,22 +16,29 @@ import java.sql.Timestamp;
 public class UserService {
     private final UserRepository userRepo;
     private final PasswordEncoder passwordEncoder;
+    private final PlayerService playerService;
 
-    public UserService(UserRepository userRepo, PasswordEncoder passwordEncoder) {
+    @Autowired
+    public UserService(UserRepository userRepo, PasswordEncoder passwordEncoder, PlayerService playerService) {
         this.userRepo = userRepo;
         this.passwordEncoder = passwordEncoder;
+        this.playerService = playerService;
     }
 
+    @Transactional(readOnly = true)
     public boolean isUserExistsByEmail(String email) {
         return userRepo.existsByEmail(email);
     }
 
-    public User createUser(String email, String password, Long playerId, Timestamp now) {
+    @Transactional(rollbackFor = Exception.class)
+    public User createUser(String email, String password, String nickname, Timestamp now) {
+        var player = playerService.createPlayer(nickname, now);
+
         var user = User.builder()
             .email(email)
             .password(passwordEncoder.encode(password))
             .role(Role.ROLE_USER)
-            .playerId(playerId)
+            .playerId(player.getId())
             .createdAt(now)
             .build();
 
@@ -38,6 +47,7 @@ public class UserService {
         return newUser;
     }
 
+    @Transactional(readOnly = true)
     public User getUserByEmail(String email) {
         return userRepo.findUserByEmail(email);
     }
@@ -46,6 +56,7 @@ public class UserService {
         return userRepo.findUserById(userId);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public void updateUserPassword(long userId, String password) {
         userRepo.updatePassword(userId, password);
         log.info("Password updated user id {}", userId);

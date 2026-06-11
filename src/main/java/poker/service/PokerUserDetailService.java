@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import poker.model.PlayerDetails;
 import poker.repository.PlayerRepository;
 import poker.repository.UserRepository;
@@ -22,6 +23,7 @@ public class PokerUserDetailService implements UserDetailsService {
     }
 
     @Override
+    @Transactional(readOnly = true, rollbackFor = Exception.class)
     public UserDetails loadUserByUsername(String email) {
         var user = userRepo.findUserByEmail(email);
         var player = playerRepo.findPlayerByUserId(user.getId());
