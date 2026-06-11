@@ -3,6 +3,7 @@ package poker.service;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import poker.dto.game.CreateGameRequest;
 import poker.dto.game.GameConverter;
 import poker.dto.game.GameDTO;
@@ -31,6 +32,7 @@ public class GameService {
         this.gameTableService = gameTableService;
     }
 
+    @Transactional(readOnly = true)
     public List<GameDTO> getGamesList() {
         List<GameDTO> gameDTOList = new LinkedList<>();
         List<Game> games = gameRepo.findAllNotEndedGames(GameStatus.END.getStatus());
@@ -45,7 +47,8 @@ public class GameService {
         return gameDTOList;
     }
 
-    public Game createGame(Long creatorPlayerId, CreateGameRequest createGameRequest) {
+    @Transactional(rollbackFor = Exception.class)
+    public Game createGame(long creatorPlayerId, CreateGameRequest createGameRequest) {
         var pot = potService.createPot();
 
         var game = Game.builder()
@@ -61,11 +64,12 @@ public class GameService {
             .build();
 
         var newGame = gameRepo.save(game);
-        log.info("Game created {} by player id {}", newGame, creatorPlayerId);
+        log.info("Created {} by player id {}", newGame, creatorPlayerId);
 
         return newGame;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public void removeGame(Long gameId) {
         var game = gameRepo.findGameById(gameId);
         Long potId = game.getPotId();

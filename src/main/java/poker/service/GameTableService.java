@@ -36,7 +36,7 @@ public class GameTableService {
         gameTableRepo.removeGameTableByUserIdAndPlayerIdAndGameId(userId, playerId, gameId);
     }
 
-    public List<GameTable> getGameTablesByGameId(Long gameId) {
+    public List<GameTable> getGameTablesByGameId(long gameId) {
         return gameTableRepo.findAllGameTablesByGameId(gameId);
     }
 

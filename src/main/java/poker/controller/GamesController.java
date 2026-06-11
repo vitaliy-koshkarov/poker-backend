@@ -1,6 +1,7 @@
 package poker.controller;
 
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import poker.dto.game.CreateGameRequest;
@@ -25,22 +26,30 @@ public class GamesController {
 
     @GetMapping
     public List<GameDTO> getGames() {
-        log.info("Get list of games");
-        return gameService.getGamesList();
+        log.info("Get games list");
+        var gamesList = gameService.getGamesList();
+        log.info("Return games list");
+        return gamesList;
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createGame(@RequestBody CreateGameRequest createGameRequest) {
-        Long creatorPlayerId = Util.getPlayerDetailsFronCtx()
+    public ResponseEntity<String> createGame(@RequestBody CreateGameRequest createGameRequest) {
+        var creatorPlayerId = Util.getPlayerDetailsFronCtx()
             .getPlayer()
             .getId();
-        log.info("Create game {} from player {}", createGameRequest, creatorPlayerId);
+        log.info("Create game request {} from player id {}", createGameRequest, creatorPlayerId);
 
         var game = gameService.createGame(creatorPlayerId, createGameRequest);
 
-        gameRegistry.registerGame(game);
+        if (game != null) {
+            gameRegistry.registerGame(game);
+            log.info("Created game id {}", game.getId());
+            return ResponseEntity.ok().build();
+        }
 
-        return ResponseEntity.ok().build();
+        log.error("Creation game error");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Game creation error. Please, try again later");
     }
 
     @DeleteMapping("/delete/{id}")
@@ -48,5 +57,6 @@ public class GamesController {
         long userId = Util.getPlayerDetailsFronCtx().getUser().getId();
         log.info("Remove game request, game id {}, user id {}", id, userId);
         gameService.removeGame(id);
+        log.info("Game id {} successfully removed", id);
     }
 }

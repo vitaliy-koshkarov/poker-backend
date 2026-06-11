@@ -1,5 +1,6 @@
 package poker.game;
 
+import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 import poker.game.texasholdem.THEngine;
@@ -11,8 +12,9 @@ import poker.model.GameStatus;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Component
+@Component("GameRegistry")
 @Log4j2
+@ToString
 public class GameRegistry {
     private final Map<Long, GameEngine> gameEngineMap = new ConcurrentHashMap<>();
 
