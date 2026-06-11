@@ -8,6 +8,7 @@ import poker.dto.game.GameStateDTO;
 import poker.dto.player.PlayerConverter;
 import poker.game.*;
 import poker.game.playeraction.PlayerAction;
+import poker.model.Game;
 import poker.model.GameTable;
 import poker.model.Player;
 import poker.model.PlayerDetails;
@@ -55,6 +56,12 @@ public class GameEngineService {
             log.info("Suspicious action {} from player id {} in game id {}", action, playerId, game.getId());
         }
 
+        createAndSaveGameEvent(gameEngine, gameId, playerId, action);
+
+        return returnGameStateDTO(game);
+    }
+
+    private void createAndSaveGameEvent(GameEngine gameEngine, long gameId, long playerId, PlayerAction action) {
         var gameEventData = gameEngine.getGameEventData();
 
         var gameEvent = GameEvent.builder()
@@ -67,8 +74,10 @@ public class GameEngineService {
 
         long eventId = gameEventService.saveEvent(gameEvent);
         log.info("Handled action {} from player id {}, event id {}", action, playerId, eventId);
+    }
 
-        List<GameTable> gameTableList = gameTableService.getGameTablesByGameId(gameId);
+    private GameStateDTO returnGameStateDTO(Game game) {
+        List<GameTable> gameTableList = gameTableService.getGameTablesByGameId(game.getId());
         var playerIdsList = new ArrayList<Long>();
         for (GameTable gameTable : gameTableList) {
             playerIdsList.add(gameTable.getPlayerId());
