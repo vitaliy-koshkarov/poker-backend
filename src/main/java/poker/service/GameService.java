@@ -33,7 +33,7 @@ public class GameService {
 
     public List<GameDTO> getGamesList() {
         List<GameDTO> gameDTOList = new LinkedList<>();
-        List<Game> games = gameRepo.findAllGamesByOrderByIdAsc();
+        List<Game> games = gameRepo.findAllNotEndedGames(GameStatus.END.getStatus());
 
         List<GameTable> gameTables;
         for (Game game : games) {

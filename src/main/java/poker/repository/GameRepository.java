@@ -13,15 +13,21 @@ import java.util.List;
 
 @Repository
 public interface GameRepository extends JpaRepository<Game, Long> {
+
+    @Query(value = "SELECT g FROM Game g WHERE g.status != :status ORDER BY g.id ASC")
     @Transactional(readOnly = true)
-    List<Game> findAllGamesByOrderByIdAsc();
+    List<Game> findAllNotEndedGames(@Param("status") int gameStatus);
 
     @Query("SELECT g FROM Game g WHERE g.id = :gameId")
     @Transactional(readOnly = true)
     Game findGameById(@Param("gameId") long gameId);
 
-    @Query(value = "UPDATE Game AS g SET g.status = :gameStatus, g.startedAt = :now WHERE g.id = :gameId")
     @Modifying
+    @Query("""
+                UPDATE Game AS g
+                SET g.status = :gameStatus, g.startedAt = :now
+                WHERE g.id = :gameId
+        """)
     @Transactional
     void startGame(Long gameId, Integer gameStatus, Timestamp now);
 }

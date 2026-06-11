@@ -71,7 +71,7 @@ public class AuthService {
     }
 
     public Authentication authenticate(String jwt) {
-        Long userId = extractUserId(jwt);
+        long userId = extractUserId(jwt);
 
         var playerDetails = puds.getUserById(userId);
 
