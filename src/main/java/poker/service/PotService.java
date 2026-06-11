@@ -23,10 +23,6 @@ public class PotService {
         return newPot;
     }
 
-    public Pot getPotById(Long potId) {
-        return potRepo.getPotById(potId);
-    }
-
     public void deleteById(Long potId) {
         potRepo.deleteById(potId);
     }

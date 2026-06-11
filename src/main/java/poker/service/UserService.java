@@ -52,10 +52,6 @@ public class UserService {
         return userRepo.findUserByEmail(email);
     }
 
-    public User getUserById(Long userId) {
-        return userRepo.findUserById(userId);
-    }
-
     @Transactional(rollbackFor = Exception.class)
     public void updateUserPassword(long userId, String password) {
         userRepo.updatePassword(userId, password);

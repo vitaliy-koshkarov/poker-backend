@@ -70,7 +70,7 @@ public class GameService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void removeGame(Long gameId) {
+    public void removeGame(long gameId) {
         var game = gameRepo.findGameById(gameId);
         Long potId = game.getPotId();
 
@@ -84,6 +84,7 @@ public class GameService {
         log.info("Removed pot id {}", potId);
     }
 
+    @Transactional(readOnly = true)
     public Game getGameById(Long gameId) {
         return gameRepo.findGameById(gameId);
     }

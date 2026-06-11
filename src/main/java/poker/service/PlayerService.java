@@ -45,11 +45,6 @@ public class PlayerService {
         return playerRepo.findPlayerByUserId(userId);
     }
 
-    public Player getPlayerById(Long playerId) {
-        return playerRepo.findById(playerId)
-            .orElseThrow(() -> new EntityNotFoundException("Not found player by id " + playerId));
-    }
-
     @Transactional(rollbackFor = Exception.class)
     public void updateProfileInfo(PlayerDetails playerDetails, String nickname) {
         log.info("Update nickname request to {}", nickname);

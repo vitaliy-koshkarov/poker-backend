@@ -13,12 +13,15 @@ import org.springframework.messaging.support.GenericMessage;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import poker.dto.game.GameDTO;
 import poker.dto.game.GameStateDTO;
 import poker.game.playeraction.PlayerAction;
 import poker.model.PlayerDetails;
 import poker.service.GameEngineService;
 import poker.service.GameService;
 import poker.service.WebSocketPlayerSessionService;
+
+import java.util.Collections;
 
 @Controller
 @Log4j2
@@ -52,17 +55,28 @@ public class WebSocketGameController {
 
         var gameStateDTO = gameEngineService.handlePlayerAction(gameId, playerDetails, PlayerAction.JOIN_GAME);
 
-        String sessionID = stompHeaderAccessor.getSessionId();
-        webSocketPlayerSessionService.addSession(userId, playerId, gameId, sessionID);
+        if (gameStateDTO != null) {
+            String sessionID = stompHeaderAccessor.getSessionId();
+            webSocketPlayerSessionService.addSession(userId, playerId, gameId, sessionID);
 
-        log.info("SUBSCRIBE {}", gameStateDTO);
+            log.info("SUBSCRIBE {}", gameStateDTO);
 
-//        notify other players about some player joined to the game
-        String destination = "/topic/gameTable/" + gameId;
-        Message<GameStateDTO> message = new GenericMessage<>(gameStateDTO);
-        simpMessagingTemplate.convertAndSend(destination, message);
+//            notify other players about some player joined to the game
+            String destination = "/topic/gameTable/" + gameId;
+            Message<GameStateDTO> message = new GenericMessage<>(gameStateDTO);
+            simpMessagingTemplate.convertAndSend(destination, message);
 
-//        return initial game state to subscribed user
+            return gameStateDTO;
+        }
+
+//        TODO: return last valid game state
+        gameStateDTO = GameStateDTO
+            .builder()
+            .gameDTO(GameDTO.builder().build())
+            .playerDTOList(Collections.emptyList())
+            .build();
+
+        log.info("GameStateDTO: {}", gameStateDTO);
         return gameStateDTO;
     }
 
@@ -81,12 +95,14 @@ public class WebSocketGameController {
         }
 
         GameStateDTO gameStateDTO = gameEngineService.handlePlayerAction(gameId, playerDetails, PlayerAction.START_GAME);
-        log.info("Start game, gameStateDTO {}", gameStateDTO);
+        if (gameStateDTO != null) {
+            log.info("Start game, gameStateDTO {}", gameStateDTO);
 
-        Message<GameStateDTO> outboundMessage = new GenericMessage<>(gameStateDTO);
-        log.info("Start game, message {}", outboundMessage);
+            Message<GameStateDTO> outboundMessage = new GenericMessage<>(gameStateDTO);
+            log.info("Start game, message {}", outboundMessage);
 
-        simpMessagingTemplate.convertAndSend("/topic/gameTable/" + gameId, outboundMessage);
+            simpMessagingTemplate.convertAndSend("/topic/gameTable/" + gameId, outboundMessage);
+        } // else handler error on client (frontend) side
     }
 
     @MessageMapping("/table/{id}")

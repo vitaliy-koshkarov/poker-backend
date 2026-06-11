@@ -3,6 +3,7 @@ package poker.service;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import poker.dto.game.GameConverter;
 import poker.dto.game.GameStateDTO;
 import poker.dto.player.PlayerConverter;
@@ -42,6 +43,7 @@ public class GameEngineService {
         this.gameEventService = gameEventService;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public GameStateDTO handlePlayerAction(Long gameId, PlayerDetails playerDetails, PlayerAction action) {
         long playerId = playerDetails.getPlayer().getId();
         log.info("Handling action {} from player id {}", action, playerId);

@@ -32,7 +32,7 @@ public class GameTableService {
         return newGameTable;
     }
 
-    public void removePlayerFromGameTable(Long userId, Long playerId, Long gameId) {
+    public void removePlayerFromGameTable(long userId, long playerId, long gameId) {
         gameTableRepo.removeGameTableByUserIdAndPlayerIdAndGameId(userId, playerId, gameId);
     }
 
@@ -46,11 +46,11 @@ public class GameTableService {
      * @return {@link GameTable} associated with this {@link Game#getId()} and {@link Player#getId()},
      * or null if there is nothing
      */
-    public GameTable getGameTableByGameIdAndPlayerId(Long gameId, Long playerId) {
+    public GameTable getGameTableByGameIdAndPlayerId(long gameId, long playerId) {
         return gameTableRepo.findGameTableByGameIdAndPlayerId(gameId, playerId);
     }
 
-    public void deleteGameTableByIdGameId(Long gameId) {
+    public void deleteGameTableByIdGameId(long gameId) {
         gameTableRepo.removeGameTableByGameId(gameId);
     }
 }

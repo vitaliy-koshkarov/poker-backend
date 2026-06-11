@@ -10,5 +10,5 @@ import poker.model.Pot;
 public interface PotRepository extends JpaRepository<Pot, Long> {
 
     @Query("SELECT p FROM Pot p WHERE p.id = :potId")
-    Pot getPotById(@Param("potId") Long potId);
+    Pot getPotById(@Param("potId") long potId);
 }

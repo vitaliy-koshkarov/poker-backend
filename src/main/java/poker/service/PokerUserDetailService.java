@@ -23,7 +23,7 @@ public class PokerUserDetailService implements UserDetailsService {
     }
 
     @Override
-    @Transactional(readOnly = true, rollbackFor = Exception.class)
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String email) {
         var user = userRepo.findUserByEmail(email);
         var player = playerRepo.findPlayerByUserId(user.getId());
