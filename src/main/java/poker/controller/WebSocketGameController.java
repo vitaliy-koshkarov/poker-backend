@@ -42,26 +42,18 @@ public class WebSocketGameController {
                              StompHeaderAccessor stompHeaderAccessor) {
         var playerDetails = ((PlayerDetails) authentication.getPrincipal());
         log.debug("SUBSCRIBE player details {}", playerDetails);
-        Long userId = playerDetails.getUser().getId();
+        long userId = playerDetails.getUser().getId();
+        long playerId = playerDetails.getPlayer().getId();
 
-//        TODO:
-//          1. Do "gameService.joinPlayerToGame(gameId, playerDetails)" inside handlePlayerAction()
-//          2. Create session after (if) successful handling
+//        TODO: if player eliminated, then he can not join the game
 
-        log.info("SUBSCRIBE user id {}, game id {}", userId, gameId);
+        log.info("SUBSCRIBE user id {}, player id {}, game id {}", userId, playerId, gameId);
         log.debug("SUBSCRIBE authentication {}", authentication);
 
-        var game = gameService.joinPlayerToGame(gameId, playerDetails);
+        var gameStateDTO = gameEngineService.handlePlayerAction(gameId, playerDetails, PlayerAction.JOIN_GAME);
 
-        Long playerId = playerDetails.getPlayer().getId();
         String sessionID = stompHeaderAccessor.getSessionId();
-
-        webSocketPlayerSessionService.addSession(userId, playerId, game.getId(), sessionID);
-        log.info("SUBSCRIBE user id {} joined to game id {}", userId, gameId);
-
-        log.debug("SUBSCRIBE player details {}", playerDetails);
-
-        var gameStateDTO = gameEngineService.handlePlayerAction(gameId, playerId, PlayerAction.JOIN_GAME);
+        webSocketPlayerSessionService.addSession(userId, playerId, gameId, sessionID);
 
         log.info("SUBSCRIBE {}", gameStateDTO);
 
@@ -88,7 +80,7 @@ public class WebSocketGameController {
             return;
         }
 
-        GameStateDTO gameStateDTO = gameEngineService.handlePlayerAction(gameId, playerId, PlayerAction.START_GAME);
+        GameStateDTO gameStateDTO = gameEngineService.handlePlayerAction(gameId, playerDetails, PlayerAction.START_GAME);
         log.info("Start game, gameStateDTO {}", gameStateDTO);
 
         Message<GameStateDTO> outboundMessage = new GenericMessage<>(gameStateDTO);

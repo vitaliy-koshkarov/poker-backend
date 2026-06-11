@@ -18,7 +18,7 @@ public interface GameRepository extends JpaRepository<Game, Long> {
 
     @Query("SELECT g FROM Game g WHERE g.id = :gameId")
     @Transactional(readOnly = true)
-    Game findGameById(@Param("gameId") Long gameId);
+    Game findGameById(@Param("gameId") long gameId);
 
     @Query(value = "UPDATE Game AS g SET g.status = :gameStatus, g.startedAt = :now WHERE g.id = :gameId")
     @Modifying

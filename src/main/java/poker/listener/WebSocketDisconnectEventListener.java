@@ -18,16 +18,13 @@ import poker.service.*;
 @Log4j2
 public class WebSocketDisconnectEventListener {
     private final WebSocketPlayerSessionService webSocketPlayerSessionService;
-    private final PlayerService playerService;
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final GameEngineService gameEngineService;
 
     public WebSocketDisconnectEventListener(WebSocketPlayerSessionService webSocketPlayerSessionService,
-                                            PlayerService playerService,
                                             SimpMessagingTemplate simpMessagingTemplate,
                                             GameEngineService gameEngineService) {
         this.webSocketPlayerSessionService = webSocketPlayerSessionService;
-        this.playerService = playerService;
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.gameEngineService = gameEngineService;
     }
@@ -48,12 +45,14 @@ public class WebSocketDisconnectEventListener {
         var playerDetails = (PlayerDetails) authentication.getPrincipal();
 
         String sessionId = event.getSessionId();
-        log.info("Disconnect session id {}", sessionId);
+        var playerGameSession = webSocketPlayerSessionService.getPlayerSession(sessionId);
+        long gameId = playerGameSession.gameId();
+        long playerId = playerDetails.getPlayer().getId();
 
-        Long gameId = disconnectPlayer(playerDetails, sessionId);
-        Long playerId = playerDetails.getPlayer().getId();
+        var gameStateDTO = gameEngineService.handlePlayerAction(gameId, playerDetails, PlayerAction.DISCONNECT);
 
-        var gameStateDTO = gameEngineService.handlePlayerAction(gameId, playerId, PlayerAction.DISCONNECT);
+        webSocketPlayerSessionService.removeSession(sessionId);
+        log.info("Disconnect player id {} session id {}", playerId, sessionId);
 
         Message<GameStateDTO> message = new GenericMessage<>(gameStateDTO);
         log.debug("Message {}", message);
@@ -62,33 +61,6 @@ public class WebSocketDisconnectEventListener {
 //        Notify other players about some player disconnected and update game state
         simpMessagingTemplate.convertAndSend(destination, message);
 
-        log.info("Player {} disconnected from {}", playerId, destination);
-    }
-
-    /**
-     * Removes player's session, updates {@link Player#getStatus()} and removes from {@link GameTable}
-     * @param playerDetails object with user and player data
-     * @param sessionId web socket session of the player
-     * @return {@link Game#getId()}
-     */
-    private Long disconnectPlayer(PlayerDetails playerDetails, String sessionId) {
-        Long userId = playerDetails.getUser().getId();
-        Long playerId = playerDetails.getPlayer().getId();
-
-        var playerSession = webSocketPlayerSessionService.removeSession(sessionId);
-        log.info("Disconnect event, player session {}", playerSession);
-
-        Player player = playerDetails.getPlayer();
-        player.setStatus(PlayerStatus.NOT_IN_GAME.getStatus());
-//        TODO: 1. Check the reason of disconnection
-//              2. Set chips to 0 after N minutes
-        playerService.updatePlayer(player);
-
-        Long gameId = playerSession.gameId();
-
-        log.info("Disconnect event user id {}, player id {} left game id {}", userId, playerId, gameId);
-        log.debug("Disconnect event player details {}", playerDetails);
-
-        return gameId;
+        log.info("Player id {} disconnected from {}", playerId, destination);
     }
 }

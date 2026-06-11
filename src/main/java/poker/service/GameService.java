@@ -85,17 +85,17 @@ public class GameService {
     }
 
     /**
-     * Updates player's status to {@link PlayerStatus#JOIN_THE_GAME} and chips to {@link Game#getBuyIn()}.</br>
+     * Updates player's status to {@link PlayerStatus#JOIN_THE_GAME} and chips.</br>
      * Created {@link GameTable} entity
      * @param gameId {@link Game#getId()}
      * @param playerDetails {@link PlayerDetails} with info of this {@link User} and {@link Player}
-     * @return {@link Game} the player joins
      */
-    public Game joinPlayerToGame(Long gameId, PlayerDetails playerDetails) {
+    public void joinPlayerToGame(long gameId, PlayerDetails playerDetails) {
         var game = gameRepo.findGameById(gameId);
         var player = playerDetails.getPlayer();
-        Long userId = playerDetails.getUser().getId();
+        long userId = playerDetails.getUser().getId();
 
+//        TODO: think how to handle accidental disconnects
         var gameTable = gameTableService.getGameTableByGameIdAndPlayerId(gameId, player.getId());
         if (gameTable != null) {
             log.info("PLAYER {} CHIPS {}", player.getId(), player.getChips());
@@ -112,8 +112,6 @@ public class GameService {
         playerService.updatePlayer(player);
 
         log.info("User id {} joined, game id {}, game table id {}", userId, game.getId(), gameTable.getId());
-
-        return game;
     }
 
     public void updateGame(Game game) {

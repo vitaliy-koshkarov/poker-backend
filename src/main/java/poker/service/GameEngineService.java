@@ -9,11 +9,14 @@ import poker.dto.player.PlayerConverter;
 import poker.game.*;
 import poker.game.playeraction.PlayerAction;
 import poker.model.GameTable;
+import poker.model.Player;
+import poker.model.PlayerDetails;
 import poker.model.event.GameEvent;
 import poker.service.handler.PlayerActionHandler;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Service("GameEngineService")
@@ -38,24 +41,16 @@ public class GameEngineService {
         this.gameEventService = gameEventService;
     }
 
-    public GameStateDTO handlePlayerAction(Long gameId, Long playerId, PlayerAction action) {
+    public GameStateDTO handlePlayerAction(Long gameId, PlayerDetails playerDetails, PlayerAction action) {
+        long playerId = playerDetails.getPlayer().getId();
         log.info("Handling action {} from player id {}", action, playerId);
 
         var gameEngine = gameRegistry.getGameEngine(gameId);
-
         var game = gameService.getGameById(gameId);
-        var gameTableList = gameTableService.getGameTablesByGameId(gameId);
-
-        var playerIdsList = new ArrayList<Long>();
-        for (GameTable gameTable : gameTableList) {
-            playerIdsList.add(gameTable.getPlayerId());
-        }
-        var players = playerService.getPlayersByIds(playerIdsList);
-        var actionInitiatorPlayer = playerService.getPlayerById(playerId);
 
         var playerActionHandler = playerActionHandlerMap.get(action.getActionName());
         if (playerActionHandler != null) {
-            playerActionHandler.handleAction(gameEngine, game, actionInitiatorPlayer, players);
+            playerActionHandler.handleAction(gameEngine, game, playerDetails);
         } else {
             log.info("Suspicious action {} from player id {} in game id {}", action, playerId, game.getId());
         }
@@ -70,8 +65,15 @@ public class GameEngineService {
             .createdAt(new Timestamp(System.currentTimeMillis()))
             .build();
 
-        Long eventId = gameEventService.saveEvent(gameEvent);
+        long eventId = gameEventService.saveEvent(gameEvent);
         log.info("Handled action {} from player id {}, event id {}", action, playerId, eventId);
+
+        List<GameTable> gameTableList = gameTableService.getGameTablesByGameId(gameId);
+        var playerIdsList = new ArrayList<Long>();
+        for (GameTable gameTable : gameTableList) {
+            playerIdsList.add(gameTable.getPlayerId());
+        }
+        List<Player> players = playerService.getPlayersByIds(playerIdsList);
 
         var gameDTO = GameConverter.toDTO(game, gameTableList.size());
         var playerDTOList = PlayerConverter.toListDTO(players);

@@ -14,7 +14,7 @@ public class GameEventService {
         this.gameEventRepo = gameEventRepo;
     }
 
-    public Long saveEvent(GameEvent gameEvent) {
+    public long saveEvent(GameEvent gameEvent) {
         var savedGameEvent = gameEventRepo.save(gameEvent);
         log.info("Saved game event {}", gameEvent);
         return savedGameEvent.getId();

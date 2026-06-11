@@ -11,10 +11,12 @@ import poker.game.texasholdem.THPlayer;
 import poker.model.Game;
 import poker.model.GameStatus;
 import poker.model.Player;
+import poker.model.PlayerDetails;
 import poker.service.GameService;
 import poker.service.PlayerService;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component(value = PlayerActions.START_GAME)
@@ -31,10 +33,10 @@ public class StartGamePlayerActionHandler implements PlayerActionHandler {
     }
 
     @Override
-    public void handleAction(GameEngine gameEngine, Game game, Player actionInitiatorPlayer, List<Player> players) {
+    public void handleAction(GameEngine gameEngine, Game game, PlayerDetails playerDetails) {
         engineHandling(gameEngine, game);
 
-        repositoryHandling(gameEngine, game, actionInitiatorPlayer, players);
+        repositoryHandling(gameEngine, game, playerDetails.getPlayer().getId());
     }
 
     private void engineHandling(GameEngine gameEngine, Game game) {
@@ -43,7 +45,7 @@ public class StartGamePlayerActionHandler implements PlayerActionHandler {
         log.info("{}", gameEngine.getTable());
     }
 
-    private void repositoryHandling(GameEngine gameEngine, Game game, Player actionInitiatorPlayer, List<Player> players) {
+    private void repositoryHandling(GameEngine gameEngine, Game game, long playerId) {
         game.setStatus(GameStatus.PRE_FLOP.getStatus());
         game.setStartedAt(new Timestamp(System.currentTimeMillis()));
 
@@ -55,6 +57,11 @@ public class StartGamePlayerActionHandler implements PlayerActionHandler {
         gameService.updateGame(game);
 
         List<THPlayer> thPlayers = gameEngine.getTable().getPlayers();
+        List<Long> playerIds = new ArrayList<>();
+        for (THPlayer thPlayer : thPlayers) {
+            playerIds.add(thPlayer.getId());
+        }
+        var players = playerService.getPlayersByIds(playerIds);
         for (Player player : players) {
             for (THPlayer thPlayer : thPlayers) {
                 if (thPlayer.getId() == player.getId()) {
@@ -64,6 +71,6 @@ public class StartGamePlayerActionHandler implements PlayerActionHandler {
         }
         playerService.updatePlayers(players);
 
-        log.info("Player id {} {} game id {}", actionInitiatorPlayer.getId(), PlayerActions.START_GAME, game.getId());
+        log.info("Player id {} {} game id {}", playerId, PlayerActions.START_GAME, game.getId());
     }
 }

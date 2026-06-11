@@ -2,10 +2,8 @@ package poker.service.handler;
 
 import poker.game.GameEngine;
 import poker.model.Game;
-import poker.model.Player;
-
-import java.util.List;
+import poker.model.PlayerDetails;
 
 public interface PlayerActionHandler {
-    void handleAction(GameEngine gameEngine, Game game, Player actionInitiatorPlayer, List<Player> players);
+    void handleAction(GameEngine gameEngine, Game game, PlayerDetails playerDetails);
 }
