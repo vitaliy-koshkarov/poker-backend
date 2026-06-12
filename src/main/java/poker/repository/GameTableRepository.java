@@ -5,28 +5,29 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import poker.model.GameTable;
 
-import java.util.Collection;
 import java.util.List;
 
 @Repository
 public interface GameTableRepository extends JpaRepository<GameTable, Long> {
 
-    @Query("SELECT gt FROM GameTable gt WHERE gt.userId = :userId AND gt.playerId = :playerId")
-    @Transactional(readOnly = true)
-    Collection<GameTable> findGameTablesByUserIdAndPlayerId(@Param("userId") Long userId,
-                                                            @Param("playerId") long playerId);
-
-    @Query("DELETE FROM GameTable gt WHERE gt.userId = :userId AND gt.playerId = :playerId AND gt.gameId = :gameId")
     @Modifying
-    @Transactional
-    void removeGameTableByUserIdAndPlayerIdAndGameId(@Param("userId") Long userId,
-                                                     @Param("playerId") Long playerId,
-                                                     @Param("gameId") Long gameId);
+    @Query("""
+            DELETE FROM GameTable gt
+            WHERE gt.userId = :userId AND gt.playerId = :playerId AND gt.gameId = :gameId
+        """)
+    void removeGameTableByUserIdAndPlayerIdAndGameId(@Param("userId") long userId,
+                                                     @Param("playerId") long playerId,
+                                                     @Param("gameId") long gameId);
 
     @Query("SELECT gt FROM GameTable gt WHERE gt.gameId = :gameId")
-    @Transactional(readOnly = true)
-    List<GameTable> findAllGameTablesByGameId(@Param("gameId") Long gameId);
+    List<GameTable> findAllGameTablesByGameId(@Param("gameId") long gameId);
+
+    @Query("SELECT gt FROM GameTable gt WHERE gt.gameId = :gameId AND gt.playerId = :playerId")
+    GameTable findGameTableByGameIdAndPlayerId(@Param("gameId") long gameId, @Param("playerId") long playerId);
+
+    @Modifying
+    @Query("DELETE FROM GameTable gt WHERE gt.gameId = :gameId")
+    void removeGameTableByGameId(@Param("gameId") long gameId);
 }

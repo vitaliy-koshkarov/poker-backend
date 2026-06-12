@@ -3,6 +3,8 @@ package poker.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.sql.Timestamp;
+
 @Entity
 @Table(schema = "public", name = "game_tables")
 @NoArgsConstructor
@@ -12,6 +14,8 @@ import lombok.*;
 @Builder
 @ToString
 public class GameTable {
+//    TODO: think to rename the entity to avoid misunderstanding its purpose
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,8 +27,11 @@ public class GameTable {
     private Long playerId;
 
     /**
-     * {@link Game#id} of the tables the player is sitting at
+     * {@link Game#getId()} of the tables the player is sitting at
      */
     @Column(name = "game_id", nullable = false)
     private Long gameId;
+
+    @Column(name = "created_at", nullable = false)
+    private Timestamp createdAt;
 }

@@ -13,79 +13,112 @@ import org.springframework.messaging.support.GenericMessage;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import poker.dto.game.GameConverter;
 import poker.dto.game.GameDTO;
+import poker.dto.game.GameStateDTO;
+import poker.game.playeraction.PlayerAction;
 import poker.model.PlayerDetails;
+import poker.service.GameEngineService;
 import poker.service.GameService;
-import poker.service.GameTableService;
 import poker.service.WebSocketPlayerSessionService;
+
+import java.util.Collections;
 
 @Controller
 @Log4j2
 public class WebSocketGameController {
     private final WebSocketPlayerSessionService webSocketPlayerSessionService;
     private final GameService gameService;
-    private final GameTableService gameTableService;
+    private final GameEngineService gameEngineService;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     public WebSocketGameController(WebSocketPlayerSessionService webSocketPlayerSessionService, GameService gameServicer,
-                                   GameTableService gameTableService, SimpMessagingTemplate simpMessagingTemplate) {
+                                   GameEngineService gameEngineService, SimpMessagingTemplate simpMessagingTemplate) {
         this.webSocketPlayerSessionService = webSocketPlayerSessionService;
         this.gameService = gameServicer;
-        this.gameTableService = gameTableService;
+        this.gameEngineService = gameEngineService;
         this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
     @SubscribeMapping("/gameTable/{id}")
-    public GameDTO subscribe(@DestinationVariable("id") Long gameId,
+    public GameStateDTO subscribe(@DestinationVariable("id") Long gameId,
                              @AuthenticationPrincipal Authentication authentication,
                              StompHeaderAccessor stompHeaderAccessor) {
         var playerDetails = ((PlayerDetails) authentication.getPrincipal());
         log.debug("SUBSCRIBE player details {}", playerDetails);
-        Long userId = playerDetails.getUser().getId();
+        long userId = playerDetails.getUser().getId();
+        long playerId = playerDetails.getPlayer().getId();
 
-        log.info("SUBSCRIBE user id {}, game id {}", userId, gameId);
+//        TODO: if player eliminated, then he can not join the game
+
+        log.info("SUBSCRIBE user id {}, player id {}, game id {}", userId, playerId, gameId);
         log.debug("SUBSCRIBE authentication {}", authentication);
 
-        var game = gameService.joinPlayerToGame(gameId, playerDetails);
+        var gameStateDTO = gameEngineService.handlePlayerAction(gameId, playerDetails, PlayerAction.JOIN_GAME);
 
+        if (gameStateDTO != null) {
+            String sessionID = stompHeaderAccessor.getSessionId();
+            webSocketPlayerSessionService.addSession(userId, playerId, gameId, sessionID);
+
+            log.info("SUBSCRIBE {}", gameStateDTO);
+
+//            notify other players about some player joined to the game
+            String destination = "/topic/gameTable/" + gameId;
+            Message<GameStateDTO> message = new GenericMessage<>(gameStateDTO);
+            simpMessagingTemplate.convertAndSend(destination, message);
+
+            return gameStateDTO;
+        }
+
+//        TODO: return last valid game state
+        gameStateDTO = GameStateDTO
+            .builder()
+            .gameDTO(GameDTO.builder().build())
+            .playerDTOList(Collections.emptyList())
+            .build();
+
+        log.info("GameStateDTO: {}", gameStateDTO);
+        return gameStateDTO;
+    }
+
+    @MessageMapping("/table/{id}/startGame")
+    public void startGame(@DestinationVariable("id") Long gameId,
+                                           @AuthenticationPrincipal Authentication authentication) {
+        var playerDetails = ((PlayerDetails) authentication.getPrincipal());
+        Long userId = playerDetails.getUser().getId();
         Long playerId = playerDetails.getPlayer().getId();
-        String sessionID = stompHeaderAccessor.getSessionId();
+        log.info("Start game id {}, user id {}, player id {}", gameId, userId, playerId);
 
-        webSocketPlayerSessionService.addSession(userId, playerId, game.getId(), sessionID);
-        log.info("SUBSCRIBE user id {} joined to game id {}", userId, gameId);
+        var game = gameService.getGameById(gameId);
+        if (!game.getCreatorPlayerId().equals(playerId)) {
+            log.info("Player id {} is trying to start the game {} without permission", playerId, gameId);
+            return;
+        }
 
-        log.debug("SUBSCRIBE player details {}", playerDetails);
+        GameStateDTO gameStateDTO = gameEngineService.handlePlayerAction(gameId, playerDetails, PlayerAction.START_GAME);
+        if (gameStateDTO != null) {
+            log.info("Start game, gameStateDTO {}", gameStateDTO);
 
-        var gameTables = gameTableService.getAllPlayersSitDownAtTable(game.getId());
+            Message<GameStateDTO> outboundMessage = new GenericMessage<>(gameStateDTO);
+            log.info("Start game, message {}", outboundMessage);
 
-        var gameDTO = GameConverter.toDTO(game, gameTables.size());
-        log.info("SUBSCRIBE {}", gameDTO);
-
-//        notify other players about some player joined to the game
-        String destination = "/topic/gameTable/" + gameId;
-        Message<GameDTO> message = new GenericMessage<>(gameDTO);
-        simpMessagingTemplate.convertAndSend(destination, message);
-
-//        return initial game state to subscribed user
-        return gameDTO;
+            simpMessagingTemplate.convertAndSend("/topic/gameTable/" + gameId, outboundMessage);
+        } // else handler error on client (frontend) side
     }
 
     @MessageMapping("/table/{id}")
     @SendTo("/topic/gameTable/{id}")
-    public Message<GameDTO> handleMessage(@DestinationVariable("id") Long gameId,
-                                          @Payload String newGameName,
-                                          @AuthenticationPrincipal Authentication authentication) {
+    public Message<String> handlePlayerAction(@DestinationVariable("id") Long gameId,
+                                              @Payload String newGameName,
+                                              @AuthenticationPrincipal Authentication authentication) {
         var playerDetails = ((PlayerDetails) authentication.getPrincipal());
         Long userId = playerDetails.getUser().getId();
         log.info("SEND user id {}, game id {}, new game name {}", userId, gameId, newGameName);
 
-        var game = gameService.updateGameName(gameId, newGameName);
-        var gameTables = gameTableService.getAllPlayersSitDownAtTable(game.getId());
-        var gameDTO = GameConverter.toDTO(game, gameTables.size());
-        log.info("SEND {}", gameDTO);
+//        TODO: take action as a method parameter
+//        GameState gameState = gameManagerService.handleAction(gameId, -1L, PlayerAction.START_GAME);
+//        log.info("Game state {}", gameState);
 
-        Message<GameDTO> outboundMessage = new GenericMessage<>(gameDTO);
+        Message<String> outboundMessage = new GenericMessage<>("OK");
         log.info("SEND {}", outboundMessage);
 
 //        return game state

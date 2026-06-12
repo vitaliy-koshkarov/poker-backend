@@ -8,5 +8,9 @@ public record GameDTO(
     int currentPlayers,
     int maxPlayers,
     int buyIn,
-    String name) {
+    int status,
+    String name,
+    long creatorPlayerId,
+    long dealerId,
+    long activePlayerId) {
 }

@@ -32,7 +32,6 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
 
         if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
             tryAuth(accessor);
-//            TODO: clear WebSession if DISCONNECT?
         }
 
         return inboundMessage;

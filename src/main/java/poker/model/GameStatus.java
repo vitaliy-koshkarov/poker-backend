@@ -13,7 +13,8 @@ public enum GameStatus {
     FLOP(2),
     TURN(3),
     RIVER(4),
-    SHOWDOWN(5);
+    SHOWDOWN(5),
+    END(6);
 
     private final int status;
 }

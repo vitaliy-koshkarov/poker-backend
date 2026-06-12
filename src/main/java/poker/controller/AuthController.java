@@ -1,23 +1,22 @@
 package poker.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import poker.dto.auth.AuthResponse;
 import poker.dto.auth.LoginRequest;
+import poker.dto.auth.GetCurrentPlayerIdResponse;
 import poker.dto.auth.RegistrationRequest;
 import poker.service.AuthService;
 import poker.service.PlayerService;
 import poker.service.UserService;
 import poker.util.Util;
+
+import java.sql.Timestamp;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -52,10 +51,15 @@ public class AuthController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nickname taken");
         }
 
-        var player = playerService.createPlayer(registerRequest.nickname());
-        var user = userService.createUser(registerRequest.email(), registerRequest.password(), player.getId());
+        var now = new Timestamp(System.currentTimeMillis());
 
-        var token = authService.generateToken(user);
+        var user = userService.createUser(registerRequest.email(), registerRequest.password(),
+            registerRequest.nickname(), now);
+
+        String token = "";
+        if (user != null) {
+            token = authService.generateToken(user);
+        }
 
         return new AuthResponse(token);
     }
@@ -84,10 +88,19 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletRequest request) {
+    public ResponseEntity<?> logout() {
 //        TODO: check id from JWT
         Long userId = Util.getPlayerDetailsFronCtx().getUser().getId();
         log.info("Logout user {}", userId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/getCurrentPlayerId")
+    public GetCurrentPlayerIdResponse getCurrentPlayerId() {
+        log.info("Request getCurrentPlayerId");
+        var playerDetails = Util.getPlayerDetailsFronCtx();
+        return GetCurrentPlayerIdResponse.builder()
+            .currentPlayerId(playerDetails.getPlayer().getId())
+            .build();
     }
 }

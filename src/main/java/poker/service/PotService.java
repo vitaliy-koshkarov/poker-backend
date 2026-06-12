@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import poker.model.Pot;
 import poker.repository.PotRepository;
 
-@Service
+@Service("PotService")
 @Log4j2
 public class PotService {
     private final PotRepository potRepo;
@@ -21,5 +21,9 @@ public class PotService {
         var newPot = potRepo.save(pot);
         log.info("Created pot {}", newPot);
         return newPot;
+    }
+
+    public void deleteById(Long potId) {
+        potRepo.deleteById(potId);
     }
 }
