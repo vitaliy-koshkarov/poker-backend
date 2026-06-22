@@ -123,4 +123,9 @@ public class GameService {
         gameRepo.save(game);
         log.info("Updated game {}", game);
     }
+
+    @Transactional(readOnly = true)
+    public List<Game> getListNonEndedGames() {
+        return gameRepo.findAllNotEndedGames(GameStatus.END.getStatus());
+    }
 }
