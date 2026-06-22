@@ -22,7 +22,7 @@ public class GameLoader implements ApplicationRunner {
     }
 
     @Override
-    public void run(ApplicationArguments args) throws Exception {
+    public void run(ApplicationArguments args) {
         log.info("Load games to the registry engine");
 
         var gamesList = gameService.getListNonEndedGames();
