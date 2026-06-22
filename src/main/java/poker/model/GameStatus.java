@@ -17,4 +17,13 @@ public enum GameStatus {
     END(6);
 
     private final int status;
+
+    public static GameStatus getGameStatusByInt(int value) {
+        for (GameStatus gameStatus : values()) {
+            if (gameStatus.getStatus() == value) {
+                return gameStatus;
+            }
+        }
+        throw new EnumConstantNotPresentException(GameStatus.class, "The is no GameStatus with status " + value);
+    }
 }

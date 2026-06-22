@@ -21,13 +21,15 @@ public class GameRegistry {
     public void registerGame(Game game) {
 //        TODO: externalize blinds to service's parameters
         Long gameId = game.getId();
+        log.info("Registering game id {}", gameId);
 
         var thPot = new THPot(game.getPotId());
-        var thTable = new THTable(gameId, thPot, GameStatus.WAITING_FOR_PLAYERS, 5, 10);
+//        TODO: restore pot, deck, community cards, players list, player's cards
+        var thTable = new THTable(gameId, thPot, GameStatus.getGameStatusByInt(game.getStatus()), 5, 10);
         GameEngine engine = new THEngine(thTable);
 
         gameEngineMap.put(gameId, engine);
-        log.info("Game engine added to game engine registry, game id {}", gameId);
+        log.info("Game id {} registered", gameId);
     }
 
     public GameEngine getGameEngine(Long gameId) {
