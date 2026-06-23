@@ -1,0 +1,62 @@
+package poker.service;
+
+import lombok.ToString;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.stereotype.Service;
+import poker.dto.game.GameConverter;
+import poker.dto.game.GameStateDTO;
+import poker.dto.player.PlayerConverter;
+import poker.game.playeraction.PlayerAction;
+import poker.model.GameTable;
+import poker.model.PlayerDetails;
+
+import java.util.LinkedList;
+import java.util.List;
+
+@Service("GameActionService")
+@Log4j2
+@ToString
+public class GameActionService {
+    private final GameService gameService;
+    private final PlayerService playerService;
+    private final GameTableService gameTableService;
+
+    public GameActionService(GameService gameService, PlayerService playerService, GameTableService gameTableService) {
+        this.gameService = gameService;
+        this.playerService = playerService;
+        this.gameTableService = gameTableService;
+    }
+
+    public GameStateDTO handlePlayerAction(long gameId, PlayerDetails playerDetails, PlayerAction playerAction) {
+        log.info("Handling action {} from player id {} in game {}",
+            playerAction.getActionName(), playerDetails.getPlayer().getId(), gameId);
+//        TODO: Implement:
+//              1. Snapshot of game state
+//              2. Handle action in Engine
+//              3. DB + Event in a single transaction
+//              3.1. If success -> do next step
+//              3.2. If fails -> rollback engine to snapshot
+//              4. Return response from engine
+        return null;
+    }
+
+    public GameStateDTO getCurrentState(long gameId) {
+        var game = gameService.getGameById(gameId);
+
+        var gameTableList = gameTableService.getGameTablesByGameId(gameId);
+        List<Long> playersIdsList = new LinkedList<>();
+        for (GameTable gameTable : gameTableList) {
+            playersIdsList.add(gameTable.getPlayerId());
+        }
+
+        var playersList = playerService.getPlayersByIds(playersIdsList);
+
+        var gameDTO = GameConverter.toDTO(game, gameTableList.size());
+        var playerDTOList = PlayerConverter.toListDTO(playersList);
+
+        return GameStateDTO.builder()
+            .gameDTO(gameDTO)
+            .playerDTOList(playerDTOList)
+            .build();
+    }
+}

@@ -8,15 +8,23 @@ import lombok.ToString;
 @Getter
 @ToString
 public enum PlayerAction {
-    JOIN_GAME(0, PlayerActions.JOIN_GAME, "Player join to the game"),
-    START_GAME(1, PlayerActions.START_GAME, "Player started the game"),
-    DISCONNECT(2, PlayerActions.DISCONNECT, "Player disconnected"),
-    FOLD(3, PlayerActions.FOLD, "Player fold"),
-    CHECK(4, PlayerActions.CHECK, "Player check"),
-    BET(5, PlayerActions.BET, "Player bet"),
-    ALL_IN(6, PlayerActions.ALL_INN, "Player all-in");
+    JOIN_GAME(0, PlayerActions.JOIN_GAME),
+    START_GAME(1, PlayerActions.START_GAME),
+    DISCONNECT(2, PlayerActions.DISCONNECT),
+    FOLD(3, PlayerActions.FOLD),
+    CHECK(4, PlayerActions.CHECK),
+    BET(5, PlayerActions.BET),
+    ALL_IN(6, PlayerActions.ALL_INN);
 
     private final int type;
     private final String actionName;
-    private final String description;
+
+    public static PlayerAction fromActionName(String actionName) {
+        for (PlayerAction playerAction : values()) {
+            if (playerAction.getActionName().equals(actionName)) {
+                return playerAction;
+            }
+        }
+        throw new EnumConstantNotPresentException(PlayerAction.class, "Unknown action " + actionName);
+    }
 }
