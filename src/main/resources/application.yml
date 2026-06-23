@@ -1,8 +1,11 @@
 app:
   name: "poker-backend"
+  game:
+    small-blind: 5
+    big-blind: 10
 
 server:
-  port: {8080}
+  port: 8080
 
 logging:
   level:

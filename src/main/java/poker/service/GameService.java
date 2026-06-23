@@ -4,6 +4,7 @@ import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import poker.config.GameProps;
 import poker.dto.game.CreateGameRequest;
 import poker.dto.game.GameConverter;
 import poker.dto.game.GameDTO;
@@ -23,13 +24,16 @@ public class GameService {
     private final PotService potService;
     private final PlayerService playerService;
     private final GameTableService gameTableService;
+    private final GameProps gameProps;
 
     public GameService(GameRepository gameRepository, PotService potService,
-                       PlayerService playerService, GameTableService gameTableService) {
+                       PlayerService playerService, GameTableService gameTableService,
+                       GameProps gameProps) {
         this.gameRepo = gameRepository;
         this.potService = potService;
         this.playerService = playerService;
         this.gameTableService = gameTableService;
+        this.gameProps = gameProps;
     }
 
     @Transactional(readOnly = true)
@@ -54,8 +58,8 @@ public class GameService {
         var game = Game.builder()
             .maxPlayers(createGameRequest.maxPlayers())
             .buyIn(createGameRequest.buyIn())
-            .smallBlind(createGameRequest.smallBlind())
-            .bigBlind(createGameRequest.bigBlind())
+            .smallBlind(gameProps.getSmallBlind())
+            .bigBlind(gameProps.getBigBlind())
             .name(createGameRequest.name())
             .status(GameStatus.WAITING_FOR_PLAYERS.getStatus())
             .potId(pot.getId())
