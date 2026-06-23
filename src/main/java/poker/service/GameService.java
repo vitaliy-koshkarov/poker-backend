@@ -54,6 +54,8 @@ public class GameService {
         var game = Game.builder()
             .maxPlayers(createGameRequest.maxPlayers())
             .buyIn(createGameRequest.buyIn())
+            .smallBlind(createGameRequest.smallBlind())
+            .bigBlind(createGameRequest.bigBlind())
             .name(createGameRequest.name())
             .status(GameStatus.WAITING_FOR_PLAYERS.getStatus())
             .potId(pot.getId())

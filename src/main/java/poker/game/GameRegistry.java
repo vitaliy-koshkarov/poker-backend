@@ -19,13 +19,13 @@ public class GameRegistry {
     private final Map<Long, GameEngine> gameEngineMap = new ConcurrentHashMap<>();
 
     public void registerGame(Game game) {
-//        TODO: externalize blinds to service's parameters
         Long gameId = game.getId();
-        log.info("Registering game id {}", gameId);
+        log.info("Registering game id {} with blinds {}/{}", gameId, game.getSmallBlind(), game.getBigBlind());
 
         var thPot = new THPot(game.getPotId());
 //        TODO: restore pot, deck, community cards, players list, player's cards
-        var thTable = new THTable(gameId, thPot, GameStatus.getGameStatusByInt(game.getStatus()), 5, 10);
+        var thTable = new THTable(gameId, thPot, GameStatus.getGameStatusByInt(game.getStatus()),
+            game.getSmallBlind(), game.getBigBlind());
         GameEngine engine = new THEngine(thTable);
 
         gameEngineMap.put(gameId, engine);
