@@ -8,6 +8,8 @@ public record GameDTO(
     int currentPlayers,
     int maxPlayers,
     int buyIn,
+    int smallBlind,
+    int bigBlind,
     int status,
     String name,
     long creatorPlayerId,
