@@ -24,6 +24,12 @@ public class Game {
     @Column(name = "buy_in", nullable = false)
     private Integer buyIn;
 
+    @Column(name = "small_blind", nullable = false)
+    private Integer smallBlind;
+
+    @Column(name = "big_blind", nullable = false)
+    private Integer bigBlind;
+
     @Column(name = "name", nullable = false)
     private String name;
 

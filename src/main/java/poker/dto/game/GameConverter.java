@@ -11,6 +11,8 @@ public class GameConverter {
             .currentPlayers(currentPlayers)
             .maxPlayers(game.getMaxPlayers())
             .buyIn(game.getBuyIn())
+            .smallBlind(game.getSmallBlind())
+            .bigBlind(game.getBigBlind())
             .status(game.getStatus())
             .name(game.getName())
             .creatorPlayerId(game.getCreatorPlayerId())

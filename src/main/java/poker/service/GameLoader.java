@@ -2,7 +2,6 @@ package poker.service;
 
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Service;
@@ -15,7 +14,6 @@ public class GameLoader implements ApplicationRunner {
     private final GameService gameService;
     private final GameRegistry gameRegistry;
 
-    @Autowired
     public GameLoader(GameService gameService, GameRegistry gameRegistry) {
         this.gameService = gameService;
         this.gameRegistry = gameRegistry;

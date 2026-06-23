@@ -86,7 +86,7 @@ public class THTable {
         defineActivePlayer();
 
         betBlinds();
-        minRaise = bigBlind - smallBlindIdx;
+        minRaise = bigBlind;
         dealStartHands();
 
         gameStatus = GameStatus.PRE_FLOP;
