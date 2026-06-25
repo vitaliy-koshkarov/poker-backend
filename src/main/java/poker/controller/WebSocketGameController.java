@@ -1,5 +1,6 @@
 package poker.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -17,28 +18,15 @@ import poker.dto.game.GameStateDTO;
 import poker.game.playeraction.PlayerAction;
 import poker.model.PlayerDetails;
 import poker.service.GameActionService;
-import poker.service.GameEngineService;
-import poker.service.GameService;
 import poker.service.WebSocketPlayerSessionService;
 
 @Controller
 @Log4j2
+@RequiredArgsConstructor
 public class WebSocketGameController {
     private final WebSocketPlayerSessionService webSocketPlayerSessionService;
-    private final GameService gameService;
-    private final GameEngineService gameEngineService;
     private final GameActionService gameActionService;
     private final SimpMessagingTemplate simpMessagingTemplate;
-
-    public WebSocketGameController(WebSocketPlayerSessionService webSocketPlayerSessionService, GameService gameServicer,
-                                   GameEngineService gameEngineService, GameActionService gameActionService,
-                                   SimpMessagingTemplate simpMessagingTemplate) {
-        this.webSocketPlayerSessionService = webSocketPlayerSessionService;
-        this.gameService = gameServicer;
-        this.gameEngineService = gameEngineService;
-        this.gameActionService = gameActionService;
-        this.simpMessagingTemplate = simpMessagingTemplate;
-    }
 
     @SubscribeMapping("/gameTable/{id}")
     public GameStateDTO subscribe(@DestinationVariable("id") Long gameId,
@@ -66,31 +54,6 @@ public class WebSocketGameController {
         return gameStateDTO;
     }
 
-    @MessageMapping("/table/{id}/startGame")
-    public void startGame(@DestinationVariable("id") Long gameId,
-                          @AuthenticationPrincipal Authentication authentication) {
-        var playerDetails = ((PlayerDetails) authentication.getPrincipal());
-        Long userId = playerDetails.getUser().getId();
-        Long playerId = playerDetails.getPlayer().getId();
-        log.info("Start game id {}, user id {}, player id {}", gameId, userId, playerId);
-
-        var game = gameService.getGameById(gameId);
-        if (!game.getCreatorPlayerId().equals(playerId)) {
-            log.info("Player id {} is trying to start the game {} without permission", playerId, gameId);
-            return;
-        }
-
-        GameStateDTO gameStateDTO = gameEngineService.handlePlayerAction(gameId, playerDetails, PlayerAction.START_GAME);
-        if (gameStateDTO != null) {
-            log.info("Start game, gameStateDTO {}", gameStateDTO);
-
-            Message<GameStateDTO> outboundMessage = new GenericMessage<>(gameStateDTO);
-            log.info("Start game, message {}", outboundMessage);
-
-            simpMessagingTemplate.convertAndSend("/topic/gameTable/" + gameId, outboundMessage);
-        } // else handler error on client (frontend) side
-    }
-
     @MessageMapping("/table/{id}/action")
 //    @SendTo("/topic/gameTable/{id}")
     public void handlePlayerAction(@DestinationVariable("id") Long gameId,
@@ -103,9 +66,11 @@ public class WebSocketGameController {
 
         // todo: validate
 
-        GameStateDTO gameStateDTO = gameActionService.handlePlayerAction(gameId, playerDetails, playerAction);
+        gameActionService.handlePlayerAction(gameId, playerDetails, playerAction);
+//        TODO: return game state from engine
+        GameStateDTO gameStateDTO = gameActionService.getCurrentState(gameId);
 
-//        TODO: notify other players about change game state
+//        TODO: return game state to notify other players about change game state
         Message<String> outboundMessage = new GenericMessage<>("OK");
         log.info("Action {} from player id {} in game {} handled", playerAction.getActionName(), playerId, gameId);
         log.info("GameStateDTO: {}", gameStateDTO);

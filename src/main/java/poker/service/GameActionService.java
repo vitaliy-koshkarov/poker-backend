@@ -1,5 +1,6 @@
 package poker.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -15,19 +16,14 @@ import java.util.List;
 
 @Service("GameActionService")
 @Log4j2
+@RequiredArgsConstructor
 @ToString
 public class GameActionService {
     private final GameService gameService;
     private final PlayerService playerService;
     private final GameTableService gameTableService;
 
-    public GameActionService(GameService gameService, PlayerService playerService, GameTableService gameTableService) {
-        this.gameService = gameService;
-        this.playerService = playerService;
-        this.gameTableService = gameTableService;
-    }
-
-    public GameStateDTO handlePlayerAction(long gameId, PlayerDetails playerDetails, PlayerAction playerAction) {
+    public void handlePlayerAction(long gameId, PlayerDetails playerDetails, PlayerAction playerAction) {
         log.info("Handling action {} from player id {} in game {}",
             playerAction.getActionName(), playerDetails.getPlayer().getId(), gameId);
 //        TODO: Implement:
@@ -37,7 +33,6 @@ public class GameActionService {
 //              3.1. If success -> do next step
 //              3.2. If fails -> rollback engine to snapshot
 //              4. Return response from engine
-        return null;
     }
 
     public GameStateDTO getCurrentState(long gameId) {
