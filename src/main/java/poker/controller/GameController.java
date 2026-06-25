@@ -76,7 +76,7 @@ public class GameController {
         playerActionHandlerService.handlePlayerAction(gameId, playerDetails, PlayerAction.START_GAME);
 
         GameStateDTO gameStateDTO = gameStateResponseGenerator.generateResponse(gameId);
-        gameStateBroadcaster.broadcast(gameStateDTO);
+        gameStateBroadcaster.broadcast(gameStateDTO, PlayerAction.START_GAME);
 
         log.info("Start game {} response OK", gameId);
         return ResponseEntity.ok().build();

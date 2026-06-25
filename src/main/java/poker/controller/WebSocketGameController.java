@@ -44,7 +44,6 @@ public class WebSocketGameController {
         webSocketPlayerSessionService.addSession(userId, playerId, gameId, sessionID);
 
         var gameStateDTO = gameStateResponseGenerator.generateResponse(gameId);
-//        var gameStateDTO = playerActionHandlerService.getCurrentState(gameId);
         log.info("Player id {} subscribed", playerId);
 
         return gameStateDTO;
@@ -65,7 +64,7 @@ public class WebSocketGameController {
         playerActionHandlerService.handlePlayerAction(gameId, playerDetails, playerAction);
 
         var gameStateDTO = gameStateResponseGenerator.generateResponse(gameId);
-        gameStateBroadcaster.broadcast(gameStateDTO);
-//        GameStateDTO gameStateDTO = playerActionHandlerService.getCurrentState(gameId);
+        gameStateBroadcaster.broadcast(gameStateDTO, playerAction);
+        log.info("Handled {} from player id {} in game id {}", playerAction.getActionName(), playerId, gameId);
     }
 }

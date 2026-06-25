@@ -16,7 +16,7 @@ public class AppPropsLogger implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        log.info("Game properties loaded:");
+        log.info("App properties:");
         log.info("smallBlind={}", gameProps.getSmallBlind());
         log.info("bigBlind={}", gameProps.getBigBlind());
     }

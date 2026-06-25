@@ -2,10 +2,7 @@ package poker.game.texasholdem;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import poker.game.GameEngine;
-import poker.game.GameState;
-import poker.game.PlayerAction;
-import poker.game.PlayerActionData;
+import poker.game.*;
 
 import java.util.*;
 
@@ -18,7 +15,7 @@ public class THEngine implements GameEngine {
 
     @Override
     public GameState getCurrentGameState() {
-        return new THGameState();
+        return GameStateFactory.create(table);
     }
 
     @Override

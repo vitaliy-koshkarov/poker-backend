@@ -19,12 +19,15 @@ public class GameEngineRegistry {
     private final Map<Long, GameEngine> gameEngineMap = new ConcurrentHashMap<>();
 
     public void registerGame(Game game) {
-        Long gameId = game.getId();
+        long gameId = game.getId();
         log.info("Registering game id {} with blinds {}/{}", gameId, game.getSmallBlind(), game.getBigBlind());
 
         var thPot = new THPot(game.getPotId());
 //        TODO: restore pot, deck, community cards, players list, player's cards
-        var thTable = new THTable(gameId, thPot, GameStatus.getGameStatusByInt(game.getStatus()),
+//        TODO: refactoring creation of the THTable
+//        TODO: When game load, all fields must be correctly set
+        var thTable = new THTable(gameId, game.getName(), game.getCreatorPlayerId(), game.getMaxPlayers(), game.getBuyIn(), thPot,
+            GameStatus.getGameStatusByInt(game.getStatus()),
             game.getSmallBlind(), game.getBigBlind());
         GameEngine engine = new THEngine(thTable);
 
@@ -32,7 +35,7 @@ public class GameEngineRegistry {
         log.info("Game id {} registered", gameId);
     }
 
-    public GameEngine getGameEngine(Long gameId) {
+    public GameEngine getGameEngine(long gameId) {
         return gameEngineMap.get(gameId);
     }
 }

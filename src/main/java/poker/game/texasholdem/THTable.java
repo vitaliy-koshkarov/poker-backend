@@ -16,6 +16,8 @@ public class THTable {
 //    TODO: map: [playerId -> playerPosition] on the table (in 'players' list) ?
 
     private final long id;
+    private final String name;
+    private final long creatorPlayerId;
 
     @Setter
     private GameStatus gameStatus;
@@ -26,24 +28,32 @@ public class THTable {
     private final THPot pot;
 
     private final List<THPlayer> players;
+    private final int maxPlayers;
 
     private int dealerIdx;
     private int smallBlindIdx;
     private int bigBlindIdx;
     private int activePlayerIdx;
 
+    private final int buyIn;
+
     private int smallBlind;
     private int bigBlind;
 
     private int minRaise;
 
-    public THTable(long id, THPot thPot, GameStatus gameStatus, int smallBlind, int bigBlind) {
+    public THTable(long id, String name, long creatorPlayerId, int maxPlayers, int buyIn,
+                   THPot thPot, GameStatus gameStatus, int smallBlind, int bigBlind) {
         this.id = id;
+        this.name = name;
+        this.creatorPlayerId = creatorPlayerId;
         this.gameStatus = gameStatus;
         this.deck = new THDeck();
         this.communityCards = new ArrayList<>();
         this.pot = thPot;
         this.players = new ArrayList<>();
+        this.maxPlayers = maxPlayers;
+        this.buyIn = buyIn;
         this.smallBlind = smallBlind;
         this.bigBlind = bigBlind;
     }

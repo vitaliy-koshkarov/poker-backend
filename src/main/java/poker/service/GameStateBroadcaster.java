@@ -8,22 +8,22 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.stereotype.Service;
 import poker.dto.game.GameStateDTO;
+import poker.game.PlayerAction;
 
-@Service("GameStateResponseGenerator")
+@Service("GameStateBroadcaster")
 @Log4j2
 @RequiredArgsConstructor
 @ToString
 public class GameStateBroadcaster {
     private final SimpMessagingTemplate simpMessagingTemplate;
 
-    public void broadcast(GameStateDTO gameStateDTO) {
-//        TODO: refactoring destination
+    public void broadcast(GameStateDTO gameStateDTO, PlayerAction playerAction) {
+//        TODO: refactoring 'destination' way of passing and passing to this method
         long gameId = gameStateDTO.gameDTO().id();
         String destination = "/topic/gameTable/" + gameId;
         Message<GameStateDTO> message = new GenericMessage<>(gameStateDTO);
         simpMessagingTemplate.convertAndSend(destination, message);
-//        var gameStateDTO = playerActionHandlerService.getCurrentState(gameId);
 
-        log.info("Broadcast for game id {} response: {}", gameId, gameStateDTO);
+        log.info("Broadcast {} for game id {} response: {}", playerAction.getActionName(), gameId, gameStateDTO);
     }
 }

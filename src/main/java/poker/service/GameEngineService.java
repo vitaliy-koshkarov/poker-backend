@@ -35,7 +35,7 @@ public class GameEngineService {
     private final GameEventService gameEventService;
 
     @Transactional(rollbackFor = Exception.class)
-    public GameStateDTO handlePlayerAction(Long gameId, PlayerDetails playerDetails, PlayerAction action) {
+    public GameStateDTO handlePlayerAction(long gameId, PlayerDetails playerDetails, PlayerAction action) {
         long playerId = playerDetails.getPlayer().getId();
         log.info("Handling action {} from player id {}", action, playerId);
 
