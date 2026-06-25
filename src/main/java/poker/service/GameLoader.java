@@ -1,5 +1,6 @@
 package poker.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.ApplicationArguments;
@@ -9,15 +10,11 @@ import poker.game.GameRegistry;
 
 @Service("GameLoader")
 @Log4j2
+@RequiredArgsConstructor
 @ToString
 public class GameLoader implements ApplicationRunner {
     private final GameService gameService;
     private final GameRegistry gameRegistry;
-
-    public GameLoader(GameService gameService, GameRegistry gameRegistry) {
-        this.gameService = gameService;
-        this.gameRegistry = gameRegistry;
-    }
 
     @Override
     public void run(ApplicationArguments args) {

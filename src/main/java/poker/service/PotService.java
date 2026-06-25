@@ -1,5 +1,6 @@
 package poker.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import poker.model.Pot;
@@ -7,12 +8,9 @@ import poker.repository.PotRepository;
 
 @Service("PotService")
 @Log4j2
+@RequiredArgsConstructor
 public class PotService {
     private final PotRepository potRepo;
-
-    public PotService(PotRepository potRepo) {
-        this.potRepo = potRepo;
-    }
 
     public Pot createPot() {
         var pot = Pot.builder()

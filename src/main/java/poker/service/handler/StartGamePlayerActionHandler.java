@@ -1,11 +1,11 @@
 package poker.service.handler;
 
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import poker.game.GameEngine;
-import poker.game.playeraction.PlayerActions;
+import poker.game.PlayerAction;
 import poker.game.texasholdem.THEngine;
 import poker.game.texasholdem.THPlayer;
 import poker.model.Game;
@@ -17,20 +17,16 @@ import poker.service.PlayerService;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-@Component(value = PlayerActions.START_GAME)
+@Component("StartGamePlayerActionHandler")
 @Log4j2
+@RequiredArgsConstructor
 @ToString
 public class StartGamePlayerActionHandler implements PlayerActionHandler {
     private final GameService gameService;
     private final PlayerService playerService;
-
-    @Autowired
-    public StartGamePlayerActionHandler(GameService gameService, PlayerService playerService) {
-        this.gameService = gameService;
-        this.playerService = playerService;
-    }
 
     @Override
     public void handleAction(GameEngine gameEngine, Game game, PlayerDetails playerDetails) {
@@ -40,9 +36,9 @@ public class StartGamePlayerActionHandler implements PlayerActionHandler {
     }
 
     private void engineHandling(GameEngine gameEngine, Game game) {
-        gameEngine.getTable().setUpNewRound();
-        log.info("{} new round, game id {}", PlayerActions.START_GAME, game.getId());
-        log.info("{}", gameEngine.getTable());
+//        gameEngine.getTable().setUpNewRound();
+        log.info("{} new round, game id {}", PlayerAction.START_GAME.getActionName(), game.getId());
+//        log.info("{}", gameEngine.getTable());
     }
 
     private void repositoryHandling(GameEngine gameEngine, Game game, long playerId) {
@@ -56,7 +52,7 @@ public class StartGamePlayerActionHandler implements PlayerActionHandler {
         game.setActivePlayerId(activePlayerId);
         gameService.updateGame(game);
 
-        List<THPlayer> thPlayers = gameEngine.getTable().getPlayers();
+        List<THPlayer> thPlayers = Collections.emptyList(); // gameEngine.getTable().getPlayers();
         List<Long> playerIds = new ArrayList<>();
         for (THPlayer thPlayer : thPlayers) {
             playerIds.add(thPlayer.getId());
@@ -71,6 +67,6 @@ public class StartGamePlayerActionHandler implements PlayerActionHandler {
         }
         playerService.updatePlayers(players);
 
-        log.info("Player id {} {} game id {}", playerId, PlayerActions.START_GAME, game.getId());
+        log.info("Player id {} {} game id {}", playerId, PlayerAction.START_GAME.getActionName(), game.getId());
     }
 }

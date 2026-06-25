@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import poker.dto.game.GameConverter;
 import poker.dto.game.GameStateDTO;
 import poker.dto.player.PlayerConverter;
-import poker.game.playeraction.PlayerAction;
+import poker.game.PlayerAction;
 import poker.model.GameTable;
 import poker.model.PlayerDetails;
 

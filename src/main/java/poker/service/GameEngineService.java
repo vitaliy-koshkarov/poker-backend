@@ -1,28 +1,31 @@
 package poker.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import poker.dto.game.GameConverter;
 import poker.dto.game.GameStateDTO;
 import poker.dto.player.PlayerConverter;
 import poker.game.*;
-import poker.game.playeraction.PlayerAction;
+import poker.game.PlayerAction;
 import poker.model.Game;
 import poker.model.GameTable;
 import poker.model.Player;
 import poker.model.PlayerDetails;
 import poker.model.event.GameEvent;
+import poker.model.event.GameEventData;
 import poker.service.handler.PlayerActionHandler;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 @Service("GameEngineService")
 @Log4j2
+@RequiredArgsConstructor
 public class GameEngineService {
     private final Map<String, PlayerActionHandler> playerActionHandlerMap;
     private final GameRegistry gameRegistry;
@@ -30,18 +33,6 @@ public class GameEngineService {
     private final PlayerService playerService;
     private final GameTableService gameTableService;
     private final GameEventService gameEventService;
-
-    @Autowired
-    public GameEngineService(Map<String, PlayerActionHandler> playerActionHandlerMap, GameRegistry gameRegistry,
-                             GameService gameService, PlayerService playerService,
-                             GameTableService gameTableService, GameEventService gameEventService) {
-        this.playerActionHandlerMap = playerActionHandlerMap;
-        this.gameRegistry = gameRegistry;
-        this.gameService = gameService;
-        this.playerService = playerService;
-        this.gameTableService = gameTableService;
-        this.gameEventService = gameEventService;
-    }
 
     @Transactional(rollbackFor = Exception.class)
     public GameStateDTO handlePlayerAction(Long gameId, PlayerDetails playerDetails, PlayerAction action) {
@@ -58,19 +49,22 @@ public class GameEngineService {
             log.info("Suspicious action {} from player id {} in game id {}", action, playerId, game.getId());
         }
 
-        createAndSaveGameEvent(gameEngine, gameId, playerId, action);
+        createAndSaveGameEvent(gameId, playerId, action);
 
         return returnGameStateDTO(game);
     }
 
-    private void createAndSaveGameEvent(GameEngine gameEngine, long gameId, long playerId, PlayerAction action) {
-        var gameEventData = gameEngine.getGameEventData();
+    private void createAndSaveGameEvent(long gameId, long playerId, PlayerAction action) {
 
         var gameEvent = GameEvent.builder()
             .gameId(gameId)
             .playerId(playerId)
             .type(action.getType())
-            .gameEventData(gameEventData)
+            .gameEventData(GameEventData.builder()
+                .communityCards(Collections.emptyList())
+                .communityCards(Collections.emptyList())
+                .build()
+            )
             .createdAt(new Timestamp(System.currentTimeMillis()))
             .build();
 

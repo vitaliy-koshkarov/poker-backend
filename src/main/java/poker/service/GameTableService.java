@@ -1,5 +1,6 @@
 package poker.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import poker.model.Game;
@@ -12,12 +13,9 @@ import java.util.List;
 
 @Service("GameTableService")
 @Log4j2
+@RequiredArgsConstructor
 public class GameTableService {
     private final GameTableRepository gameTableRepo;
-
-    public GameTableService(GameTableRepository gameTableRepository) {
-        this.gameTableRepo = gameTableRepository;
-    }
 
     public GameTable createGameTable(Long userId, Long playerId, Long gameId) {
         var gameTable = GameTable.builder()

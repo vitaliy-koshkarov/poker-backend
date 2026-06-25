@@ -4,11 +4,11 @@ import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 import poker.game.GameEngine;
-import poker.game.playeraction.PlayerActions;
+import poker.game.PlayerAction;
 import poker.model.Game;
 import poker.model.PlayerDetails;
 
-@Component(value = PlayerActions.CHECK)
+@Component("CheckPlayerActionHandler")
 @Log4j2
 @ToString
 public class CheckPlayerActionHandler implements PlayerActionHandler {
@@ -21,11 +21,11 @@ public class CheckPlayerActionHandler implements PlayerActionHandler {
 
     private void engineHandling(GameEngine gameEngine, PlayerDetails playerDetails, Game game) {
         long playerId = playerDetails.getPlayer().getId();
-        log.info("Player id {} {} game id {}", playerId, PlayerActions.CHECK, game.getId());
-        log.info("{}", gameEngine.getTable());
+        log.info("Player id {} {} game id {}", playerId, PlayerAction.CHECK.getActionName(), game.getId());
+//        log.info("{}", gameEngine.getTable());
     }
 
     private void repositoryHandling(PlayerDetails playerDetails, Game game) {
-        log.info("Player id {} {} game id {}", playerDetails.getPlayer().getId(), PlayerActions.CHECK, game.getId());
+        log.info("Player id {} {} game id {}", playerDetails.getPlayer().getId(), PlayerAction.CHECK.getActionName(), game.getId());
     }
 }

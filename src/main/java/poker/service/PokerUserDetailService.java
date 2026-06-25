@@ -1,7 +1,7 @@
 package poker.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
@@ -12,15 +12,10 @@ import poker.repository.UserRepository;
 
 @Service
 @Log4j2
+@RequiredArgsConstructor
 public class PokerUserDetailService implements UserDetailsService {
     private final UserRepository userRepo;
     private final PlayerRepository playerRepo;
-
-    @Autowired
-    public PokerUserDetailService(UserRepository userRepository, PlayerRepository playerRepository) {
-        this.userRepo = userRepository;
-        this.playerRepo = playerRepository;
-    }
 
     @Override
     @Transactional(readOnly = true)

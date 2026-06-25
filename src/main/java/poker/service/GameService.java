@@ -1,5 +1,6 @@
 package poker.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.util.List;
 
 @Service("GameService")
 @Log4j2
+@RequiredArgsConstructor
 @ToString
 public class GameService {
     private final GameRepository gameRepo;
@@ -25,16 +27,6 @@ public class GameService {
     private final PlayerService playerService;
     private final GameTableService gameTableService;
     private final GameProps gameProps;
-
-    public GameService(GameRepository gameRepository, PotService potService,
-                       PlayerService playerService, GameTableService gameTableService,
-                       GameProps gameProps) {
-        this.gameRepo = gameRepository;
-        this.potService = potService;
-        this.playerService = playerService;
-        this.gameTableService = gameTableService;
-        this.gameProps = gameProps;
-    }
 
     @Transactional(readOnly = true)
     public List<GameDTO> getGamesList() {

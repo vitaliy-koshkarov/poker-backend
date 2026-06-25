@@ -1,7 +1,7 @@
 package poker.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,17 +13,11 @@ import java.sql.Timestamp;
 
 @Service
 @Log4j2
+@RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepo;
     private final PasswordEncoder passwordEncoder;
     private final PlayerService playerService;
-
-    @Autowired
-    public UserService(UserRepository userRepo, PasswordEncoder passwordEncoder, PlayerService playerService) {
-        this.userRepo = userRepo;
-        this.passwordEncoder = passwordEncoder;
-        this.playerService = playerService;
-    }
 
     @Transactional(readOnly = true)
     public boolean isUserExistsByEmail(String email) {

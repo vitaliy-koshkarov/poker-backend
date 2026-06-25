@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -16,15 +17,12 @@ import java.util.Date;
 
 @Service
 @Log4j2
+@RequiredArgsConstructor
 public class AuthService {
 //    TODO: use values from config file
     private final String secret = "temp-more-long-enough-not-super-secret-key";
     private final long expirationMs = 86_400_000; // 24h
     private final PokerUserDetailService puds;
-
-    public AuthService(PokerUserDetailService pokerUserDetailService) {
-        this.puds = pokerUserDetailService;
-    }
 
     public String generateToken(User user) {
         var now = new Date();

@@ -1,6 +1,6 @@
 package poker.service;
 
-import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,12 +14,9 @@ import java.util.List;
 
 @Service("PlayerService")
 @Log4j2
+@RequiredArgsConstructor
 public class PlayerService {
     private final PlayerRepository playerRepo;
-
-    public PlayerService(PlayerRepository playerRepo) {
-        this.playerRepo = playerRepo;
-    }
 
     @Transactional(readOnly = true)
     public boolean isPlayerExistsByNickname(String nickname) {

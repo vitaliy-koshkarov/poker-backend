@@ -13,7 +13,7 @@ import poker.dto.game.GameDTO;
 import poker.dto.game.GameStateDTO;
 import poker.dto.game.StartGameRequest;
 import poker.game.GameRegistry;
-import poker.game.playeraction.PlayerAction;
+import poker.game.PlayerAction;
 import poker.service.GameActionService;
 import poker.service.GameService;
 import poker.util.Util;

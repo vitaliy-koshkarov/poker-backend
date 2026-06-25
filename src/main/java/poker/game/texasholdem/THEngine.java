@@ -1,44 +1,28 @@
 package poker.game.texasholdem;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import poker.game.GameEngine;
-import poker.model.event.GameEventData;
-import poker.model.event.PlayerEventInfo;
+import poker.game.GameState;
+import poker.game.PlayerAction;
+import poker.game.PlayerActionData;
 
 import java.util.*;
 
 import static poker.model.GameStatus.*;
 
 @Log4j2
+@RequiredArgsConstructor
 public class THEngine implements GameEngine {
     private final THTable table;
 
-    public THEngine(THTable table) {
-        this.table = table;
+    @Override
+    public GameState getCurrentGameState() {
+        return new THGameState();
     }
 
     @Override
-    public THTable getTable() {
-        return table;
-    }
-
-    @Override
-    public GameEventData getGameEventData() {
-        var playerEventInfoList = new LinkedList<PlayerEventInfo>();
-        for (THPlayer thPlayer : table.getPlayers()) {
-            var playerEventInfo = PlayerEventInfo.builder()
-                .playerId(thPlayer.getId())
-                .playerStatus(thPlayer.getStatus().getStatus())
-                .bet(thPlayer.getCurrentBet())
-                .cards(thPlayer.getCards())
-                .build();
-            playerEventInfoList.add(playerEventInfo);
-        }
-
-        return GameEventData.builder()
-            .communityCards(table.getCommunityCards())
-            .playerEventInfo(playerEventInfoList)
-            .build();
+    public void handlePlayerAction(long playerId, PlayerActionData playerActionData, PlayerAction playerAction) {
     }
 
     public long getActivePlayerId() {

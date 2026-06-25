@@ -1,4 +1,4 @@
-package poker.game.playeraction;
+package poker.game;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,13 +8,13 @@ import lombok.ToString;
 @Getter
 @ToString
 public enum PlayerAction {
-    JOIN_GAME(0, PlayerActions.JOIN_GAME),
-    START_GAME(1, PlayerActions.START_GAME),
-    DISCONNECT(2, PlayerActions.DISCONNECT),
-    FOLD(3, PlayerActions.FOLD),
-    CHECK(4, PlayerActions.CHECK),
-    BET(5, PlayerActions.BET),
-    ALL_IN(6, PlayerActions.ALL_INN);
+    JOIN_GAME(0, "JOIN"),
+    START_GAME(1, "START"),
+    DISCONNECT(2, "DISCONNECT"),
+    FOLD(3, "FOLD"),
+    CHECK(4, "CHECK"),
+    BET(5, "BET"),
+    ALL_IN(6, "ALL_IN");
 
     private final int type;
     private final String actionName;

@@ -1,10 +1,7 @@
 package poker.game;
 
-import poker.game.texasholdem.THTable;
-import poker.model.event.GameEventData;
-
 public interface GameEngine {
-    THTable getTable();
+    GameState getCurrentGameState();
 
-    GameEventData getGameEventData();
+    void handlePlayerAction(long playerId, PlayerActionData playerActionData, PlayerAction playerAction);
 }

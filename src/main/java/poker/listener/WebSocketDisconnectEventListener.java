@@ -1,5 +1,6 @@
 package poker.listener;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.Message;
@@ -10,24 +11,17 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import poker.dto.game.GameStateDTO;
-import poker.game.playeraction.PlayerAction;
+import poker.game.PlayerAction;
 import poker.model.*;
 import poker.service.*;
 
 @Component
 @Log4j2
+@RequiredArgsConstructor
 public class WebSocketDisconnectEventListener {
     private final WebSocketPlayerSessionService webSocketPlayerSessionService;
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final GameEngineService gameEngineService;
-
-    public WebSocketDisconnectEventListener(WebSocketPlayerSessionService webSocketPlayerSessionService,
-                                            SimpMessagingTemplate simpMessagingTemplate,
-                                            GameEngineService gameEngineService) {
-        this.webSocketPlayerSessionService = webSocketPlayerSessionService;
-        this.simpMessagingTemplate = simpMessagingTemplate;
-        this.gameEngineService = gameEngineService;
-    }
 
     @EventListener
     public void handleDisconnect(SessionDisconnectEvent event) {
