@@ -4,17 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.messaging.support.GenericMessage;
 import org.springframework.web.bind.annotation.*;
-import poker.dto.game.CreateGameRequest;
-import poker.dto.game.GameDTO;
-import poker.dto.game.GameStateDTO;
-import poker.dto.game.StartGameRequest;
-import poker.game.GameRegistry;
+import poker.dto.game.*;
+import poker.game.GameEngineRegistry;
 import poker.game.PlayerAction;
-import poker.service.GameActionService;
+import poker.service.GameStateBroadcaster;
+import poker.service.GameStateResponseGenerator;
+import poker.service.PlayerActionHandlerService;
 import poker.service.GameService;
 import poker.util.Util;
 
@@ -26,9 +22,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GameController {
     private final GameService gameService;
-    private final GameRegistry gameRegistry;
-    private final SimpMessagingTemplate simpMessagingTemplate;
-    private final GameActionService gameActionService;
+    private final GameEngineRegistry gameEngineRegistry;
+    private final PlayerActionHandlerService playerActionHandlerService;
+    private final GameStateResponseGenerator gameStateResponseGenerator;
+    private final GameStateBroadcaster gameStateBroadcaster;
 
     @GetMapping
     public List<GameDTO> getGames() {
@@ -48,7 +45,7 @@ public class GameController {
         var game = gameService.createGame(creatorPlayerId, createGameRequest);
 
         if (game != null) {
-            gameRegistry.registerGame(game);
+            gameEngineRegistry.registerGame(game);
             log.info("Created game id {}", game.getId());
             return ResponseEntity.ok().build();
         }
@@ -71,19 +68,17 @@ public class GameController {
         long gameId = startGameRequest.gameId();
         long playerId = startGameRequest.playerId();
         var playerDetails = Util.getPlayerDetailsFronCtx();
-        log.info("Start game id {} request by player id {}", gameId, playerId);
+        log.info("Start game id {} request, player id {}", gameId, playerId);
         log.debug("PlayerDetails: {}", playerDetails);
 
 //        TODO: validate
 
-        gameActionService.handlePlayerAction(gameId, playerDetails, PlayerAction.START_GAME);
+        playerActionHandlerService.handlePlayerAction(gameId, playerDetails, PlayerAction.START_GAME);
 
-//        TODO: return game state from engine
-        var gameStateDTO = gameActionService.getCurrentState(gameId);
-        Message<GameStateDTO> message = new GenericMessage<>(gameStateDTO);
-        simpMessagingTemplate.convertAndSend("/topic/gameTable/" + gameId, message);
+        GameStateDTO gameStateDTO = gameStateResponseGenerator.generateResponse(gameId);
+        gameStateBroadcaster.broadcast(gameStateDTO);
 
-        log.info("Start game {} response {}", gameId, gameStateDTO);
+        log.info("Start game {} response OK", gameId);
         return ResponseEntity.ok().build();
     }
 }

@@ -12,10 +12,10 @@ import poker.model.GameStatus;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Component("GameRegistry")
+@Component("GameEngineRegistry")
 @Log4j2
 @ToString
-public class GameRegistry {
+public class GameEngineRegistry {
     private final Map<Long, GameEngine> gameEngineMap = new ConcurrentHashMap<>();
 
     public void registerGame(Game game) {

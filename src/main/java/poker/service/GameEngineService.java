@@ -28,7 +28,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class GameEngineService {
     private final Map<String, PlayerActionHandler> playerActionHandlerMap;
-    private final GameRegistry gameRegistry;
+    private final GameEngineRegistry gameEngineRegistry;
     private final GameService gameService;
     private final PlayerService playerService;
     private final GameTableService gameTableService;
@@ -39,7 +39,7 @@ public class GameEngineService {
         long playerId = playerDetails.getPlayer().getId();
         log.info("Handling action {} from player id {}", action, playerId);
 
-        var gameEngine = gameRegistry.getGameEngine(gameId);
+        var gameEngine = gameEngineRegistry.getGameEngine(gameId);
         var game = gameService.getGameById(gameId);
 
         var playerActionHandler = playerActionHandlerMap.get(action.getActionName());
