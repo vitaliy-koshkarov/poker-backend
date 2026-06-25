@@ -97,7 +97,7 @@ public class WebSocketGameController {
                                    @Payload PlayerActionRequest playerActionRequest,
                                    @AuthenticationPrincipal Authentication authentication) {
         var playerDetails = ((PlayerDetails) authentication.getPrincipal());
-        var playerAction = PlayerAction.fromActionName(playerActionRequest.action());
+        var playerAction = PlayerAction.fromActionName(playerActionRequest.actionName());
         long playerId = playerDetails.getPlayer().getId();
         log.info("Action {} from player id {} in game id {}", playerAction.getActionName(), playerId, gameId);
 

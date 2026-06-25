@@ -1,4 +1,4 @@
 package poker.dto;
 
-public record PlayerActionRequest(String action) {
+public record PlayerActionRequest(String actionName) {
 }
