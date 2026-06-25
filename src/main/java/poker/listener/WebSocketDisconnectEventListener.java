@@ -3,10 +3,7 @@ package poker.listener;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.event.EventListener;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
-import org.springframework.messaging.support.GenericMessage;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
@@ -19,9 +16,10 @@ import poker.service.*;
 @Log4j2
 @RequiredArgsConstructor
 public class WebSocketDisconnectEventListener {
+    private final PlayerActionHandlerService playerActionHandlerService;
+    private final GameStateResponseGenerator gameStateResponseGenerator;
     private final WebSocketPlayerSessionService webSocketPlayerSessionService;
-    private final SimpMessagingTemplate simpMessagingTemplate;
-    private final GameEngineService gameEngineService;
+    private final GameStateBroadcaster gameStateBroadcaster;
 
     @EventListener
     public void handleDisconnect(SessionDisconnectEvent event) {
@@ -43,18 +41,15 @@ public class WebSocketDisconnectEventListener {
         long gameId = playerGameSession.gameId();
         long playerId = playerDetails.getPlayer().getId();
 
-        var gameStateDTO = gameEngineService.handlePlayerAction(gameId, playerDetails, PlayerAction.DISCONNECT);
+        playerActionHandlerService.handlePlayerAction(gameId, playerDetails, PlayerAction.DISCONNECT);
+
+        GameStateDTO gameStateDTO = gameStateResponseGenerator.generateResponse(gameId);
 
         webSocketPlayerSessionService.removeSession(sessionId);
         log.info("Disconnect player id {} session id {}", playerId, sessionId);
 
-        Message<GameStateDTO> message = new GenericMessage<>(gameStateDTO);
-        log.debug("Message {}", message);
-        String destination = "/topic/gameTable/" + gameId;
-
-//        Notify other players about some player disconnected and update game state
-        simpMessagingTemplate.convertAndSend(destination, message);
-
-        log.info("Player id {} disconnected from {}", playerId, destination);
+//        TODO: do not broadcast, if the game not started yet
+        gameStateBroadcaster.broadcast(gameStateDTO, PlayerAction.DISCONNECT);
+        log.info("Player id {} disconnected from game id {}", playerId, gameId);
     }
 }

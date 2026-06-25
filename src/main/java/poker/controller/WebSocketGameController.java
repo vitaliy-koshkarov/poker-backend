@@ -50,7 +50,6 @@ public class WebSocketGameController {
     }
 
     @MessageMapping("/table/{id}/action")
-//    @SendTo("/topic/gameTable/{id}")
     public void handlePlayerAction(@DestinationVariable("id") Long gameId,
                                    @Payload PlayerActionRequest playerActionRequest,
                                    @AuthenticationPrincipal Authentication authentication) {

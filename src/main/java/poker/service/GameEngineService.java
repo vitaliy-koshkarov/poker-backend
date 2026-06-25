@@ -26,6 +26,7 @@ import java.util.Map;
 @Service("GameEngineService")
 @Log4j2
 @RequiredArgsConstructor
+@Deprecated(since = "Will be removed soon. Use PlayerActionHandlerService instead")
 public class GameEngineService {
     private final Map<String, PlayerActionHandler> playerActionHandlerMap;
     private final GameEngineRegistry gameEngineRegistry;
