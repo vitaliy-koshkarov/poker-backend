@@ -1,11 +1,13 @@
-package poker.game.texasholdem;
+package poker.core.game.texasholdem;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
-import poker.game.GamePlayer;
-import poker.model.GameStatus;
-import poker.game.PlayerStatus;
+import poker.core.game.GameStatus;
+import poker.core.game.card.Card;
+import poker.core.game.card.Deck;
+import poker.core.player.GamePlayer;
+import poker.core.player.PlayerStatus;
 
 import java.util.ArrayList;
 import java.util.LinkedList;

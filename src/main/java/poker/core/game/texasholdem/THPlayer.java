@@ -1,9 +1,10 @@
-package poker.game.texasholdem;
+package poker.core.game.texasholdem;
 
 import lombok.Getter;
 import lombok.Setter;
-import poker.game.GamePlayer;
-import poker.game.PlayerStatus;
+import poker.core.game.card.Card;
+import poker.core.player.GamePlayer;
+import poker.core.player.PlayerStatus;
 
 import java.util.ArrayList;
 import java.util.List;

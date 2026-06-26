@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import poker.model.Player;
 import poker.model.PlayerDetails;
-import poker.game.PlayerStatus;
+import poker.core.player.PlayerStatus;
 import poker.repository.PlayerRepository;
 
 import java.sql.Timestamp;

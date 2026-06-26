@@ -1,6 +1,6 @@
 package poker.service.handler;
 
-import poker.game.GameEngine;
+import poker.core.engine.GameEngine;
 import poker.model.Game;
 import poker.model.PlayerDetails;
 

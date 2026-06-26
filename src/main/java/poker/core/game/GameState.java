@@ -1,8 +1,9 @@
-package poker.game;
+package poker.core.game;
 
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
+import poker.core.player.GamePlayer;
 
 import java.util.List;
 

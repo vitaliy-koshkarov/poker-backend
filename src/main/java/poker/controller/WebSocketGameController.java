@@ -12,7 +12,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import poker.dto.PlayerActionRequest;
 import poker.dto.game.GameStateDTO;
-import poker.game.PlayerAction;
+import poker.core.player.PlayerAction;
 import poker.model.PlayerDetails;
 import poker.service.WebSocketGameStateBroadcaster;
 import poker.service.GameStateResponseGenerator;

@@ -1,4 +1,9 @@
-package poker.game.texasholdem;
+package poker.core.game.texasholdem;
+
+import poker.core.game.card.Card;
+import poker.core.game.card.Deck;
+import poker.core.game.card.Rank;
+import poker.core.game.card.Suit;
 
 import java.util.Random;
 

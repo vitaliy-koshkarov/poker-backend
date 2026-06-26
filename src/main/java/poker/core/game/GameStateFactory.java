@@ -1,6 +1,7 @@
-package poker.game;
+package poker.core.game;
 
-import poker.game.texasholdem.THTable;
+import poker.core.player.GamePlayer;
+import poker.core.game.texasholdem.THTable;
 import poker.util.Util;
 
 import java.util.LinkedList;

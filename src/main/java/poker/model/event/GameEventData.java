@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import poker.game.texasholdem.Card;
+import poker.core.game.card.Card;
 
 import java.io.Serializable;
 import java.util.List;

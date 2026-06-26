@@ -1,13 +1,13 @@
-package poker.game;
+package poker.core.engine;
 
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
-import poker.game.texasholdem.THEngine;
-import poker.game.texasholdem.THPot;
-import poker.game.texasholdem.THTable;
+import poker.core.game.GameStatus;
+import poker.core.game.texasholdem.THEngine;
+import poker.core.game.texasholdem.THPot;
+import poker.core.game.texasholdem.THTable;
 import poker.model.Game;
-import poker.model.GameStatus;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

@@ -1,4 +1,4 @@
-package poker.game;
+package poker.core.player;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

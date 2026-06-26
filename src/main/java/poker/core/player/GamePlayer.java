@@ -1,6 +1,6 @@
-package poker.game;
+package poker.core.player;
 
-import poker.game.texasholdem.Card;
+import poker.core.game.card.Card;
 
 import java.util.List;
 

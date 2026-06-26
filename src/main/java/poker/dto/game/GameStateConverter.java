@@ -1,7 +1,7 @@
 package poker.dto.game;
 
 import poker.dto.player.PlayerDTO;
-import poker.game.GameState;
+import poker.core.game.GameState;
 
 import java.util.LinkedList;
 import java.util.List;

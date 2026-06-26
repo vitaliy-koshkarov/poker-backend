@@ -1,4 +1,4 @@
-package poker.game.texasholdem;
+package poker.core.game.texasholdem;
 
 public enum Combination {
     HIGH_CARD,

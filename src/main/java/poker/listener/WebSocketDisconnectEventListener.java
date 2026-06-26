@@ -8,7 +8,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import poker.dto.game.GameStateDTO;
-import poker.game.PlayerAction;
+import poker.core.game.GameStatus;
+import poker.core.player.PlayerAction;
 import poker.model.*;
 import poker.service.*;
 

@@ -6,8 +6,8 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import poker.dto.game.GameStateConverter;
 import poker.dto.game.GameStateDTO;
-import poker.game.GameEngineRegistry;
-import poker.game.GameState;
+import poker.core.engine.GameEngineRegistry;
+import poker.core.game.GameState;
 
 @Service("GameStateResponseGenerator")
 @RequiredArgsConstructor

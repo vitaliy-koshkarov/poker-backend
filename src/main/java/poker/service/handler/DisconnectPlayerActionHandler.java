@@ -4,11 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
-import poker.game.GameEngine;
-import poker.game.PlayerAction;
+import poker.core.engine.GameEngine;
+import poker.core.player.PlayerAction;
 import poker.model.Game;
 import poker.model.PlayerDetails;
-import poker.game.PlayerStatus;
+import poker.core.player.PlayerStatus;
 import poker.service.GameSeatService;
 import poker.service.PlayerService;
 

@@ -1,12 +1,18 @@
-package poker.game.texasholdem;
+package poker.core.game.texasholdem;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import poker.game.*;
+import poker.core.engine.GameEngine;
+import poker.core.game.GameState;
+import poker.core.game.GameStateFactory;
+import poker.core.game.card.Card;
+import poker.core.player.GamePlayer;
+import poker.core.player.PlayerAction;
+import poker.core.player.PlayerActionData;
 
 import java.util.*;
 
-import static poker.model.GameStatus.*;
+import static poker.core.game.GameStatus.*;
 
 @Log4j2
 @RequiredArgsConstructor

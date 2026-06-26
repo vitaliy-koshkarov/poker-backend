@@ -1,4 +1,4 @@
-package poker.game.texasholdem;
+package poker.core.game.card;
 
 import java.io.Serializable;
 

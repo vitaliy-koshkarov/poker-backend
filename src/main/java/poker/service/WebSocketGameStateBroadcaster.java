@@ -8,7 +8,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.stereotype.Service;
 import poker.dto.game.GameStateDTO;
-import poker.game.PlayerAction;
+import poker.core.player.PlayerAction;
 
 @Service("WebSocketGameStateBroadcaster")
 @Log4j2

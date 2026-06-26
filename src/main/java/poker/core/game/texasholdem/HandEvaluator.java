@@ -1,7 +1,8 @@
-package poker.game.texasholdem;
+package poker.core.game.texasholdem;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import poker.core.game.card.Card;
 
 import java.util.List;
 

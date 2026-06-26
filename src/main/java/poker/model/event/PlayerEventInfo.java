@@ -1,7 +1,7 @@
 package poker.model.event;
 
 import lombok.*;
-import poker.game.texasholdem.Card;
+import poker.core.game.card.Card;
 
 import java.io.Serializable;
 import java.util.List;

@@ -1,4 +1,4 @@
-package poker.model;
+package poker.core.game;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,6 +24,6 @@ public enum GameStatus {
                 return gameStatus;
             }
         }
-        throw new EnumConstantNotPresentException(GameStatus.class, "The is no GameStatus with status " + value);
+        throw new EnumConstantNotPresentException(GameStatus.class, "There is no GameStatus with status " + value);
     }
 }

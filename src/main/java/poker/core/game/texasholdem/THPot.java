@@ -1,11 +1,12 @@
-package poker.game.texasholdem;
+package poker.core.game.texasholdem;
 
-import poker.game.GamePlayer;
+import poker.core.game.GamePot;
+import poker.core.player.GamePlayer;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class THPot {
+public class THPot implements GamePot {
     private final long id;
     private int total;
     private final Map<GamePlayer, Integer> playerBets = new HashMap<>();
@@ -14,6 +15,7 @@ public class THPot {
         this.id = id;
     }
 
+    @Override
     public void addPlayerBet(GamePlayer player, int bet) {
         total += bet;
         if (!playerBets.containsKey(player)) {
@@ -23,6 +25,7 @@ public class THPot {
         }
     }
 
+    @Override
     public void refresh() {
         total = 0;
         playerBets.clear();
