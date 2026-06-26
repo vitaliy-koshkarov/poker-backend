@@ -49,7 +49,7 @@ public class WebSocketDisconnectEventListener {
         webSocketPlayerSessionService.removeSession(sessionId);
         log.info("Disconnect player id {} session id {}", playerId, sessionId);
 
-        if (gameStateDTO.gameDTO().status() != GameStatus.WAITING_FOR_PLAYERS.getStatus()) {
+        if (gameStateDTO.gameDTO().status() != GameStatus.WAITING_FOR_PLAYERS.getIntStatus()) {
             webSocketGameStateBroadcaster.broadcast(gameStateDTO, PlayerAction.DISCONNECT);
         }
 

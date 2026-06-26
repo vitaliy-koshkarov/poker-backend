@@ -16,14 +16,14 @@ public enum GameStatus {
     SHOWDOWN(5),
     END(6);
 
-    private final int status;
+    private final int intStatus;
 
-    public static GameStatus getGameStatusByInt(int value) {
+    public static GameStatus getGameStatusByInt(int intStatus) {
         for (GameStatus gameStatus : values()) {
-            if (gameStatus.getStatus() == value) {
+            if (gameStatus.getIntStatus() == intStatus) {
                 return gameStatus;
             }
         }
-        throw new EnumConstantNotPresentException(GameStatus.class, "There is no GameStatus with status " + value);
+        throw new EnumConstantNotPresentException(GameStatus.class, "There is no GameStatus with status " + intStatus);
     }
 }

@@ -31,6 +31,7 @@ public class THPot implements GamePot {
         playerBets.clear();
     }
 
+    @Override
     public void distributeReward(Map<GamePlayer, HandEvaluator> winners) {
         int splitReward = total / winners.size();
         for (Map.Entry<GamePlayer, HandEvaluator> pair : winners.entrySet()) {

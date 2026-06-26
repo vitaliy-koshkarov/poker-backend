@@ -3,7 +3,9 @@ package poker.core.engine;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
+import poker.core.game.GamePot;
 import poker.core.game.GameStatus;
+import poker.core.game.GameTable;
 import poker.core.game.texasholdem.THEngine;
 import poker.core.game.texasholdem.THPot;
 import poker.core.game.texasholdem.THTable;
@@ -22,14 +24,14 @@ public class GameEngineRegistry {
         long gameId = game.getId();
         log.info("Registering game id {} with blinds {}/{}", gameId, game.getSmallBlind(), game.getBigBlind());
 
-        var thPot = new THPot(game.getPotId());
+        GamePot pot = new THPot(game.getPotId());
 //        TODO: restore pot, deck, community cards, players list, player's cards
 //        TODO: refactoring creation of the THTable
 //        TODO: When game load, all fields must be correctly set
-        var thTable = new THTable(gameId, game.getName(), game.getCreatorPlayerId(), game.getMaxPlayers(), game.getBuyIn(), thPot,
-            GameStatus.getGameStatusByInt(game.getStatus()),
+        GameTable table = new THTable(gameId, game.getName(), game.getCreatorPlayerId(),
+            game.getMaxPlayers(), game.getBuyIn(), pot, GameStatus.getGameStatusByInt(game.getStatus()),
             game.getSmallBlind(), game.getBigBlind());
-        GameEngine engine = new THEngine(thTable);
+        GameEngine engine = new THEngine(table);
 
         gameEngineMap.put(gameId, engine);
         log.info("Game id {} registered", gameId);

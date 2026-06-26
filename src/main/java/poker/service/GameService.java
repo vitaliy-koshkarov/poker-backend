@@ -33,7 +33,7 @@ public class GameService {
     @Transactional(readOnly = true)
     public List<GameDTO> getGamesList() {
         List<GameDTO> gameDTOList = new LinkedList<>();
-        List<Game> games = gameRepo.findAllNotEndedGames(GameStatus.END.getStatus());
+        List<Game> games = gameRepo.findAllNotEndedGames(GameStatus.END.getIntStatus());
 
         List<GameSeat> gameSeats;
         for (Game game : games) {
@@ -55,7 +55,7 @@ public class GameService {
             .smallBlind(gameProps.getSmallBlind())
             .bigBlind(gameProps.getBigBlind())
             .name(createGameRequest.name())
-            .status(GameStatus.WAITING_FOR_PLAYERS.getStatus())
+            .status(GameStatus.WAITING_FOR_PLAYERS.getIntStatus())
             .potId(pot.getId())
             .createdAt(new Timestamp(System.currentTimeMillis()))
             .creatorPlayerId(creatorPlayerId)
@@ -126,6 +126,6 @@ public class GameService {
 
     @Transactional(readOnly = true)
     public List<Game> getListNonEndedGames() {
-        return gameRepo.findAllNotEndedGames(GameStatus.END.getStatus());
+        return gameRepo.findAllNotEndedGames(GameStatus.END.getIntStatus());
     }
 }

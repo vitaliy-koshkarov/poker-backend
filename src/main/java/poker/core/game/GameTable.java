@@ -11,16 +11,21 @@ public interface GameTable {
     String getName();
     long getCreatorPlayerId();
     GameStatus getGameStatus();
+    void setGameStatus(GameStatus gameStatus);
     long getDealerId();
     long getActivePlayerId();
     int getCurrentPlayersCount();
     int getMaxPlayers();
     int getSmallBlind();
     int getBigBlind();
-    int minRaise();
+    int getMinRaise();
     int getBuyIn();
-    GamePot getGamePot();
+    GamePot getPot();
     List<GamePlayer> getPlayers();
+    List<GamePlayer> getActivePlayers();
     Deck getDeck();
     List<Card> getCommunityCards();
+
+    void betBlinds();
+    void dealStartHands();
 }

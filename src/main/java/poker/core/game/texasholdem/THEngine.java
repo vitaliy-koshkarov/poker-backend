@@ -1,10 +1,12 @@
 package poker.core.game.texasholdem;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import poker.core.engine.GameEngine;
 import poker.core.game.GameState;
 import poker.core.game.GameStateFactory;
+import poker.core.game.GameTable;
 import poker.core.game.card.Card;
 import poker.core.player.GamePlayer;
 import poker.core.player.PlayerAction;
@@ -17,7 +19,8 @@ import static poker.core.game.GameStatus.*;
 @Log4j2
 @RequiredArgsConstructor
 public class THEngine implements GameEngine {
-    private final THTable table;
+    @Getter
+    private final GameTable table;
 
     @Override
     public GameState getCurrentGameState() {
@@ -28,18 +31,13 @@ public class THEngine implements GameEngine {
     public void handlePlayerAction(long playerId, PlayerActionData playerActionData, PlayerAction playerAction) {
     }
 
+    @Override
     public long getActivePlayerId() {
-        int activePlayerIdx = table.getActivePlayerIdx();
-        return table.getPlayers()
-            .get(activePlayerIdx)
-            .getId();
+        return table.getActivePlayerId();
     }
 
     public long getDealerId() {
-        int dealerIdx = table.getDealerIdx();
-        return table.getPlayers()
-            .get(dealerIdx)
-            .getId();
+        return table.getDealerId();
     }
 
     private void nextPhase() {

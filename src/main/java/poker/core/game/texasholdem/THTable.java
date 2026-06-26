@@ -3,7 +3,9 @@ package poker.core.game.texasholdem;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
+import poker.core.game.GamePot;
 import poker.core.game.GameStatus;
+import poker.core.game.GameTable;
 import poker.core.game.card.Card;
 import poker.core.game.card.Deck;
 import poker.core.player.GamePlayer;
@@ -15,7 +17,7 @@ import java.util.List;
 
 @Getter
 @Log4j2
-public class THTable {
+public class THTable implements GameTable {
 //    TODO: map: [playerId -> playerPosition] on the table (in 'players' list) ?
 
     private final long id;
@@ -25,40 +27,83 @@ public class THTable {
     @Setter
     private GameStatus gameStatus;
 
+    private long dealerId;
+    private int dealerIdx;
+
+    private long activePlayerId;
+    private int activePlayerIdx;
+
+    private final int maxPlayers;
+
+    private int smallBlind;
+    private int smallBlindIdx;
+
+    private int bigBlind;
+    private int bigBlindIdx;
+
+    private int minRaise;
+    private final int buyIn;
+
+    private final GamePot pot;
+    private final List<GamePlayer> players;
     private final Deck deck;
     private final List<Card> communityCards;
 
-    private final THPot pot;
-
-    private final List<GamePlayer> players;
-    private final int maxPlayers;
-
-    private int dealerIdx;
-    private int smallBlindIdx;
-    private int bigBlindIdx;
-    private int activePlayerIdx;
-
-    private final int buyIn;
-
-    private int smallBlind;
-    private int bigBlind;
-
-    private int minRaise;
-
     public THTable(long id, String name, long creatorPlayerId, int maxPlayers, int buyIn,
-                   THPot thPot, GameStatus gameStatus, int smallBlind, int bigBlind) {
+                   GamePot pot, GameStatus gameStatus, int smallBlind, int bigBlind) {
         this.id = id;
         this.name = name;
         this.creatorPlayerId = creatorPlayerId;
         this.gameStatus = gameStatus;
         this.deck = new THDeck();
         this.communityCards = new ArrayList<>();
-        this.pot = thPot;
+        this.pot = pot;
         this.players = new ArrayList<>();
         this.maxPlayers = maxPlayers;
         this.buyIn = buyIn;
         this.smallBlind = smallBlind;
         this.bigBlind = bigBlind;
+    }
+
+    @Override
+    public int getCurrentPlayersCount() {
+        return players.size();
+    }
+
+    @Override
+    public List<GamePlayer> getActivePlayers() {
+        var activePlayers = new LinkedList<GamePlayer>();
+        for (GamePlayer player : players) {
+            if (player.getStatus() == PlayerStatus.ACTIVE) {
+                activePlayers.add(player);
+            }
+        }
+        return activePlayers;
+    }
+
+    @Override
+    public void dealStartHands() {
+        for (int i = 0; i < 2; i++) {
+            for (GamePlayer player : players) {
+                player.getCards().add(deck.dealCard());
+            }
+        }
+    }
+
+    @Override
+    public void betBlinds() {
+        setBlind(getSmallBlindIdx(), smallBlind);
+        setBlind(getBigBlindIdx(), bigBlind);
+    }
+
+    @Override
+    public String toString() {
+        return "THTable{id " + id + ", deck size " + deck.getSize()
+            + ", community cards " + communityCards + ", " + pot
+            + ", Players{" + playersInfo() + ", dealer idx " + dealerIdx
+            + ", small blind idx " + smallBlindIdx + ", big blind idx " + bigBlindIdx
+            + ", active player idx " + activePlayerIdx + ", min raise " + minRaise
+            + "}";
     }
 
     public void addPlayer(THPlayer thPlayer) {
@@ -74,16 +119,6 @@ public class THTable {
             }
         }
         players.remove(thPlayerToRemove);
-    }
-
-    public List<GamePlayer> getActivePlayers() {
-        var activePlayers = new LinkedList<GamePlayer>();
-        for (GamePlayer player : players) {
-            if (player.getStatus() == PlayerStatus.ACTIVE) {
-                activePlayers.add(player);
-            }
-        }
-        return activePlayers;
     }
 
     public void setUpNewRound() {
@@ -103,29 +138,6 @@ public class THTable {
         dealStartHands();
 
         gameStatus = GameStatus.PRE_FLOP;
-    }
-
-    @Override
-    public String toString() {
-        return "TexasHoldemTable{id " + id + ", deck size " + deck.getSize()
-            + ", community cards " + communityCards + ", " + pot
-            + ", Players{" + playersInfo() + ", dealer idx " + dealerIdx
-            + ", small blind idx " + smallBlindIdx + ", big blind idx " + bigBlindIdx
-            + ", active player idx " + activePlayerIdx + ", min raise " + minRaise
-            + "}";
-    }
-
-    void dealStartHands() {
-        for (int i = 0; i < 2; i++) {
-            for (GamePlayer player : players) {
-                player.getCards().add(deck.dealCard());
-            }
-        }
-    }
-
-    void betBlinds() {
-        setBlind(getSmallBlindIdx(), smallBlind);
-        setBlind(getBigBlindIdx(), bigBlind);
     }
 
     private void setBlind(int blindIdx, int blind) {

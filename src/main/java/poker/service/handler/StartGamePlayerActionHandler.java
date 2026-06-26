@@ -5,9 +5,9 @@ import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 import poker.core.engine.GameEngine;
+import poker.core.player.GamePlayer;
 import poker.core.player.PlayerAction;
 import poker.core.game.texasholdem.THEngine;
-import poker.core.game.texasholdem.THPlayer;
 import poker.model.Game;
 import poker.core.game.GameStatus;
 import poker.model.Player;
@@ -17,7 +17,6 @@ import poker.service.PlayerService;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Component("StartGamePlayerActionHandler")
@@ -42,26 +41,26 @@ public class StartGamePlayerActionHandler implements PlayerActionHandler {
     }
 
     private void repositoryHandling(GameEngine gameEngine, Game game, long playerId) {
-        game.setStatus(GameStatus.PRE_FLOP.getStatus());
+        game.setStatus(GameStatus.PRE_FLOP.getIntStatus());
         game.setStartedAt(new Timestamp(System.currentTimeMillis()));
 
         long dealerId = ((THEngine) gameEngine).getDealerId();
         game.setDealerId(dealerId);
 
-        long activePlayerId = ((THEngine) gameEngine).getActivePlayerId();
+        long activePlayerId = gameEngine.getActivePlayerId();
         game.setActivePlayerId(activePlayerId);
         gameService.updateGame(game);
 
-        List<THPlayer> thPlayers = Collections.emptyList(); // gameEngine.getTable().getPlayers();
+        List<GamePlayer> gamePlayers = gameEngine.getTable().getPlayers();
         List<Long> playerIds = new ArrayList<>();
-        for (THPlayer thPlayer : thPlayers) {
-            playerIds.add(thPlayer.getId());
+        for (GamePlayer gamePlayer : gamePlayers) {
+            playerIds.add(gamePlayer.getId());
         }
         var players = playerService.getPlayersByIds(playerIds);
         for (Player player : players) {
-            for (THPlayer thPlayer : thPlayers) {
-                if (thPlayer.getId() == player.getId()) {
-                    player.setStatus(thPlayer.getStatus().getIntStatus());
+            for (GamePlayer gamePlayer : gamePlayers) {
+                if (gamePlayer.getId() == player.getId()) {
+                    player.setStatus(gamePlayer.getStatus().getIntStatus());
                 }
             }
         }
