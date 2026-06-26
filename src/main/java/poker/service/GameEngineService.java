@@ -10,7 +10,7 @@ import poker.dto.player.PlayerConverter;
 import poker.game.*;
 import poker.game.PlayerAction;
 import poker.model.Game;
-import poker.model.GameTable;
+import poker.model.GameSeat;
 import poker.model.Player;
 import poker.model.PlayerDetails;
 import poker.model.event.GameEvent;
@@ -32,7 +32,7 @@ public class GameEngineService {
     private final GameEngineRegistry gameEngineRegistry;
     private final GameService gameService;
     private final PlayerService playerService;
-    private final GameTableService gameTableService;
+    private final GameSeatService gameSeatService;
     private final GameEventService gameEventService;
 
     @Transactional(rollbackFor = Exception.class)
@@ -74,14 +74,14 @@ public class GameEngineService {
     }
 
     private GameStateDTO returnGameStateDTO(Game game) {
-        List<GameTable> gameTableList = gameTableService.getGameTablesByGameId(game.getId());
+        List<GameSeat> gameSeatList = gameSeatService.getGameSeatsByGameId(game.getId());
         var playerIdsList = new ArrayList<Long>();
-        for (GameTable gameTable : gameTableList) {
-            playerIdsList.add(gameTable.getPlayerId());
+        for (GameSeat gameSeat : gameSeatList) {
+            playerIdsList.add(gameSeat.getPlayerId());
         }
         List<Player> players = playerService.getPlayersByIds(playerIdsList);
 
-        var gameDTO = GameConverter.toDTO(game, gameTableList.size());
+        var gameDTO = GameConverter.toDTO(game, gameSeatList.size());
         var playerDTOList = PlayerConverter.toListDTO(players);
 
         return GameStateDTO.builder()

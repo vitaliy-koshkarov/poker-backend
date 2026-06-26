@@ -9,6 +9,8 @@ CREATE TABLE public.games
     creator_player_id BIGINT    NOT NULL DEFAULT 0,
     dealer_id         BIGINT    NOT NULL DEFAULT 0,
     active_player_id  BIGINT    NOT NULL DEFAULT 0,
+    small_blind       INT       NOT NULL DEFAULT 0,
+    big_blind         INT       NOT NULL DEFAULT 0,
     created_at        TIMESTAMP NOT NULL,
     started_at        TIMESTAMP,
     ended_at          TIMESTAMP,

@@ -9,7 +9,7 @@ import poker.dto.game.GameStateDTO;
 import poker.dto.player.PlayerConverter;
 import poker.game.GameEngineRegistry;
 import poker.game.PlayerAction;
-import poker.model.GameTable;
+import poker.model.GameSeat;
 import poker.model.PlayerDetails;
 
 import java.util.LinkedList;
@@ -23,7 +23,7 @@ public class PlayerActionHandlerService {
     private final GameEngineRegistry gameEngineRegistry;
     private final GameService gameService;
     private final PlayerService playerService;
-    private final GameTableService gameTableService;
+    private final GameSeatService gameSeatService;
 
     public void handlePlayerAction(long gameId, PlayerDetails playerDetails, PlayerAction playerAction) {
         log.info("Handling action {} from player id {} in game {}",
@@ -45,15 +45,15 @@ public class PlayerActionHandlerService {
     public GameStateDTO getCurrentState(long gameId) {
         var game = gameService.getGameById(gameId);
 
-        var gameTableList = gameTableService.getGameTablesByGameId(gameId);
+        var gameSeatList = gameSeatService.getGameSeatsByGameId(gameId);
         List<Long> playersIdsList = new LinkedList<>();
-        for (GameTable gameTable : gameTableList) {
-            playersIdsList.add(gameTable.getPlayerId());
+        for (GameSeat gameSeat : gameSeatList) {
+            playersIdsList.add(gameSeat.getPlayerId());
         }
 
         var playersList = playerService.getPlayersByIds(playersIdsList);
 
-        var gameDTO = GameConverter.toDTO(game, gameTableList.size());
+        var gameDTO = GameConverter.toDTO(game, gameSeatList.size());
         var playerDTOList = PlayerConverter.toListDTO(playersList);
 
         return GameStateDTO.builder()

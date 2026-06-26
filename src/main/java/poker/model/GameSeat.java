@@ -6,16 +6,14 @@ import lombok.*;
 import java.sql.Timestamp;
 
 @Entity
-@Table(schema = "public", name = "game_tables")
+@Table(schema = "public", name = "game_seats")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @Builder
 @ToString
-public class GameTable {
-//    TODO: think to rename the entity to avoid misunderstanding its purpose
-
+public class GameSeat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

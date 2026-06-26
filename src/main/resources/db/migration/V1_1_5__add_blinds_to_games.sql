@@ -1,3 +1,0 @@
-ALTER TABLE public.games
-    ADD COLUMN small_blind INT NOT NULL DEFAULT 0,
-    ADD COLUMN big_blind   INT NOT NULL DEFAULT 0;

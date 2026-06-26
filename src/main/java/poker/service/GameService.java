@@ -26,7 +26,7 @@ public class GameService {
     private final GameRepository gameRepo;
     private final PotService potService;
     private final PlayerService playerService;
-    private final GameTableService gameTableService;
+    private final GameSeatService gameSeatService;
     private final GameProps gameProps;
 
     @Transactional(readOnly = true)
@@ -34,10 +34,10 @@ public class GameService {
         List<GameDTO> gameDTOList = new LinkedList<>();
         List<Game> games = gameRepo.findAllNotEndedGames(GameStatus.END.getStatus());
 
-        List<GameTable> gameTables;
+        List<GameSeat> gameSeats;
         for (Game game : games) {
-            gameTables = gameTableService.getGameTablesByGameId(game.getId());
-            GameDTO gameDTO = GameConverter.toDTO(game, gameTables.size());
+            gameSeats = gameSeatService.getGameSeatsByGameId(game.getId());
+            GameDTO gameDTO = GameConverter.toDTO(game, gameSeats.size());
             gameDTOList.add(gameDTO);
         }
 
@@ -73,7 +73,7 @@ public class GameService {
         var game = gameRepo.findGameById(gameId);
         Long potId = game.getPotId();
 
-        gameTableService.deleteGameTableByIdGameId(gameId);
+        gameSeatService.deleteGameSeatByIdGameId(gameId);
         log.info("Removed game table with game id {}", gameId);
 
         gameRepo.deleteById(gameId);
@@ -90,7 +90,7 @@ public class GameService {
 
     /**
      * Updates player's status to {@link PlayerStatus#JOIN_THE_GAME} and chips.</br>
-     * Created {@link GameTable} entity
+     * Created {@link GameSeat} entity
      * @param gameId {@link Game#getId()}
      * @param playerDetails {@link PlayerDetails} with info of this {@link User} and {@link Player}
      */
@@ -100,14 +100,14 @@ public class GameService {
         long userId = playerDetails.getUser().getId();
 
 //        TODO: think how to handle accidental disconnects
-        var gameTable = gameTableService.getGameTableByGameIdAndPlayerId(gameId, player.getId());
+        var gameTable = gameSeatService.getGameSeatByGameIdAndPlayerId(gameId, player.getId());
         if (gameTable != null) {
             log.info("PLAYER {} CHIPS {}", player.getId(), player.getChips());
             player.setChips(player.getChips());
         } else {
             player.setChips(game.getBuyIn());
 
-            gameTable = gameTableService.createGameTable(userId, player.getId(), game.getId());
+            gameTable = gameSeatService.createGameSeat(userId, player.getId(), game.getId());
         }
         log.info("PLAYER {} JOIN, GAME TABLE {}", player.getId(), gameTable);
 

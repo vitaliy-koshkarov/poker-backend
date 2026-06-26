@@ -9,7 +9,7 @@ import poker.game.PlayerAction;
 import poker.model.Game;
 import poker.model.PlayerDetails;
 import poker.game.PlayerStatus;
-import poker.service.GameTableService;
+import poker.service.GameSeatService;
 import poker.service.PlayerService;
 
 @Component("DisconnectPlayerActionHandler")
@@ -18,7 +18,7 @@ import poker.service.PlayerService;
 @ToString
 public class DisconnectPlayerActionHandler implements PlayerActionHandler {
     private final PlayerService playerService;
-    private final GameTableService gameTableService;
+    private final GameSeatService gameSeatService;
 
     @Override
     public void handleAction(GameEngine gameEngine, Game game, PlayerDetails playerDetails) {
@@ -40,7 +40,7 @@ public class DisconnectPlayerActionHandler implements PlayerActionHandler {
         long playerId = player.getId();
         player.setStatus(PlayerStatus.NOT_IN_GAME.getIntStatus());
         playerService.updatePlayer(player);
-        gameTableService.removePlayerFromGameTable(playerDetails.getUser().getId(), playerId, gameId);
+        gameSeatService.releaseGameSeat(playerDetails.getUser().getId(), playerId, gameId);
         log.info("Player id {} {} from game id {}", playerId, PlayerAction.DISCONNECT.getActionName(), gameId);
     }
 }

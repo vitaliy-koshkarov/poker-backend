@@ -25,6 +25,6 @@ public class StartUpGameLoader implements ApplicationRunner {
             log.info("{}", game);
             gameEngineRegistry.registerGame(game);
         });
-        log.info("Games loaded");
+        log.info("Loaded {} games", gamesList.size());
     }
 }
