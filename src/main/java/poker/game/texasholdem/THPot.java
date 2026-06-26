@@ -1,18 +1,20 @@
 package poker.game.texasholdem;
 
+import poker.game.GamePlayer;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class THPot {
     private final long id;
     private int total;
-    private final Map<THPlayer, Integer> playerBets = new HashMap<>();
+    private final Map<GamePlayer, Integer> playerBets = new HashMap<>();
 
     public THPot(long id) {
         this.id = id;
     }
 
-    public void addPlayerBet(THPlayer player, int bet) {
+    public void addPlayerBet(GamePlayer player, int bet) {
         total += bet;
         if (!playerBets.containsKey(player)) {
             playerBets.put(player, bet);
@@ -26,9 +28,9 @@ public class THPot {
         playerBets.clear();
     }
 
-    public void distributeReward(Map<THPlayer, HandEvaluator> winners) {
+    public void distributeReward(Map<GamePlayer, HandEvaluator> winners) {
         int splitReward = total / winners.size();
-        for (Map.Entry<THPlayer, HandEvaluator> pair : winners.entrySet()) {
+        for (Map.Entry<GamePlayer, HandEvaluator> pair : winners.entrySet()) {
             pair.getKey().takeReward(splitReward);
         }
     }
@@ -42,7 +44,7 @@ public class THPot {
         if (playerBets.isEmpty()) return null;
 
         var sb = new StringBuilder();
-        for (Map.Entry<THPlayer, Integer> pair : playerBets.entrySet()) {
+        for (Map.Entry<GamePlayer, Integer> pair : playerBets.entrySet()) {
             sb.append("id: ").append(pair.getKey().getId())
                 .append(", bet: ").append(pair.getValue())
                 .append("; ");

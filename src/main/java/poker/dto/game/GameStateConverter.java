@@ -27,7 +27,7 @@ public class GameStateConverter {
         gameState.getGamePlayerList().forEach(gamePlayer -> playerDTOList.add(PlayerDTO.builder()
             .id(gamePlayer.getId())
             .nickname(gamePlayer.getNickname())
-            .status(gamePlayer.getStatus())
+            .status(gamePlayer.getStatus().getIntStatus())
             .chips(gamePlayer.getChips())
             .currentBet(gamePlayer.getCurrentBet())
             .build()));

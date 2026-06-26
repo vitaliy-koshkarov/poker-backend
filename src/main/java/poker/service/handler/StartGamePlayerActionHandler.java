@@ -61,7 +61,7 @@ public class StartGamePlayerActionHandler implements PlayerActionHandler {
         for (Player player : players) {
             for (THPlayer thPlayer : thPlayers) {
                 if (thPlayer.getId() == player.getId()) {
-                    player.setStatus(thPlayer.getStatus().getStatus());
+                    player.setStatus(thPlayer.getStatus().getIntStatus());
                 }
             }
         }

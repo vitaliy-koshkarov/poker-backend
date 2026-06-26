@@ -74,8 +74,8 @@ public class THEngine implements GameEngine {
         table.setGameStatus(SHOWDOWN);
 
 //        TODO: improve logic of evaluating hands and splitting pot between players
-        var playersAndCombinations = new HashMap<THPlayer, HandEvaluator>();
-        for (THPlayer activePlayer : table.getActivePlayers()) {
+        var playersAndCombinations = new HashMap<GamePlayer, HandEvaluator>();
+        for (GamePlayer activePlayer : table.getActivePlayers()) {
             var cards = new ArrayList<Card>();
             cards.addAll(table.getCommunityCards());
             cards.addAll(activePlayer.getCards());
@@ -95,8 +95,8 @@ public class THEngine implements GameEngine {
             }
         }
 
-        var winners = new HashMap<THPlayer, HandEvaluator>();
-        for (Map.Entry<THPlayer, HandEvaluator> pair : playersAndCombinations.entrySet()) {
+        var winners = new HashMap<GamePlayer, HandEvaluator>();
+        for (Map.Entry<GamePlayer, HandEvaluator> pair : playersAndCombinations.entrySet()) {
             if (pair.getValue().getStrength() == strongestCombinationValue) {
                 winners.put(pair.getKey(), pair.getValue());
             }

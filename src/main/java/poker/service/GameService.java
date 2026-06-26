@@ -9,6 +9,7 @@ import poker.config.GameProps;
 import poker.dto.game.CreateGameRequest;
 import poker.dto.game.GameConverter;
 import poker.dto.game.GameDTO;
+import poker.game.PlayerStatus;
 import poker.model.*;
 import poker.repository.GameRepository;
 import poker.util.Util;
@@ -110,7 +111,7 @@ public class GameService {
         }
         log.info("PLAYER {} JOIN, GAME TABLE {}", player.getId(), gameTable);
 
-        player.setStatus(PlayerStatus.JOIN_THE_GAME.getStatus());
+        player.setStatus(PlayerStatus.JOIN_THE_GAME.getIntStatus());
 
         playerService.updatePlayer(player);
 

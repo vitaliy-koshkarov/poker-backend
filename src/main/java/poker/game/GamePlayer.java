@@ -7,8 +7,15 @@ import java.util.List;
 public interface GamePlayer {
     long getId();
     String getNickname();
-    int getStatus();
+    PlayerStatus getStatus();
+    void setStatus(PlayerStatus status);
     int getChips();
     int getCurrentBet();
     List<Card> getCards();
+
+    void refresh();
+
+    void bet(int bet);
+
+    void takeReward(int reward);
 }

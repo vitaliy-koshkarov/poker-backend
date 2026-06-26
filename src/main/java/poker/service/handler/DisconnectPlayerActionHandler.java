@@ -8,7 +8,7 @@ import poker.game.GameEngine;
 import poker.game.PlayerAction;
 import poker.model.Game;
 import poker.model.PlayerDetails;
-import poker.model.PlayerStatus;
+import poker.game.PlayerStatus;
 import poker.service.GameTableService;
 import poker.service.PlayerService;
 
@@ -38,7 +38,7 @@ public class DisconnectPlayerActionHandler implements PlayerActionHandler {
     private void repositoryHandling(PlayerDetails playerDetails, long gameId) {
         var player = playerDetails.getPlayer();
         long playerId = player.getId();
-        player.setStatus(PlayerStatus.NOT_IN_GAME.getStatus());
+        player.setStatus(PlayerStatus.NOT_IN_GAME.getIntStatus());
         playerService.updatePlayer(player);
         gameTableService.removePlayerFromGameTable(playerDetails.getUser().getId(), playerId, gameId);
         log.info("Player id {} {} from game id {}", playerId, PlayerAction.DISCONNECT.getActionName(), gameId);

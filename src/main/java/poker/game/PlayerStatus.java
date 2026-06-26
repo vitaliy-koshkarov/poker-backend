@@ -1,4 +1,4 @@
-package poker.model;
+package poker.game;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -33,5 +33,5 @@ public enum PlayerStatus {
      */
     ACTIVE(5);
 
-    private final int status;
+    private final int intStatus;
 }

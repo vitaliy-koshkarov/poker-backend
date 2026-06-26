@@ -3,7 +3,7 @@ package poker.game.texasholdem;
 import lombok.Getter;
 import lombok.Setter;
 import poker.game.GamePlayer;
-import poker.model.PlayerStatus;
+import poker.game.PlayerStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +28,14 @@ public class THPlayer implements GamePlayer {
         this.cards = new ArrayList<>();
     }
 
+    @Override
+    public void refresh() {
+        cards.clear();
+        currentBet = 0;
+        status = PlayerStatus.WAIT;
+    }
+
+    @Override
     public void bet(int bet) {
         if (chips - bet >= 0) {
             chips -= bet;
@@ -37,12 +45,7 @@ public class THPlayer implements GamePlayer {
         currentBet += bet;
     }
 
-    public void refresh() {
-        cards.clear();
-        currentBet = 0;
-        status = PlayerStatus.WAIT;
-    }
-
+    @Override
     public void takeReward(int reward) {
         chips += reward;
     }

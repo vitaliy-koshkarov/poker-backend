@@ -3,8 +3,9 @@ package poker.game.texasholdem;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
+import poker.game.GamePlayer;
 import poker.model.GameStatus;
-import poker.model.PlayerStatus;
+import poker.game.PlayerStatus;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -27,7 +28,7 @@ public class THTable {
 
     private final THPot pot;
 
-    private final List<THPlayer> players;
+    private final List<GamePlayer> players;
     private final int maxPlayers;
 
     private int dealerIdx;
@@ -63,8 +64,8 @@ public class THTable {
     }
 
     public void removePlayer(Long playerId) {
-        THPlayer thPlayerToRemove = null;
-        for (THPlayer thPlayer : players) {
+        GamePlayer thPlayerToRemove = null;
+        for (GamePlayer thPlayer : players) {
             if (thPlayer.getId() == playerId) {
                 thPlayerToRemove = thPlayer;
                 break;
@@ -73,9 +74,9 @@ public class THTable {
         players.remove(thPlayerToRemove);
     }
 
-    public List<THPlayer> getActivePlayers() {
-        var activePlayers = new LinkedList<THPlayer>();
-        for (THPlayer player : players) {
+    public List<GamePlayer> getActivePlayers() {
+        var activePlayers = new LinkedList<GamePlayer>();
+        for (GamePlayer player : players) {
             if (player.getStatus() == PlayerStatus.ACTIVE) {
                 activePlayers.add(player);
             }
@@ -87,7 +88,7 @@ public class THTable {
         pot.refresh();
 
         communityCards.clear();
-        players.forEach(THPlayer::refresh);
+        players.forEach(GamePlayer::refresh);
 
         deck.shuffle();
 
@@ -114,7 +115,7 @@ public class THTable {
 
     void dealStartHands() {
         for (int i = 0; i < 2; i++) {
-            for (THPlayer player : players) {
+            for (GamePlayer player : players) {
                 player.getCards().add(deck.dealCard());
             }
         }
@@ -134,7 +135,7 @@ public class THTable {
     private String playersInfo() {
         var sb = new StringBuilder();
         sb.append("amount: ").append(players.size()).append(", ");
-        for (THPlayer p : players) {
+        for (GamePlayer p : players) {
             if (p != null) {
                 sb.append(p).append(", ");
             } else {

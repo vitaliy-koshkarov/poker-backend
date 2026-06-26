@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import poker.model.Player;
 import poker.model.PlayerDetails;
-import poker.model.PlayerStatus;
+import poker.game.PlayerStatus;
 import poker.repository.PlayerRepository;
 
 import java.sql.Timestamp;
@@ -26,7 +26,7 @@ public class PlayerService {
     public Player createPlayer(String nickname, Timestamp now) {
         var player = Player.builder()
             .nickname(nickname)
-            .status(PlayerStatus.NOT_IN_GAME.getStatus())
+            .status(PlayerStatus.NOT_IN_GAME.getIntStatus())
             .chips(0)
             .currentBet(0)
             .createdAt(now)
