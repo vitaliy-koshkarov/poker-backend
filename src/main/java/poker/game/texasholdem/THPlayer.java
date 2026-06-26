@@ -2,27 +2,29 @@ package poker.game.texasholdem;
 
 import lombok.Getter;
 import lombok.Setter;
+import poker.game.GamePlayer;
 import poker.model.PlayerStatus;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-public class THPlayer {
+public class THPlayer implements GamePlayer {
     private final long id;
     private final String nickname;
 
     @Setter
     private PlayerStatus status;
-    private final List<Card> cards;
+
     private int chips;
     private int currentBet;
+    private final List<Card> cards;
 
     public THPlayer(long id, String name, int chips) {
         this.id = id;
         this.nickname = name;
+        this.status = PlayerStatus.NOT_IN_GAME;
         this.chips = chips;
-        this.status = PlayerStatus.WAIT;
         this.cards = new ArrayList<>();
     }
 
