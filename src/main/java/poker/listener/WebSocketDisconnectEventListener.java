@@ -19,7 +19,7 @@ public class WebSocketDisconnectEventListener {
     private final PlayerActionHandlerService playerActionHandlerService;
     private final GameStateResponseGenerator gameStateResponseGenerator;
     private final WebSocketPlayerSessionService webSocketPlayerSessionService;
-    private final GameStateBroadcaster gameStateBroadcaster;
+    private final WebSocketGameStateBroadcaster webSocketGameStateBroadcaster;
 
     @EventListener
     public void handleDisconnect(SessionDisconnectEvent event) {
@@ -48,8 +48,10 @@ public class WebSocketDisconnectEventListener {
         webSocketPlayerSessionService.removeSession(sessionId);
         log.info("Disconnect player id {} session id {}", playerId, sessionId);
 
-//        TODO: do not broadcast, if the game not started yet
-        gameStateBroadcaster.broadcast(gameStateDTO, PlayerAction.DISCONNECT);
+        if (gameStateDTO.gameDTO().status() != GameStatus.WAITING_FOR_PLAYERS.getStatus()) {
+            webSocketGameStateBroadcaster.broadcast(gameStateDTO, PlayerAction.DISCONNECT);
+        }
+
         log.info("Player id {} disconnected from game id {}", playerId, gameId);
     }
 }

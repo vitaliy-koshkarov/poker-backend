@@ -14,7 +14,7 @@ import poker.dto.PlayerActionRequest;
 import poker.dto.game.GameStateDTO;
 import poker.game.PlayerAction;
 import poker.model.PlayerDetails;
-import poker.service.GameStateBroadcaster;
+import poker.service.WebSocketGameStateBroadcaster;
 import poker.service.GameStateResponseGenerator;
 import poker.service.PlayerActionHandlerService;
 import poker.service.WebSocketPlayerSessionService;
@@ -26,7 +26,7 @@ public class WebSocketGameController {
     private final WebSocketPlayerSessionService webSocketPlayerSessionService;
     private final PlayerActionHandlerService playerActionHandlerService;
     private final GameStateResponseGenerator gameStateResponseGenerator;
-    private final GameStateBroadcaster gameStateBroadcaster;
+    private final WebSocketGameStateBroadcaster webSocketGameStateBroadcaster;
 
     @SubscribeMapping("/gameTable/{id}")
     public GameStateDTO subscribe(@DestinationVariable("id") Long gameId,
@@ -63,7 +63,7 @@ public class WebSocketGameController {
         playerActionHandlerService.handlePlayerAction(gameId, playerDetails, playerAction);
 
         var gameStateDTO = gameStateResponseGenerator.generateResponse(gameId);
-        gameStateBroadcaster.broadcast(gameStateDTO, playerAction);
+        webSocketGameStateBroadcaster.broadcast(gameStateDTO, playerAction);
         log.info("Handled {} from player id {} in game id {}", playerAction.getActionName(), playerId, gameId);
     }
 }

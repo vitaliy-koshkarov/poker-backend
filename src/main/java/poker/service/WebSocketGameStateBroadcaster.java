@@ -10,11 +10,11 @@ import org.springframework.stereotype.Service;
 import poker.dto.game.GameStateDTO;
 import poker.game.PlayerAction;
 
-@Service("GameStateBroadcaster")
+@Service("WebSocketGameStateBroadcaster")
 @Log4j2
 @RequiredArgsConstructor
 @ToString
-public class GameStateBroadcaster {
+public class WebSocketGameStateBroadcaster {
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     public void broadcast(GameStateDTO gameStateDTO, PlayerAction playerAction) {

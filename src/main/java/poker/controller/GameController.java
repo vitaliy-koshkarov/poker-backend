@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import poker.dto.game.*;
 import poker.game.GameEngineRegistry;
 import poker.game.PlayerAction;
-import poker.service.GameStateBroadcaster;
+import poker.service.WebSocketGameStateBroadcaster;
 import poker.service.GameStateResponseGenerator;
 import poker.service.PlayerActionHandlerService;
 import poker.service.GameService;
@@ -25,7 +25,7 @@ public class GameController {
     private final GameEngineRegistry gameEngineRegistry;
     private final PlayerActionHandlerService playerActionHandlerService;
     private final GameStateResponseGenerator gameStateResponseGenerator;
-    private final GameStateBroadcaster gameStateBroadcaster;
+    private final WebSocketGameStateBroadcaster webSocketGameStateBroadcaster;
 
     @GetMapping
     public List<GameDTO> getGames() {
@@ -76,7 +76,7 @@ public class GameController {
         playerActionHandlerService.handlePlayerAction(gameId, playerDetails, PlayerAction.START_GAME);
 
         GameStateDTO gameStateDTO = gameStateResponseGenerator.generateResponse(gameId);
-        gameStateBroadcaster.broadcast(gameStateDTO, PlayerAction.START_GAME);
+        webSocketGameStateBroadcaster.broadcast(gameStateDTO, PlayerAction.START_GAME);
 
         log.info("Start game {} response OK", gameId);
         return ResponseEntity.ok().build();
