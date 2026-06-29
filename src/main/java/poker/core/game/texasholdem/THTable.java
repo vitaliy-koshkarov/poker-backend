@@ -121,6 +121,27 @@ public class THTable implements GameTable {
     }
 
     @Override
+    public void startGame() {
+        gameStatus = GameStatus.PRE_FLOP;
+
+        defineDealerIdx();
+
+        players.forEach(GamePlayer::refresh);
+
+        defineActivePlayer();
+
+        players.forEach(player -> player.setChips(buyIn));
+
+        defineBlindIndices();
+        betBlinds();
+
+        minRaise = bigBlind;
+
+        deck.shuffle();
+        dealStartHands();
+    }
+
+    @Override
     public void betBlinds() {
         setBlind(getSmallBlindIdx(), smallBlind);
         setBlind(getBigBlindIdx(), bigBlind);
@@ -182,6 +203,7 @@ public class THTable implements GameTable {
         if (dealerIdx >= players.size()) {
             dealerIdx = 0;
         }
+        dealerId = players.get(dealerIdx).getId();
     }
 
     private void defineBlindIndices() {
@@ -202,6 +224,9 @@ public class THTable implements GameTable {
             activePlayerIdx = 0;
         }
 
-        players.get(activePlayerIdx).setStatus(PlayerStatus.ACTIVE);
+        GamePlayer activePlayer = players.get(activePlayerIdx);
+        activePlayer.setStatus(PlayerStatus.ACTIVE);
+
+        activePlayerId = activePlayer.getId();
     }
 }

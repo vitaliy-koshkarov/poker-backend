@@ -30,6 +30,11 @@ public class THPlayer implements GamePlayer {
     }
 
     @Override
+    public void setChips(int chips) {
+        this.chips = chips;
+    }
+
+    @Override
     public void bet(int bet) {
         if (chips - bet >= 0) {
             chips -= bet;

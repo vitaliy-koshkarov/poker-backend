@@ -29,6 +29,7 @@ public interface GameTable {
     void removePlayer(long playerId);
     void overrideActivePlayer();
     void updateGameStatus(GameStatus gameStatus);
+    void startGame();
     void betBlinds();
     void dealStartHands();
 }

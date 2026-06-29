@@ -9,6 +9,7 @@ import java.util.Map;
 public class THPot implements GamePot {
     private final long id;
     private int total;
+//    todo: key - player's id
     private final Map<GamePlayer, Integer> playerBets = new HashMap<>();
 
     public THPot(long id) {

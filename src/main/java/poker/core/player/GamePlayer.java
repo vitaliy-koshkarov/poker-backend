@@ -15,6 +15,8 @@ public interface GamePlayer {
 
     void refresh();
 
+    void setChips(int chips);
+
     void bet(int bet);
 
     void takeReward(int reward);

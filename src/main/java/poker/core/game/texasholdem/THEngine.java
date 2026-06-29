@@ -6,6 +6,7 @@ import lombok.extern.log4j.Log4j2;
 import poker.core.engine.GameEngine;
 import poker.core.game.GameState;
 import poker.core.game.GameStateFactory;
+import poker.core.game.GameStatus;
 import poker.core.game.GameTable;
 import poker.core.game.card.Card;
 import poker.core.player.GamePlayer;
@@ -34,7 +35,7 @@ public class THEngine implements GameEngine {
             pad.getPlayerAction().getActionName(), pad.getPlayerDetails().getPlayer().getId());
 
         switch (pad.getPlayerAction()) {
-            case START_GAME -> startGame(pad);
+            case START_GAME -> startGame();
             case FOLD -> fold(pad);
             case CHECK -> check(pad);
             case BET -> bet(pad);
@@ -49,15 +50,8 @@ public class THEngine implements GameEngine {
         log.info("Rollback to {}", snapshot);
     }
 
-    private void startGame(PlayerActionData pad) {
-//        todo: update game status
-//              define dealer
-//              define active player
-//              update players' statuses
-//              set players' chips to buyIn
-//              bet blinds (subtract bets from players)
-//              add bets to pot
-//              deal start hands
+    private void startGame() {
+        table.startGame();
     }
 
     private void fold(PlayerActionData pad) {
