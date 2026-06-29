@@ -96,6 +96,7 @@ public class THEngine implements GameEngine {
             .build();
 
         table.addPlayer(gamePlayer);
+        log.info("Player id {} joined the game {}", gamePlayer.getId(), pad.getGameId());
     }
 
     private void disconnectPlayer(PlayerActionData pad) {

@@ -44,6 +44,8 @@ public class WebSocketDisconnectEventListener {
         long gameId = playerGameSession.gameId();
         long playerId = playerDetails.getPlayer().getId();
 
+//        TODO: think how to handle accidental disconnects
+
         PlayerActionData pad = PlayerActionDataConverter.convert(gameId, playerDetails, PlayerAction.DISCONNECT);
         playerActionHandlerService.handlePlayerAction(pad);
 
