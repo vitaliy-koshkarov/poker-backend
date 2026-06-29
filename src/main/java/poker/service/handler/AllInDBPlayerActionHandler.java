@@ -7,16 +7,16 @@ import org.springframework.transaction.annotation.Transactional;
 import poker.core.engine.GameEngine;
 import poker.core.player.PlayerAction;
 
-@Component("CHECK")
+@Component("ALL_IN")
 @Log4j2
 @ToString
-public class CheckPlayerActionHandler implements DBPlayerActionHandler {
+public class AllInDBPlayerActionHandler implements DBPlayerActionHandler {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean handleAction(long playerId, GameEngine gameEngine) {
         log.info("Player id {} {} game id {}",
-            playerId, PlayerAction.CHECK.getActionName(), gameEngine.getTable().getId());
+            playerId, PlayerAction.ALL_IN.getActionName(), gameEngine.getTable().getId());
 
         return true;
     }

@@ -29,11 +29,12 @@ public class THEngine implements GameEngine {
 
     @Override
     public void handlePlayerAction(long playerId, PlayerActionData playerActionData, PlayerAction playerAction) {
+        log.info("Handing action {} from player id {}", playerAction.getActionName(), playerId);
     }
 
     @Override
-    public long getActivePlayerId() {
-        return table.getActivePlayerId();
+    public void rollback(GameState snapshot) {
+        log.info("Rollback to {}", snapshot);
     }
 
     public long getDealerId() {

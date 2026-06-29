@@ -4,15 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import poker.core.engine.GameEngine;
 import poker.core.player.GamePlayer;
 import poker.core.player.PlayerAction;
-import poker.core.game.texasholdem.THEngine;
-import poker.model.Game;
 import poker.core.game.GameStatus;
 import poker.model.Player;
 import poker.model.PlayerBet;
-import poker.model.PlayerDetails;
 import poker.service.GameService;
 import poker.service.PlayerBetService;
 import poker.service.PlayerService;
@@ -22,29 +20,20 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-@Component("StartGamePlayerActionHandler")
+@Component("START")
 @Log4j2
 @RequiredArgsConstructor
 @ToString
-public class StartGamePlayerActionHandler implements PlayerActionHandler {
+public class StartGamePlayerActionHandler implements DBPlayerActionHandler {
     private final GameService gameService;
     private final PlayerService playerService;
     private final PlayerBetService playerBetService;
 
     @Override
-    public void handleAction(GameEngine gameEngine, Game game, PlayerDetails playerDetails) {
-        engineHandling(gameEngine, game);
-
-        repositoryHandling(gameEngine, game, playerDetails.getPlayer().getId());
-    }
-
-    private void engineHandling(GameEngine gameEngine, Game game) {
-//        gameEngine.getTable().setUpNewRound();
-        log.info("{} new round, game id {}", PlayerAction.START_GAME.getActionName(), game.getId());
-//        log.info("{}", gameEngine.getTable());
-    }
-
-    private void repositoryHandling(GameEngine gameEngine, Game game, long playerId) {
+    @Transactional(rollbackFor = Exception.class)
+    public boolean handleAction(long playerId, GameEngine gameEngine) {
+        long gameId = gameEngine.getTable().getId();
+        var game = gameService.getGameById(gameId);
         List<GamePlayer> gamePlayers = gameEngine.getTable().getPlayers();
 
         List<PlayerBet> playersBets = new LinkedList<>();
@@ -62,10 +51,10 @@ public class StartGamePlayerActionHandler implements PlayerActionHandler {
         game.setStatus(GameStatus.PRE_FLOP.getIntStatus());
         game.setStartedAt(new Timestamp(System.currentTimeMillis()));
 
-        long dealerId = ((THEngine) gameEngine).getDealerId();
+        long dealerId = gameEngine.getTable().getDealerId();
         game.setDealerId(dealerId);
 
-        long activePlayerId = gameEngine.getActivePlayerId();
+        long activePlayerId = gameEngine.getTable().getActivePlayerId();
         game.setActivePlayerId(activePlayerId);
         gameService.updateGame(game);
 
@@ -84,5 +73,7 @@ public class StartGamePlayerActionHandler implements PlayerActionHandler {
         playerService.updatePlayers(players);
 
         log.info("Player id {} {} game id {}", playerId, PlayerAction.START_GAME.getActionName(), game.getId());
+
+        return true;
     }
 }

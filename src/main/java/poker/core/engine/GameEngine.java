@@ -6,11 +6,11 @@ import poker.core.player.PlayerAction;
 import poker.core.player.PlayerActionData;
 
 public interface GameEngine {
-    long getActivePlayerId();
-
     GameTable getTable();
 
     GameState getCurrentGameState();
 
     void handlePlayerAction(long playerId, PlayerActionData playerActionData, PlayerAction playerAction);
+
+    void rollback(GameState snapshot);
 }

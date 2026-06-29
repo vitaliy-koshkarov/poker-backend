@@ -20,6 +20,11 @@ public class UserService {
     private final PlayerService playerService;
 
     @Transactional(readOnly = true)
+    public User getUserByPlayerId(long playerId) {
+        return userRepo.findUserByPlayerId(playerId);
+    }
+
+    @Transactional(readOnly = true)
     public boolean isUserExistsByEmail(String email) {
         return userRepo.existsByEmail(email);
     }

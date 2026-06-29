@@ -15,7 +15,7 @@ import poker.model.Player;
 import poker.model.PlayerDetails;
 import poker.model.event.GameEvent;
 import poker.model.event.GameEventData;
-import poker.service.handler.PlayerActionHandler;
+import poker.service.handler.DBPlayerActionHandler;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Deprecated(since = "Will be removed soon. Use PlayerActionHandlerService instead")
 public class GameEngineService {
-    private final Map<String, PlayerActionHandler> playerActionHandlerMap;
+    private final Map<String, DBPlayerActionHandler> playerActionHandlerMap;
     private final GameEngineRegistry gameEngineRegistry;
     private final GameService gameService;
     private final PlayerService playerService;
@@ -45,7 +45,7 @@ public class GameEngineService {
 
         var playerActionHandler = playerActionHandlerMap.get(action.getActionName());
         if (playerActionHandler != null) {
-            playerActionHandler.handleAction(gameEngine, game, playerDetails);
+//            playerActionHandler.handleAction(gameEngine, game, playerDetails);
         } else {
             log.info("Suspicious action {} from player id {} in game id {}", action, playerId, game.getId());
         }

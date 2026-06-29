@@ -4,24 +4,28 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import poker.core.engine.GameEngine;
 import poker.core.player.PlayerAction;
 import poker.model.Game;
 import poker.model.PlayerDetails;
 import poker.service.GameService;
 
-@Component("JoinPlayerActionHandler")
+@Component("JOIN")
 @Log4j2
 @ToString
 @RequiredArgsConstructor
-public class JoinPlayerActionHandler implements PlayerActionHandler {
+public class JoinPlayerActionHandler implements DBPlayerActionHandler {
     private final GameService gameService;
 
     @Override
-    public void handleAction(GameEngine gameEngine, Game game, PlayerDetails playerDetails) {
-        engineHandling(gameEngine, game, playerDetails);
-
-        repositoryHandling(game, playerDetails);
+    @Transactional(rollbackFor = Exception.class)
+    public boolean handleAction(long playerId, GameEngine gameEngine) {
+        long gameId = gameEngine.getTable().getId();
+//        TODO: refactoring parameters of join player to the game
+//        gameService.joinPlayerToGame(gameId, playerDetails);
+        log.info("Player id {} {} game id {}", playerId, PlayerAction.JOIN_GAME.getActionName(), gameId);
+        return true;
     }
 
     private void engineHandling(GameEngine gameEngine, Game game, PlayerDetails playerDetails) {
@@ -32,10 +36,5 @@ public class JoinPlayerActionHandler implements PlayerActionHandler {
 //        thTable.addPlayer(thPlayer);
 //        log.info("Player id {} {} game id {}", playerId, PlayerActions.JOIN_GAME, game.getId());
 //        log.info("{}", gameEngine.getTable());
-    }
-
-    private void repositoryHandling(Game game, PlayerDetails playerDetails) {
-        gameService.joinPlayerToGame(game.getId(), playerDetails);
-        log.info("Player id {} {} game id {}", playerDetails.getPlayer().getId(), PlayerAction.JOIN_GAME.getActionName(), game.getId());
     }
 }

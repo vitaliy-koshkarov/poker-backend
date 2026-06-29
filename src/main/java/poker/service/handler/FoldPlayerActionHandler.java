@@ -3,29 +3,19 @@ package poker.service.handler;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import poker.core.engine.GameEngine;
 import poker.core.player.PlayerAction;
-import poker.model.Game;
-import poker.model.PlayerDetails;
 
-@Component("FoldPlayerActionHandler")
+@Component("FOLD")
 @Log4j2
 @ToString
-public class FoldPlayerActionHandler implements PlayerActionHandler {
+public class FoldPlayerActionHandler implements DBPlayerActionHandler {
+
     @Override
-    public void handleAction(GameEngine gameEngine, Game game, PlayerDetails playerDetails) {
-        engineHandling(gameEngine, playerDetails, game);
-
-        repositoryHandling(playerDetails, game);
-    }
-
-    private void engineHandling(GameEngine gameEngine, PlayerDetails playerDetails, Game game) {
-        long playerId = playerDetails.getPlayer().getId();
-        log.info("Player id {} {} game id {}", playerId, PlayerAction.FOLD.getActionName(), game.getId());
-//        log.info("{}", gameEngine.getTable());
-    }
-
-    private void repositoryHandling(PlayerDetails playerDetails, Game game) {
-        log.info("Player id {} {} game id {}", playerDetails.getPlayer().getId(), PlayerAction.FOLD.getActionName(), game.getId());
+    @Transactional(rollbackFor = Exception.class)
+    public boolean handleAction(long playerId, GameEngine gameEngine) {
+        log.info("Player id {} {} game id {}", playerId, PlayerAction.FOLD.getActionName(), gameEngine.getTable().getId());
+        return true;
     }
 }
