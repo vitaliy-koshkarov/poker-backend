@@ -16,6 +16,6 @@ public class Pot {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "total", unique = true, nullable = false)
+    @Column(name = "total", nullable = false)
     private Integer total;
 }

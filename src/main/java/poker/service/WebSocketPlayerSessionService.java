@@ -7,7 +7,7 @@ import poker.model.PlayerGameSession;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Service
+@Service("WebSocketPlayerSessionService")
 @Log4j2
 public class WebSocketPlayerSessionService {
 //    TODO: store player sessions somewhere and restore them after app reboot?
@@ -17,9 +17,9 @@ public class WebSocketPlayerSessionService {
      */
     private final Map<String, PlayerGameSession> webSocketSessions = new ConcurrentHashMap<>();
 
-    public void addSession(Long userId, Long playerId, Long gameId, String sessionId) {
+    public void addSession(long userId, long playerId, long gameId, String sessionId) {
         webSocketSessions.put(sessionId, new PlayerGameSession(userId, playerId, gameId));
-        log.info("Add web socket session id {}, user id {}, player id {}, game id {}", sessionId, userId, playerId, gameId);
+        log.info("Add web socket session id {} user id {} player id {} game id {}", sessionId, userId, playerId, gameId);
     }
 
     public PlayerGameSession getPlayerSession(String sessionId) {

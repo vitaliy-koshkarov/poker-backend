@@ -3,29 +3,22 @@ package poker.service.handler;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
-import poker.game.GameEngine;
-import poker.game.playeraction.PlayerActions;
-import poker.model.Game;
-import poker.model.PlayerDetails;
+import org.springframework.transaction.annotation.Transactional;
+import poker.core.engine.GameEngine;
+import poker.core.player.PlayerAction;
+import poker.core.player.PlayerActionData;
 
-@Component(value = PlayerActions.ALL_INN)
+@Component("ALL_IN")
 @Log4j2
 @ToString
-public class AllInPlayerActionHandler implements PlayerActionHandler {
+public class AllInPlayerActionHandler implements DBPlayerActionHandler {
+
     @Override
-    public void handleAction(GameEngine gameEngine, Game game, PlayerDetails playerDetails) {
-        engineHandling(gameEngine, playerDetails, game);
+    @Transactional(rollbackFor = Exception.class)
+    public boolean handleAction(GameEngine gameEngine, PlayerActionData pad) {
+        log.info("Player id {} {} game id {}",
+            pad.getPlayerDetails().getPlayer().getId(), PlayerAction.ALL_IN.getActionName(), gameEngine.getTable().getId());
 
-        repositoryHandling(playerDetails, game);
-    }
-
-    private void engineHandling(GameEngine gameEngine, PlayerDetails playerDetails, Game game) {
-        long playerId = playerDetails.getPlayer().getId();
-        log.info("Player id {} {} game id {}", playerId, PlayerActions.ALL_INN, game.getId());
-        log.info("{}", gameEngine.getTable());
-    }
-
-    private void repositoryHandling(PlayerDetails playerDetails, Game game) {
-        log.info("Player id {} {} game id {}", playerDetails.getPlayer().getId(), PlayerActions.ALL_INN, game.getId());
+        return true;
     }
 }

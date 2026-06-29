@@ -1,12 +1,13 @@
 package poker.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import poker.model.Player;
 import poker.model.PlayerDetails;
-import poker.model.PlayerStatus;
+import poker.core.player.PlayerStatus;
 import poker.repository.PlayerRepository;
 
 import java.sql.Timestamp;
@@ -14,11 +15,14 @@ import java.util.List;
 
 @Service("PlayerService")
 @Log4j2
+@RequiredArgsConstructor
 public class PlayerService {
     private final PlayerRepository playerRepo;
 
-    public PlayerService(PlayerRepository playerRepo) {
-        this.playerRepo = playerRepo;
+    @Transactional(readOnly = true)
+    public Player getPlayerById(long playerId) {
+        return playerRepo.findById(playerId)
+            .orElseThrow(() -> new EntityNotFoundException("Can not find player by id " + playerId));
     }
 
     @Transactional(readOnly = true)
@@ -29,7 +33,7 @@ public class PlayerService {
     public Player createPlayer(String nickname, Timestamp now) {
         var player = Player.builder()
             .nickname(nickname)
-            .status(PlayerStatus.NOT_IN_GAME.getStatus())
+            .status(PlayerStatus.NOT_IN_GAME.getIntStatus())
             .chips(0)
             .currentBet(0)
             .createdAt(now)
@@ -53,9 +57,14 @@ public class PlayerService {
         log.info("Updated nickname to {}, player id {}", nickname, playerId);
     }
 
-    public void updatePlayer(Player player) {
-        var updatedPlayer = playerRepo.save(player);
-        log.info("Updated player {}", updatedPlayer);
+    public void updatePlayerStatusAndChips(long playerId, int chips, PlayerStatus playerStatus) {
+        playerRepo.updatePlayerStatusAndChips(playerId, chips, playerStatus.getIntStatus());
+        log.info("Player id {} updated chips {}, status {}", playerId, chips, playerStatus);
+    }
+
+    public void updatePlayerStatus(long playerId, PlayerStatus playerStatus) {
+        playerRepo.updateStatus(playerId, playerStatus.getIntStatus());
+        log.info("Player id {} status updated to {}", playerId, playerStatus);
     }
 
     public List<Player> getPlayersByIds(List<Long> playerIdsList) {

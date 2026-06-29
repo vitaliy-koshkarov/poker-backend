@@ -1,47 +1,49 @@
 package poker.service.handler;
 
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import poker.game.GameEngine;
-import poker.game.playeraction.PlayerActions;
-import poker.game.texasholdem.THPlayer;
-import poker.game.texasholdem.THTable;
-import poker.model.Game;
-import poker.model.PlayerDetails;
-import poker.service.GameService;
+import org.springframework.transaction.annotation.Transactional;
+import poker.core.engine.GameEngine;
+import poker.core.game.GameStatus;
+import poker.core.player.PlayerActionData;
+import poker.core.player.PlayerStatus;
+import poker.model.GameSeat;
+import poker.service.GameSeatService;
+import poker.service.PlayerService;
 
-@Component(value = PlayerActions.JOIN_GAME)
+@Component("JOIN")
 @Log4j2
 @ToString
-public class JoinPlayerActionHandler implements PlayerActionHandler {
-    private final GameService gameService;
-
-    @Autowired
-    public JoinPlayerActionHandler(GameService gameService) {
-        this.gameService = gameService;
-    }
+@RequiredArgsConstructor
+public class JoinPlayerActionHandler implements DBPlayerActionHandler {
+    private final GameSeatService gameSeatService;
+    private final PlayerService playerService;
 
     @Override
-    public void handleAction(GameEngine gameEngine, Game game, PlayerDetails playerDetails) {
-        engineHandling(gameEngine, game, playerDetails);
+    @Transactional(rollbackFor = Exception.class)
+    public boolean handleAction(GameEngine gameEngine, PlayerActionData pad) {
+        long gameId = pad.getGameId();
+        long userId = pad.getPlayerDetails().getUser().getId();
+        long playerId = pad.getPlayerDetails().getPlayer().getId();
+        int playerChips = pad.getPlayerDetails().getPlayer().getChips();
 
-        repositoryHandling(game, playerDetails);
-    }
+//        If player join when the game already started, then player's chips do not need to update,
+//        because the last value is already stored in the database
+        GameStatus gameStatus = gameEngine.getTable().getGameStatus();
+        if (GameStatus.WAITING_FOR_PLAYERS.equals(gameStatus)) {
+//            update player chips to buyIn and create game seat
+            playerChips = gameEngine.getTable().getBuyIn();
 
-    private void engineHandling(GameEngine gameEngine, Game game, PlayerDetails playerDetails) {
-        var player = playerDetails.getPlayer();
-        long playerId = playerDetails.getPlayer().getId();
-        var thPlayer = new THPlayer(playerId, player.getNickname(), game.getBuyIn());
-        THTable thTable = gameEngine.getTable();
-        thTable.addPlayer(thPlayer);
-        log.info("Player id {} {} game id {}", playerId, PlayerActions.JOIN_GAME, game.getId());
-        log.info("{}", gameEngine.getTable());
-    }
+            GameSeat gameSeat = gameSeatService.createGameSeat(userId, playerId, gameId);
+            log.info("Player id {} {}, game seat id {}", playerId, pad.getPlayerAction(), gameSeat);
+        }
 
-    private void repositoryHandling(Game game, PlayerDetails playerDetails) {
-        gameService.joinPlayerToGame(game.getId(), playerDetails);
-        log.info("Player id {} {} game id {}", playerDetails.getPlayer().getId(), PlayerActions.JOIN_GAME, game.getId());
+        playerService.updatePlayerStatusAndChips(playerId, playerChips, PlayerStatus.JOIN_THE_GAME);
+
+        log.info("Player id {} {}, game id {}", playerId, pad.getPlayerAction(), gameId);
+
+        return true;
     }
 }
