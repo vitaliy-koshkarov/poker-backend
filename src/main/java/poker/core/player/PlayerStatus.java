@@ -17,21 +17,17 @@ public enum PlayerStatus {
      */
     JOIN_THE_GAME(1),
     /**
-     * Player sat down at the table and can play
-     */
-    IN_GAME(2),
-    /**
      * Player is waiting actions from other players
      */
-    WAIT(3),
+    WAIT(2),
     /**
      * Player discards the hand
      */
-    FOLD(4),
+    FOLD(3),
     /**
      * Player's turn
      */
-    ACTIVE(5);
+    ACTIVE(4);
 
     private final int intStatus;
 }

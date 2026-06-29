@@ -6,6 +6,8 @@ import poker.core.player.GamePlayer;
 import java.util.Map;
 
 public interface GamePot {
+    long getId();
+
     void addPlayerBet(GamePlayer gamePlayer, int bet);
 
     void refresh();

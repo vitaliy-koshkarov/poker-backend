@@ -40,7 +40,7 @@ public class JoinPlayerActionHandler implements DBPlayerActionHandler {
             log.info("Player id {} {}, game seat id {}", playerId, pad.getPlayerAction(), gameSeat);
         }
 
-        playerService.joinPlayer(playerId, playerChips, PlayerStatus.JOIN_THE_GAME);
+        playerService.updatePlayerStatusAndChips(playerId, playerChips, PlayerStatus.JOIN_THE_GAME);
 
         log.info("Player id {} {}, game id {}", playerId, pad.getPlayerAction(), gameId);
 

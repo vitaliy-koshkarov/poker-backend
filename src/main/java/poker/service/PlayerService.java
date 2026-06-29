@@ -57,8 +57,8 @@ public class PlayerService {
         log.info("Updated nickname to {}, player id {}", nickname, playerId);
     }
 
-    public void joinPlayer(long playerId, int chips, PlayerStatus playerStatus) {
-        playerRepo.joinPlayer(playerId, chips, playerStatus.getIntStatus());
+    public void updatePlayerStatusAndChips(long playerId, int chips, PlayerStatus playerStatus) {
+        playerRepo.updatePlayerStatusAndChips(playerId, chips, playerStatus.getIntStatus());
         log.info("Player id {} updated chips {}, status {}", playerId, chips, playerStatus);
     }
 

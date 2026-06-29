@@ -6,15 +6,9 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import poker.core.game.GameState;
 import poker.core.player.PlayerActionData;
-import poker.dto.game.GameConverter;
-import poker.dto.game.GameStateDTO;
-import poker.dto.player.PlayerConverter;
 import poker.core.engine.GameEngineRegistry;
-import poker.model.GameSeat;
 import poker.service.handler.DBPlayerActionHandler;
 
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 @Service("PlayerActionHandlerService")
@@ -51,26 +45,5 @@ public class PlayerActionHandlerService {
         if (!isSuccess) {
             gameEngine.rollback(snapshot);
         }
-    }
-
-    @Deprecated(since = "Will be remove after implementing start game handling")
-    public GameStateDTO getCurrentState(long gameId) {
-        var game = gameService.getGameById(gameId);
-
-        var gameSeatList = gameSeatService.getGameSeatsByGameId(gameId);
-        List<Long> playersIdsList = new LinkedList<>();
-        for (GameSeat gameSeat : gameSeatList) {
-            playersIdsList.add(gameSeat.getPlayerId());
-        }
-
-        var playersList = playerService.getPlayersByIds(playersIdsList);
-
-        var gameDTO = GameConverter.toDTO(game, gameSeatList.size());
-        var playerDTOList = PlayerConverter.toListDTO(playersList);
-
-        return GameStateDTO.builder()
-            .gameDTO(gameDTO)
-            .playerDTOList(playerDTOList)
-            .build();
     }
 }

@@ -24,5 +24,5 @@ public interface PlayerRepository extends JpaRepository<Player, Long> {
 
     @Modifying
     @Query("UPDATE Player p SET p.status = :status, p.chips = :chips WHERE p.id = :playerId")
-    void joinPlayer(@Param("playerId") long playerId, @Param("chips") int chips, @Param("status") int playerStatus);
+    void updatePlayerStatusAndChips(@Param("playerId") long playerId, @Param("chips") int chips, @Param("status") int playerStatus);
 }

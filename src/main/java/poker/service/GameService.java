@@ -88,9 +88,9 @@ public class GameService {
         return gameRepo.findGameById(gameId);
     }
 
-    public void updateGame(Game game) {
-        gameRepo.save(game);
-        log.info("Updated game {}", game);
+    public void startGame(long gameId, long dealerId, long activePlayerId, GameStatus gameStatus, Timestamp startedAt) {
+        gameRepo.startGame(gameId, dealerId, activePlayerId, gameStatus.getIntStatus(), startedAt);
+        log.info("Game id {} started at {}", gameId, startedAt);
     }
 
     @Transactional(readOnly = true)

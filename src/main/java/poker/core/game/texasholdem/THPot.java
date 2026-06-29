@@ -1,5 +1,6 @@
 package poker.core.game.texasholdem;
 
+import lombok.Getter;
 import poker.core.game.GamePot;
 import poker.core.player.GamePlayer;
 
@@ -7,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class THPot implements GamePot {
+    @Getter
     private final long id;
     private int total;
 //    todo: key - player's id
