@@ -32,6 +32,7 @@ public class GameSeatService {
 
     public void releaseGameSeat(long userId, long playerId, long gameId) {
         gameSeatRepo.removeGameSeatByUserIdAndPlayerIdAndGameId(userId, playerId, gameId);
+        log.info("Removed game seat, user id {}, player id {}, game id {}", userId, playerId, gameId);
     }
 
     public List<GameSeat> getGameSeatsByGameId(long gameId) {

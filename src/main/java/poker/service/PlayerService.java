@@ -57,9 +57,14 @@ public class PlayerService {
         log.info("Updated nickname to {}, player id {}", nickname, playerId);
     }
 
-    public void updatePlayer(Player player) {
-        var updatedPlayer = playerRepo.save(player);
-        log.info("Updated player {}", updatedPlayer);
+    public void joinPlayer(long playerId, int chips, PlayerStatus playerStatus) {
+        playerRepo.joinPlayer(playerId, chips, playerStatus.getIntStatus());
+        log.info("Player id {} updated chips {}, status {}", playerId, chips, playerStatus);
+    }
+
+    public void updatePlayerStatus(long playerId, PlayerStatus playerStatus) {
+        playerRepo.updateStatus(playerId, playerStatus.getIntStatus());
+        log.info("Player id {} status updated to {}", playerId, playerStatus);
     }
 
     public List<Player> getPlayersByIds(List<Long> playerIdsList) {

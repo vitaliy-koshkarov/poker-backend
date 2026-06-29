@@ -54,6 +54,7 @@ public class THEngine implements GameEngine {
 //              define dealer
 //              define active player
 //              update players' statuses
+//              set players' chips to buyIn
 //              bet blinds (subtract bets from players)
 //              add bets to pot
 //              deal start hands

@@ -6,6 +6,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import poker.config.GameProps;
+import poker.core.engine.GameEngine;
 import poker.core.player.PlayerActionData;
 import poker.dto.game.CreateGameRequest;
 import poker.dto.game.GameConverter;
@@ -95,27 +96,26 @@ public class GameService {
      * Created {@link GameSeat} entity
      * @param pad {@link PlayerActionData}
      */
-    public void joinPlayerToGame(PlayerActionData pad) {
-        var game = gameRepo.findGameById(pad.getGameId());
-        var player = pad.getPlayerDetails().getPlayer();
+    public void joinPlayerToGame(GameEngine gameEngine, PlayerActionData pad) {
+        long gameId = pad.getGameId();
         long userId = pad.getPlayerDetails().getUser().getId();
+        long playerId = pad.getPlayerDetails().getPlayer().getId();
+        int playerChips = pad.getPlayerDetails().getPlayer().getChips();
 
-        var gameSeat = gameSeatService.getGameSeatByGameIdAndPlayerId(game.getId(), player.getId());
-        if (gameSeat != null) {
-            log.info("Player id {} chips {}", player.getId(), player.getChips());
-            player.setChips(player.getChips());
-        } else {
-            player.setChips(game.getBuyIn());
+//        If player join when the game already started, then player's chips do not need to update,
+//        because the last value is already stored in the database
+        GameStatus gameStatus = gameEngine.getTable().getGameStatus();
+        if (GameStatus.WAITING_FOR_PLAYERS.equals(gameStatus)) {
+//            update player chips to buyIn and create game seat
+            playerChips = gameEngine.getTable().getBuyIn();
 
-            gameSeat = gameSeatService.createGameSeat(userId, player.getId(), game.getId());
+            GameSeat gameSeat = gameSeatService.createGameSeat(userId, playerId, gameId);
+            log.info("Player id {} {}, game seat id {}", playerId, pad.getPlayerAction(), gameSeat);
         }
-        log.info("Player id {} join, game seat {}", player.getId(), gameSeat);
 
-        player.setStatus(PlayerStatus.JOIN_THE_GAME.getIntStatus());
+        playerService.joinPlayer(playerId, playerChips, PlayerStatus.JOIN_THE_GAME);
 
-        playerService.updatePlayer(player);
-
-        log.info("User id {} joined, game id {}, game seat id {}", userId, game.getId(), gameSeat.getId());
+        log.info("Player id {} {}, game id {}", playerId, pad.getPlayerAction(), gameId);
     }
 
     public void updateGame(Game game) {

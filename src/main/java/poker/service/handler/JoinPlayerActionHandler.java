@@ -20,7 +20,7 @@ public class JoinPlayerActionHandler implements DBPlayerActionHandler {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean handleAction(GameEngine gameEngine, PlayerActionData pad) {
-        gameService.joinPlayerToGame(pad);
+        gameService.joinPlayerToGame(gameEngine, pad);
 
         log.info("Player id {} {} game id {}",
             pad.getPlayerDetails().getPlayer().getId(), PlayerAction.JOIN_GAME.getActionName(), gameEngine.getTable().getId());

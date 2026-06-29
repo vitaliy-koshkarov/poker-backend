@@ -25,24 +25,14 @@ public class DisconnectPlayerActionHandler implements DBPlayerActionHandler {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean handleAction(GameEngine gameEngine, PlayerActionData pad) {
-        long gameId = gameEngine.getTable().getId();
+        long gameId = pad.getGameId();
         long playerId = pad.getPlayerDetails().getPlayer().getId();
-        var player = playerService.getPlayerById(playerId);
-        var user = userService.getUserByPlayerId(playerId);
 
-        player.setStatus(PlayerStatus.NOT_IN_GAME.getIntStatus());
-        playerService.updatePlayer(player);
-        gameSeatService.releaseGameSeat(user.getId(), playerId, gameId);
+        playerService.updatePlayerStatus(playerId, PlayerStatus.NOT_IN_GAME);
+        gameSeatService.releaseGameSeat(pad.getPlayerDetails().getUser().getId(), playerId, gameId);
 
         log.info("Player id {} {} from game id {}", playerId, PlayerAction.DISCONNECT.getActionName(), gameId);
 
         return true;
-    }
-
-    private void engineHandling(GameEngine gameEngine, long playerId, long gameId) {
-//        var thTable = gameEngine.getTable();
-//        thTable.removePlayer(playerId);
-        log.info("Player id {} {} game id {}", playerId, PlayerAction.DISCONNECT.getActionName(), gameId);
-//        log.info("{}", gameEngine.getTable());
     }
 }
