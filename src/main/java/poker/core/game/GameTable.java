@@ -26,6 +26,8 @@ public interface GameTable {
     List<Card> getCommunityCards();
 
     void addPlayer(GamePlayer gamePlayer);
+    void removePlayer(long playerId);
+    void overrideActivePlayer();
     void updateGameStatus(GameStatus gameStatus);
     void betBlinds();
     void dealStartHands();

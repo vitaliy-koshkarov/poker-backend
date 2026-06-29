@@ -17,10 +17,10 @@ import java.util.*;
 
 import static poker.core.game.GameStatus.*;
 
-@Log4j2
 @RequiredArgsConstructor
+@Getter
+@Log4j2
 public class THEngine implements GameEngine {
-    @Getter
     private final GameTable table;
 
     @Override
@@ -100,9 +100,14 @@ public class THEngine implements GameEngine {
     }
 
     private void disconnectPlayer(PlayerActionData pad) {
-//        action depends of the game stage
-//        todo: remove player from table
-//              define active player
+        long playerId = pad.getPlayerDetails().getPlayer().getId();
+        table.removePlayer(playerId);
+
+        if (table.getActivePlayerId() == playerId) {
+            table.overrideActivePlayer();
+        }
+
+        log.info("Player id {} disconnected from game {}", playerId, pad.getGameId());
     }
 
     private void nextPhase(PlayerActionData pad) {

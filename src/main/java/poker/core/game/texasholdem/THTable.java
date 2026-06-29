@@ -85,6 +85,28 @@ public class THTable implements GameTable {
     }
 
     @Override
+    public void removePlayer(long playerId) {
+        GamePlayer playerToRemove = null;
+        for (GamePlayer gamePlayer : players) {
+            if (gamePlayer.getId() == playerId) {
+                playerToRemove = gamePlayer;
+                break;
+            }
+        }
+        players.remove(playerToRemove);
+    }
+
+    @Override
+    public void overrideActivePlayer() {
+//        todo: implement
+        activePlayerIdx++;
+        if (activePlayerIdx >= players.size()) {
+            activePlayerIdx = 0;
+            players.get(activePlayerIdx).setStatus(PlayerStatus.ACTIVE);
+        }
+    }
+
+    @Override
     public void updateGameStatus(GameStatus gameStatus) {
         this.gameStatus = gameStatus;
     }
@@ -112,17 +134,6 @@ public class THTable implements GameTable {
             + ", small blind idx " + smallBlindIdx + ", big blind idx " + bigBlindIdx
             + ", active player idx " + activePlayerIdx + ", min raise " + minRaise
             + "}";
-    }
-
-    public void removePlayer(Long playerId) {
-        GamePlayer thPlayerToRemove = null;
-        for (GamePlayer thPlayer : players) {
-            if (thPlayer.getId() == playerId) {
-                thPlayerToRemove = thPlayer;
-                break;
-            }
-        }
-        players.remove(thPlayerToRemove);
     }
 
     public void setUpNewRound() {
@@ -190,7 +201,7 @@ public class THTable implements GameTable {
         if (activePlayerIdx >= players.size()) {
             activePlayerIdx = 0;
         }
-        players.get(activePlayerIdx)
-            .setStatus(PlayerStatus.ACTIVE);
+
+        players.get(activePlayerIdx).setStatus(PlayerStatus.ACTIVE);
     }
 }
