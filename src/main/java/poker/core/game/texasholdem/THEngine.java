@@ -29,7 +29,17 @@ public class THEngine implements GameEngine {
 
     @Override
     public void handlePlayerAction(long playerId, PlayerActionData playerActionData, PlayerAction playerAction) {
-        log.info("Handing action {} from player id {}", playerAction.getActionName(), playerId);
+        log.info("Handling action {} from player id {}", playerAction.getActionName(), playerId);
+
+        switch (playerAction) {
+            case START_GAME -> startGame(playerActionData);
+            case FOLD -> fold(playerActionData);
+            case CHECK -> check(playerActionData);
+            case BET -> bet(playerActionData);
+            case ALL_IN -> allIn(playerActionData);
+            case JOIN_GAME -> joinPlayer(playerActionData);
+            case DISCONNECT -> disconnectPlayer(playerActionData);
+        }
     }
 
     @Override
@@ -37,11 +47,53 @@ public class THEngine implements GameEngine {
         log.info("Rollback to {}", snapshot);
     }
 
-    public long getDealerId() {
-        return table.getDealerId();
+    private void startGame(PlayerActionData playerActionData) {
+//        todo: update game status
+//              define dealer
+//              define active player
+//              update players' statuses
+//              bet blinds (subtract bets from players)
+//              add bets to pot
+//              deal start hands
     }
 
-    private void nextPhase() {
+    private void fold(PlayerActionData playerActionData) {
+//        todo: update player status
+//              define next active player
+    }
+
+    private void check(PlayerActionData playerActionData) {
+//        todo: update player status
+//              define check value (*)
+//              define next active player
+    }
+
+    private void bet(PlayerActionData playerActionData) {
+//        todo: subtract bet from player
+//              add player's bet to pot
+//              define check or min raise value (*)
+//              update player's status
+//              define next active player
+    }
+
+    private void allIn(PlayerActionData playerActionData) {
+//        todo: subtract all chips from player
+//              add them to the pot
+//              update player's status
+//              define next active player
+    }
+
+    private void joinPlayer(PlayerActionData playerActionData) {
+//        todo: add player to the table
+    }
+
+    private void disconnectPlayer(PlayerActionData playerActionData) {
+//        action depends of the game stage
+//        todo: remove player from table
+//              define active player
+    }
+
+    private void nextPhase(PlayerActionData playerActionData) {
         switch (table.getGameStatus()) {
             case WAITING_FOR_PLAYERS -> preFlop();
             case PRE_FLOP -> flop();
