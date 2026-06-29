@@ -9,6 +9,7 @@ import poker.core.engine.GameEngine;
 import poker.core.player.GamePlayer;
 import poker.core.player.PlayerAction;
 import poker.core.game.GameStatus;
+import poker.core.player.PlayerActionData;
 import poker.model.Player;
 import poker.model.PlayerBet;
 import poker.service.GameService;
@@ -31,7 +32,7 @@ public class StartGamePlayerActionHandler implements DBPlayerActionHandler {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean handleAction(long playerId, GameEngine gameEngine) {
+    public boolean handleAction(GameEngine gameEngine, PlayerActionData pad) {
         long gameId = gameEngine.getTable().getId();
         var game = gameService.getGameById(gameId);
         List<GamePlayer> gamePlayers = gameEngine.getTable().getPlayers();
@@ -72,7 +73,8 @@ public class StartGamePlayerActionHandler implements DBPlayerActionHandler {
         }
         playerService.updatePlayers(players);
 
-        log.info("Player id {} {} game id {}", playerId, PlayerAction.START_GAME.getActionName(), game.getId());
+        log.info("Player id {} {} game id {}",
+            pad.getPlayerDetails().getPlayer().getId(), PlayerAction.START_GAME.getActionName(), game.getId());
 
         return true;
     }

@@ -7,6 +7,8 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
+import poker.core.player.PlayerActionData;
+import poker.dto.PlayerActionDataConverter;
 import poker.dto.game.GameStateDTO;
 import poker.core.game.GameStatus;
 import poker.core.player.PlayerAction;
@@ -42,7 +44,8 @@ public class WebSocketDisconnectEventListener {
         long gameId = playerGameSession.gameId();
         long playerId = playerDetails.getPlayer().getId();
 
-        playerActionHandlerService.handlePlayerAction(gameId, playerDetails, PlayerAction.DISCONNECT);
+        PlayerActionData pad = PlayerActionDataConverter.convert(gameId, playerDetails, PlayerAction.DISCONNECT);
+        playerActionHandlerService.handlePlayerAction(pad);
 
         GameStateDTO gameStateDTO = gameStateResponseGenerator.generateResponse(gameId);
 

@@ -10,6 +10,8 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import poker.core.player.PlayerActionData;
+import poker.dto.PlayerActionDataConverter;
 import poker.dto.PlayerActionRequest;
 import poker.dto.game.GameStateDTO;
 import poker.core.player.PlayerAction;
@@ -60,7 +62,8 @@ public class WebSocketGameController {
 
         // todo: validate
 
-        playerActionHandlerService.handlePlayerAction(gameId, playerDetails, playerAction);
+        PlayerActionData pad = PlayerActionDataConverter.convert(gameId, playerActionRequest, playerDetails, playerAction);
+        playerActionHandlerService.handlePlayerAction(pad);
 
         var gameStateDTO = gameStateResponseGenerator.generateResponse(gameId);
         webSocketGameStateBroadcaster.broadcast(gameStateDTO, playerAction);

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import poker.core.engine.GameEngine;
 import poker.core.player.PlayerAction;
+import poker.core.player.PlayerActionData;
 import poker.model.Game;
 import poker.model.PlayerDetails;
 import poker.service.GameService;
@@ -20,11 +21,13 @@ public class JoinPlayerActionHandler implements DBPlayerActionHandler {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean handleAction(long playerId, GameEngine gameEngine) {
+    public boolean handleAction(GameEngine gameEngine, PlayerActionData pad) {
         long gameId = gameEngine.getTable().getId();
 //        TODO: refactoring parameters of join player to the game
 //        gameService.joinPlayerToGame(gameId, playerDetails);
-        log.info("Player id {} {} game id {}", playerId, PlayerAction.JOIN_GAME.getActionName(), gameId);
+        log.info("Player id {} {} game id {}",
+            pad.getPlayerDetails().getPlayer().getId(), PlayerAction.JOIN_GAME.getActionName(), gameId);
+
         return true;
     }
 

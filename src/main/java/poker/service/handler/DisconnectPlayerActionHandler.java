@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import poker.core.engine.GameEngine;
 import poker.core.player.PlayerAction;
+import poker.core.player.PlayerActionData;
 import poker.core.player.PlayerStatus;
 import poker.service.GameSeatService;
 import poker.service.PlayerService;
@@ -23,8 +24,9 @@ public class DisconnectPlayerActionHandler implements DBPlayerActionHandler {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean handleAction(long playerId, GameEngine gameEngine) {
+    public boolean handleAction(GameEngine gameEngine, PlayerActionData pad) {
         long gameId = gameEngine.getTable().getId();
+        long playerId = pad.getPlayerDetails().getPlayer().getId();
         var player = playerService.getPlayerById(playerId);
         var user = userService.getUserByPlayerId(playerId);
 

@@ -5,14 +5,12 @@ import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import poker.core.game.GameState;
-import poker.core.game.texasholdem.THPlayerActionData;
+import poker.core.player.PlayerActionData;
 import poker.dto.game.GameConverter;
 import poker.dto.game.GameStateDTO;
 import poker.dto.player.PlayerConverter;
 import poker.core.engine.GameEngineRegistry;
-import poker.core.player.PlayerAction;
 import poker.model.GameSeat;
-import poker.model.PlayerDetails;
 import poker.service.handler.DBPlayerActionHandler;
 
 import java.util.LinkedList;
@@ -30,27 +28,26 @@ public class PlayerActionHandlerService {
     private final PlayerService playerService;
     private final GameSeatService gameSeatService;
 
-    public void handlePlayerAction(long gameId, PlayerDetails playerDetails, PlayerAction playerAction) {
+    public void handlePlayerAction(PlayerActionData pad) {
+        String actionName = pad.getPlayerAction().getActionName();
         log.info("Handling action {} from player id {} in game {}",
-            playerAction.getActionName(), playerDetails.getPlayer().getId(), gameId);
+            actionName, pad.getPlayerDetails().getPlayer().getId(), pad.getGameId());
 //        TODO: Implement:
 //              1. Snapshot of game state
 //              2. Handle action in Engine
 //              3. DB + Event in a single transaction
-//              3.1. If success -> do nothing
+//              3.1. If success -> do nothing on this step
 //              3.2. If fails -> rollback engine to snapshot
 //              ✓ 4. Return response from engine (already implemented in GameStateReportGenerator)
 
-        var gameEngine = gameEngineRegistry.getGameEngine(gameId);
+        var gameEngine = gameEngineRegistry.getGameEngine(pad.getGameId());
         GameState snapshot = gameEngine.getCurrentGameState();
 
-//        TODO: implement player's data holder
-        var playerActionData = new THPlayerActionData();
-        gameEngine.handlePlayerAction(playerDetails.getPlayer().getId(), playerActionData, playerAction);
+        gameEngine.handlePlayerAction(pad);
 
-        var dbPlayerActionHandler = dbPlayerActionHandlerMap.get(playerAction.getActionName());
+        var dbPlayerActionHandler = dbPlayerActionHandlerMap.get(actionName);
         // todo: TX: DB handling + game action event generation
-        boolean isSuccess = dbPlayerActionHandler.handleAction(gameId, gameEngine);
+        boolean isSuccess = dbPlayerActionHandler.handleAction(gameEngine, pad);
         if (!isSuccess) {
             gameEngine.rollback(snapshot);
         }

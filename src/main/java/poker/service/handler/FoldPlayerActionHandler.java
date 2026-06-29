@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import poker.core.engine.GameEngine;
 import poker.core.player.PlayerAction;
+import poker.core.player.PlayerActionData;
 
 @Component("FOLD")
 @Log4j2
@@ -14,8 +15,10 @@ public class FoldPlayerActionHandler implements DBPlayerActionHandler {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean handleAction(long playerId, GameEngine gameEngine) {
-        log.info("Player id {} {} game id {}", playerId, PlayerAction.FOLD.getActionName(), gameEngine.getTable().getId());
+    public boolean handleAction(GameEngine gameEngine, PlayerActionData pad) {
+        log.info("Player id {} {} game id {}",
+            pad.getPlayerDetails().getPlayer().getId(), PlayerAction.FOLD.getActionName(), gameEngine.getTable().getId());
+
         return true;
     }
 }

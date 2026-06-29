@@ -5,6 +5,8 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import poker.core.player.PlayerActionData;
+import poker.dto.PlayerActionDataConverter;
 import poker.dto.game.*;
 import poker.core.engine.GameEngineRegistry;
 import poker.core.player.PlayerAction;
@@ -73,7 +75,8 @@ public class GameController {
 
 //        TODO: validate
 
-        playerActionHandlerService.handlePlayerAction(gameId, playerDetails, PlayerAction.START_GAME);
+        PlayerActionData pad = PlayerActionDataConverter.convert(gameId, playerDetails, PlayerAction.START_GAME);
+        playerActionHandlerService.handlePlayerAction(pad);
 
         GameStateDTO gameStateDTO = gameStateResponseGenerator.generateResponse(gameId);
         webSocketGameStateBroadcaster.broadcast(gameStateDTO, PlayerAction.START_GAME);
