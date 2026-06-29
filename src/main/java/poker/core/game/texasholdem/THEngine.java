@@ -10,6 +10,8 @@ import poker.core.game.GameTable;
 import poker.core.game.card.Card;
 import poker.core.player.GamePlayer;
 import poker.core.player.PlayerActionData;
+import poker.core.player.PlayerStatus;
+import poker.util.Util;
 
 import java.util.*;
 
@@ -28,7 +30,6 @@ public class THEngine implements GameEngine {
 
     @Override
     public void handlePlayerAction(PlayerActionData pad) {
-
         log.info("Handling action {} from player id {}",
             pad.getPlayerAction().getActionName(), pad.getPlayerDetails().getPlayer().getId());
 
@@ -85,7 +86,16 @@ public class THEngine implements GameEngine {
     }
 
     private void joinPlayer(PlayerActionData pad) {
-//        todo: add player to the table
+        GamePlayer gamePlayer = THPlayer.builder()
+            .id(pad.getPlayerDetails().getPlayer().getId())
+            .nickname(pad.getPlayerDetails().getPlayer().getNickname())
+            .status(PlayerStatus.JOIN_THE_GAME)
+            .chips(pad.getPlayerDetails().getPlayer().getChips())
+            .currentBet(Util.DEFAULT_INT_VALUE)
+            .cards(Collections.emptyList())
+            .build();
+
+        table.addPlayer(gamePlayer);
     }
 
     private void disconnectPlayer(PlayerActionData pad) {
@@ -106,7 +116,7 @@ public class THEngine implements GameEngine {
     }
 
     private void preFlop() {
-        table.setGameStatus(PRE_FLOP);
+        table.updateGameStatus(PRE_FLOP);
         table.betBlinds();
         table.dealStartHands();
     }
@@ -115,21 +125,21 @@ public class THEngine implements GameEngine {
         for (int i = 0; i < 3; i++) {
             table.getCommunityCards().add(table.getDeck().dealCard());
         }
-        table.setGameStatus(FLOP);
+        table.updateGameStatus(FLOP);
     }
 
     private void turn() {
         table.getCommunityCards().add(table.getDeck().dealCard());
-        table.setGameStatus(TURN);
+        table.updateGameStatus(TURN);
     }
 
     private void river() {
         table.getCommunityCards().add(table.getDeck().dealCard());
-        table.setGameStatus(RIVER);
+        table.updateGameStatus(RIVER);
     }
 
     private void showdown() {
-        table.setGameStatus(SHOWDOWN);
+        table.updateGameStatus(SHOWDOWN);
 
 //        TODO: improve logic of evaluating hands and splitting pot between players
         var playersAndCombinations = new HashMap<GamePlayer, HandEvaluator>();
@@ -168,6 +178,6 @@ public class THEngine implements GameEngine {
     }
 
     private void waitingNewPlayers() {
-        table.setGameStatus(WAITING_FOR_PLAYERS);
+        table.updateGameStatus(WAITING_FOR_PLAYERS);
     }
 }

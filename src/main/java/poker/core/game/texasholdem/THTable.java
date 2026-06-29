@@ -1,7 +1,6 @@
 package poker.core.game.texasholdem;
 
 import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import poker.core.game.GamePot;
 import poker.core.game.GameStatus;
@@ -24,7 +23,6 @@ public class THTable implements GameTable {
     private final String name;
     private final long creatorPlayerId;
 
-    @Setter
     private GameStatus gameStatus;
 
     private long dealerId;
@@ -82,6 +80,16 @@ public class THTable implements GameTable {
     }
 
     @Override
+    public void addPlayer(GamePlayer gamePlayer) {
+        players.add(gamePlayer);
+    }
+
+    @Override
+    public void updateGameStatus(GameStatus gameStatus) {
+        this.gameStatus = gameStatus;
+    }
+
+    @Override
     public void dealStartHands() {
         for (int i = 0; i < 2; i++) {
             for (GamePlayer player : players) {
@@ -104,10 +112,6 @@ public class THTable implements GameTable {
             + ", small blind idx " + smallBlindIdx + ", big blind idx " + bigBlindIdx
             + ", active player idx " + activePlayerIdx + ", min raise " + minRaise
             + "}";
-    }
-
-    public void addPlayer(THPlayer thPlayer) {
-        players.add(thPlayer);
     }
 
     public void removePlayer(Long playerId) {

@@ -1,14 +1,15 @@
 package poker.core.game.texasholdem;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import poker.core.game.card.Card;
 import poker.core.player.GamePlayer;
 import poker.core.player.PlayerStatus;
 
-import java.util.ArrayList;
 import java.util.List;
 
+@Builder
 @Getter
 public class THPlayer implements GamePlayer {
     private final long id;
@@ -20,14 +21,6 @@ public class THPlayer implements GamePlayer {
     private int chips;
     private int currentBet;
     private final List<Card> cards;
-
-    public THPlayer(long id, String name, int chips) {
-        this.id = id;
-        this.nickname = name;
-        this.status = PlayerStatus.NOT_IN_GAME;
-        this.chips = chips;
-        this.cards = new ArrayList<>();
-    }
 
     @Override
     public void refresh() {
