@@ -11,12 +11,15 @@ import poker.core.game.texasholdem.THEngine;
 import poker.model.Game;
 import poker.core.game.GameStatus;
 import poker.model.Player;
+import poker.model.PlayerBet;
 import poker.model.PlayerDetails;
 import poker.service.GameService;
+import poker.service.PlayerBetService;
 import poker.service.PlayerService;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 @Component("StartGamePlayerActionHandler")
@@ -26,6 +29,7 @@ import java.util.List;
 public class StartGamePlayerActionHandler implements PlayerActionHandler {
     private final GameService gameService;
     private final PlayerService playerService;
+    private final PlayerBetService playerBetService;
 
     @Override
     public void handleAction(GameEngine gameEngine, Game game, PlayerDetails playerDetails) {
@@ -41,6 +45,20 @@ public class StartGamePlayerActionHandler implements PlayerActionHandler {
     }
 
     private void repositoryHandling(GameEngine gameEngine, Game game, long playerId) {
+        List<GamePlayer> gamePlayers = gameEngine.getTable().getPlayers();
+
+        List<PlayerBet> playersBets = new LinkedList<>();
+        for (GamePlayer gamePlayer : gamePlayers) {
+            playersBets.add(
+                PlayerBet.builder()
+                    .potId(game.getPotId())
+                    .playerId(gamePlayer.getId())
+                    .playerBet(gamePlayer.getCurrentBet())
+                    .build()
+            );
+        }
+        playerBetService.createPlayersBets(playersBets);
+
         game.setStatus(GameStatus.PRE_FLOP.getIntStatus());
         game.setStartedAt(new Timestamp(System.currentTimeMillis()));
 
@@ -51,7 +69,6 @@ public class StartGamePlayerActionHandler implements PlayerActionHandler {
         game.setActivePlayerId(activePlayerId);
         gameService.updateGame(game);
 
-        List<GamePlayer> gamePlayers = gameEngine.getTable().getPlayers();
         List<Long> playerIds = new ArrayList<>();
         for (GamePlayer gamePlayer : gamePlayers) {
             playerIds.add(gamePlayer.getId());
