@@ -35,6 +35,7 @@ public class GameService {
         List<GameDTO> gameDTOList = new LinkedList<>();
         List<Game> games = gameRepo.findAllNotEndedGames(GameStatus.END.getIntStatus());
 
+//        todo: refactoring
         List<GameSeat> gameSeats;
         for (Game game : games) {
             gameSeats = gameSeatService.getGameSeatsByGameId(game.getId());
@@ -85,10 +86,6 @@ public class GameService {
 
         playerBetService.deletePlayersBets(potId);
         log.info("Removed players' bets, pot id {}", potId);
-    }
-
-    public Game getGameById(Long gameId) {
-        return gameRepo.findGameById(gameId);
     }
 
     public void startGame(long gameId, long dealerId, long activePlayerId, GameStatus gameStatus, Timestamp startedAt) {

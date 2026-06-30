@@ -3,13 +3,13 @@ package poker.service;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import poker.dto.game.GameStateConverter;
 import poker.dto.game.GameStateDTO;
 import poker.core.engine.GameEngineRegistry;
 import poker.core.game.GameState;
 
-@Service("GameStateResponseGenerator")
+@Component("GameStateResponseGenerator")
 @RequiredArgsConstructor
 @Log4j2
 @ToString

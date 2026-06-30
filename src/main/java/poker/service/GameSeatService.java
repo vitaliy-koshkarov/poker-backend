@@ -3,9 +3,7 @@ package poker.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
-import poker.model.Game;
 import poker.model.GameSeat;
-import poker.model.Player;
 import poker.repository.GameSeatRepository;
 
 import java.sql.Timestamp;
@@ -37,16 +35,6 @@ public class GameSeatService {
 
     public List<GameSeat> getGameSeatsByGameId(long gameId) {
         return gameSeatRepo.findAllGameSeatsByGameId(gameId);
-    }
-
-    /**
-     * @param gameId {@link Game#getId()}
-     * @param playerId {@link Player#getId()}
-     * @return {@link GameSeat} associated with this {@link Game#getId()} and {@link Player#getId()},
-     * or null if there is nothing
-     */
-    public GameSeat getGameSeatByGameIdAndPlayerId(long gameId, long playerId) {
-        return gameSeatRepo.findGameSeatByGameIdAndPlayerId(gameId, playerId);
     }
 
     public void deleteGameSeatByIdGameId(long gameId) {
