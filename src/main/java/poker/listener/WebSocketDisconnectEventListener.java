@@ -12,6 +12,7 @@ import poker.dto.PlayerActionDataConverter;
 import poker.dto.game.GameStateDTO;
 import poker.core.game.GameStatus;
 import poker.core.player.PlayerAction;
+import poker.dto.player.PlayerDTO;
 import poker.model.*;
 import poker.service.*;
 
@@ -46,18 +47,30 @@ public class WebSocketDisconnectEventListener {
 
 //        TODO: think how to handle accidental disconnects
 
+        boolean isJoinedPlayerDisconnect = isJoinedPlayerDisconnect(gameId, playerId);
+
         PlayerActionData pad = PlayerActionDataConverter.convert(gameId, playerDetails, PlayerAction.DISCONNECT);
         playerActionHandlerService.handlePlayerAction(pad);
-
-        GameStateDTO gameStateDTO = gameStateResponseGenerator.generateResponse(gameId);
 
         webSocketPlayerSessionService.removeSession(sessionId);
         log.info("Disconnect player id {} session id {}", playerId, sessionId);
 
-        if (gameStateDTO.gameDTO().status() != GameStatus.WAITING_FOR_PLAYERS.getIntStatus()) {
+        GameStateDTO gameStateDTO = gameStateResponseGenerator.generateResponse(gameId);
+
+        if (gameStateDTO.gameDTO().status() != GameStatus.WAITING_FOR_PLAYERS.getIntStatus() || isJoinedPlayerDisconnect) {
             webSocketGameStateBroadcaster.broadcast(gameStateDTO, PlayerAction.DISCONNECT);
         }
 
-        log.info("Player id {} disconnected from game id {}", playerId, gameId);
+        log.info("Player id {} {} from game id {}", playerId, pad.getPlayerAction(), gameId);
+    }
+
+    private boolean isJoinedPlayerDisconnect(long gameId, long playerId) {
+        var gameStateDTOBeforeDisconnect = gameStateResponseGenerator.generateResponse(gameId);
+        for (PlayerDTO playerDTO : gameStateDTOBeforeDisconnect.playerDTOList()) {
+            if (playerDTO.id() == playerId) {
+                return true;
+            }
+        }
+        return false;
     }
 }
