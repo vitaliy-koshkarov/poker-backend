@@ -102,7 +102,9 @@ public class THTable implements GameTable {
         activePlayerIdx++;
         if (activePlayerIdx >= players.size()) {
             activePlayerIdx = 0;
-            players.get(activePlayerIdx).setStatus(PlayerStatus.ACTIVE);
+            if (!players.isEmpty()) {
+                players.get(activePlayerIdx).setStatus(PlayerStatus.ACTIVE);
+            }
         }
     }
 

@@ -36,14 +36,17 @@ public class PlayerActionHandlerService {
 
         var gameEngine = gameEngineRegistry.getGameEngine(pad.getGameId());
         GameState snapshot = gameEngine.getCurrentGameState();
+        log.debug("Snapshot: {}", snapshot);
 
         gameEngine.handlePlayerAction(pad);
+        log.debug("Game state after handling action: {}", gameEngine.getCurrentGameState());
 
         var dbPlayerActionHandler = dbPlayerActionHandlerMap.get(actionName);
         // todo: TX: DB handling + game action event generation
         boolean isSuccess = dbPlayerActionHandler.handleAction(gameEngine, pad);
         if (!isSuccess) {
             gameEngine.rollback(snapshot);
+            log.error("Rollback game state");
         }
     }
 }

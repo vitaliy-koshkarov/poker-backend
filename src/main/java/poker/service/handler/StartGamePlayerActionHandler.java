@@ -31,6 +31,13 @@ public class StartGamePlayerActionHandler implements DBPlayerActionHandler {
     @Transactional(rollbackFor = Exception.class)
     public boolean handleAction(GameEngine gameEngine, PlayerActionData pad) {
         long gameId = gameEngine.getTable().getId();
+        long dealerId = gameEngine.getTable().getDealerId();
+        long activePlayerId = gameEngine.getTable().getActivePlayerId();
+
+        gameService.startGame(gameId, dealerId, activePlayerId,
+            GameStatus.PRE_FLOP, new Timestamp(System.currentTimeMillis()));
+
+
         List<GamePlayer> gamePlayers = gameEngine.getTable().getPlayers();
 
         List<PlayerBet> playersBets = new LinkedList<>();
@@ -45,11 +52,6 @@ public class StartGamePlayerActionHandler implements DBPlayerActionHandler {
         }
         playerBetService.createPlayersBets(playersBets);
 
-        long dealerId = gameEngine.getTable().getDealerId();
-        long activePlayerId = gameEngine.getTable().getActivePlayerId();
-
-        gameService.startGame(gameId, dealerId, activePlayerId,
-            GameStatus.PRE_FLOP, new Timestamp(System.currentTimeMillis()));
 
         for (GamePlayer gPlayer : gamePlayers) {
             playerService.updatePlayerStatusAndChips(gPlayer.getId(), gPlayer.getChips(), gPlayer.getStatus());

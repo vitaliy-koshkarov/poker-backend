@@ -47,6 +47,7 @@ public class THEngine implements GameEngine {
 
     @Override
     public void rollback(GameState snapshot) {
+//        todo: implement
         log.info("Rollback to {}", snapshot);
     }
 
@@ -87,7 +88,7 @@ public class THEngine implements GameEngine {
             .status(PlayerStatus.JOIN_THE_GAME)
             .chips(pad.getPlayerDetails().getPlayer().getChips())
             .currentBet(Util.DEFAULT_INT_VALUE)
-            .cards(Collections.emptyList())
+            .cards(new ArrayList<>())
             .build();
 
         table.addPlayer(gamePlayer);
