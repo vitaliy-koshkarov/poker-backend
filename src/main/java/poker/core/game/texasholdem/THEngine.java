@@ -46,9 +46,27 @@ public class THEngine implements GameEngine {
     }
 
     @Override
+    public GameState snapshot() {
+//        TODO: implement
+        return null;
+    }
+
+    @Override
     public void rollback(GameState snapshot) {
-//        todo: implement
-        log.info("Rollback to {}", snapshot);
+        table.setGameStatus(GameStatus.getGameStatusByInt(snapshot.getStatus()));
+        table.setDealerId(snapshot.getDealerId());
+        table.setDealerIndex(snapshot.getDealerIndex());
+        table.setActivePlayerId(snapshot.getActivePlayerId());
+        table.setActivePlayerIndex(snapshot.getActivePlayerIndex());
+        table.setSmallBlind(snapshot.getSmallBlind());
+        table.setSmallBlindIndex(snapshot.getSmallBlindIndex());
+        table.setBigBlind(snapshot.getBigBlind());
+        table.setBigBlindIndex(snapshot.getBigBlindIndex());
+        table.setMinRaise(snapshot.getMinRaise());
+        table.setPot(snapshot.getGamePot());
+        table.setPlayers(snapshot.getGamePlayers());
+        table.setDeck(snapshot.getDeck());
+        table.setCommunityCards(snapshot.getCommunityCards());
     }
 
     private void startGame() {

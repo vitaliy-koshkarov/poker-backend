@@ -43,6 +43,13 @@ public class THPot implements GamePot {
     }
 
     @Override
+    public GamePot snapshot() {
+        GamePot pot = new THPot(id);
+        playerBets.forEach(pot::addPlayerBet);
+        return pot;
+    }
+
+    @Override
     public String toString() {
         return "THPot{id: " + id + ", total: " + total + ", players bet:{" + playersBet() + "}";
     }

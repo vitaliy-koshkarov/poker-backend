@@ -13,17 +13,32 @@ public interface GameTable {
     GameStatus getGameStatus();
     long getDealerId();
     long getActivePlayerId();
-    int getCurrentPlayersCount();
     int getMaxPlayers();
     int getSmallBlind();
+    int getSmallBlindIndex();
     int getBigBlind();
-    int getMinRaise();
+    int getBigBlindIndex();
     int getBuyIn();
     GamePot getPot();
     List<GamePlayer> getPlayers();
     List<GamePlayer> getActivePlayers();
     Deck getDeck();
     List<Card> getCommunityCards();
+
+    void setGameStatus(GameStatus gameStatus);
+    void setDealerId(long dealerId);
+    void setDealerIndex(int dealerIndex);
+    void setActivePlayerId(long activePlayerId);
+    void setActivePlayerIndex(int activePlayerIndex);
+    void setSmallBlind(int smallBlind);
+    void setSmallBlindIndex(int smallBlindIndex);
+    void setBigBlind(int bigBlind);
+    void setBigBlindIndex(int bigBlindIndex);
+    void setMinRaise(int minRaise);
+    void setPot(GamePot pot);
+    void setPlayers(List<GamePlayer> players);
+    void setDeck(Deck deck);
+    void setCommunityCards(List<Card> communityCards);
 
     void addPlayer(GamePlayer gamePlayer);
     void removePlayer(long playerId);

@@ -35,7 +35,7 @@ public class PlayerActionHandlerService {
 //              ✓ 4. Return response from engine (already implemented in GameStateReportGenerator)
 
         var gameEngine = gameEngineRegistry.getGameEngine(pad.getGameId());
-        GameState snapshot = gameEngine.getCurrentGameState();
+        GameState snapshot = gameEngine.snapshot();
         log.debug("Snapshot: {}", snapshot);
 
         gameEngine.handlePlayerAction(pad);
@@ -46,7 +46,7 @@ public class PlayerActionHandlerService {
         boolean isSuccess = dbPlayerActionHandler.handleAction(gameEngine, pad);
         if (!isSuccess) {
             gameEngine.rollback(snapshot);
-            log.error("Rollback game state");
+            log.error("Rollback game state to {}", snapshot);
         }
     }
 }

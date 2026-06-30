@@ -13,4 +13,6 @@ public interface GamePot {
     void refresh();
 
     void distributeReward(Map<GamePlayer, HandEvaluator> winners);
+
+    GamePot snapshot();
 }

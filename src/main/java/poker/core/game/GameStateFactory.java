@@ -7,7 +7,6 @@ public class GameStateFactory {
     public static GameState create(GameTable table) {
         return GameState.builder()
             .gameId(table.getId())
-            .currentPlayers(table.getPlayers().size())
             .maxPlayers(table.getMaxPlayers())
             .buyIn(table.getBuyIn())
             .status(table.getGameStatus().getIntStatus())
@@ -16,7 +15,7 @@ public class GameStateFactory {
             .name(table.getName())
             .smallBlind(table.getSmallBlind())
             .bigBlind(table.getBigBlind())
-            .gamePlayerList(new LinkedList<>(table.getPlayers()))
+            .gamePlayers(new LinkedList<>(table.getPlayers()))
             .build();
     }
 }

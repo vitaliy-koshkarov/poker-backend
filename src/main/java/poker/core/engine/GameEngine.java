@@ -11,5 +11,7 @@ public interface GameEngine {
 
     void handlePlayerAction(PlayerActionData pad);
 
+    GameState snapshot();
+
     void rollback(GameState snapshot);
 }

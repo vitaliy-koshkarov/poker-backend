@@ -1,5 +1,6 @@
 package poker.dto.game;
 
+import poker.core.player.GamePlayer;
 import poker.dto.player.PlayerDTO;
 import poker.core.game.GameState;
 
@@ -11,7 +12,7 @@ public class GameStateConverter {
 //        TODO: refactoring
         GameDTO gameDTO = GameDTO.builder()
             .id(gameState.getGameId())
-            .currentPlayers(gameState.getCurrentPlayers())
+            .currentPlayers(gameState.getGamePlayers().size())
             .maxPlayers(gameState.getMaxPlayers())
             .buyIn(gameState.getBuyIn())
             .smallBlind(gameState.getSmallBlind())
@@ -24,13 +25,17 @@ public class GameStateConverter {
             .build();
 
         List<PlayerDTO> playerDTOList = new LinkedList<>();
-        gameState.getGamePlayerList().forEach(gamePlayer -> playerDTOList.add(PlayerDTO.builder()
-            .id(gamePlayer.getId())
-            .nickname(gamePlayer.getNickname())
-            .status(gamePlayer.getStatus().getIntStatus())
-            .chips(gamePlayer.getChips())
-            .currentBet(gamePlayer.getCurrentBet())
-            .build()));
+        for (GamePlayer gamePlayer : gameState.getGamePlayers()) {
+            playerDTOList.add(
+                PlayerDTO.builder()
+                    .id(gamePlayer.getId())
+                    .nickname(gamePlayer.getNickname())
+                    .status(gamePlayer.getStatus().getIntStatus())
+                    .chips(gamePlayer.getChips())
+                    .currentBet(gamePlayer.getCurrentBet())
+                    .build()
+            );
+        }
 
         return GameStateDTO.builder()
             .gameDTO(gameDTO)
