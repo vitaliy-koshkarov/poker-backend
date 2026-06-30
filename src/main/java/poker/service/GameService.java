@@ -23,11 +23,12 @@ import java.util.List;
 @RequiredArgsConstructor
 @ToString
 public class GameService {
+    private final GameProps gameProps;
     private final GameRepository gameRepo;
     private final PotService potService;
+    private final PlayerBetService playerBetService;
     private final PlayerService playerService;
     private final GameSeatService gameSeatService;
-    private final GameProps gameProps;
 
     @Transactional(readOnly = true)
     public List<GameDTO> getGamesList() {
@@ -71,7 +72,7 @@ public class GameService {
     @Transactional(rollbackFor = Exception.class)
     public void removeGame(long gameId) {
         var game = gameRepo.findGameById(gameId);
-        Long potId = game.getPotId();
+        long potId = game.getPotId();
 
         gameSeatService.deleteGameSeatByIdGameId(gameId);
         log.info("Removed game table with game id {}", gameId);
@@ -81,9 +82,11 @@ public class GameService {
 
         potService.deleteById(potId);
         log.info("Removed pot id {}", potId);
+
+        playerBetService.deletePlayersBets(potId);
+        log.info("Removed players' bets, pot id {}", potId);
     }
 
-    @Transactional(readOnly = true)
     public Game getGameById(Long gameId) {
         return gameRepo.findGameById(gameId);
     }
