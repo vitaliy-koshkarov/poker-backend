@@ -45,4 +45,9 @@ public class GameEngineRegistry {
     public Collection<GameEngine> getGameEngineCollection() {
         return gameEngineMap.values();
     }
+
+    public void removeGame(long gameId) {
+        gameEngineMap.remove(gameId);
+        log.info("Game id {} removed from engine", gameId);
+    }
 }

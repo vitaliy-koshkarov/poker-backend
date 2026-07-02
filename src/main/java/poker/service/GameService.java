@@ -52,7 +52,7 @@ public class GameService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void removeGame(long gameId) {
+    public boolean removeGame(long gameId) {
         var game = gameRepo.findGameById(gameId);
         long potId = game.getPotId();
 
@@ -67,6 +67,8 @@ public class GameService {
 
         playerBetService.deletePlayersBets(potId);
         log.info("Removed players' bets, pot id {}", potId);
+
+        return true;
     }
 
     public void startGame(long gameId, long dealerId, long activePlayerId, GameStatus gameStatus, Timestamp startedAt) {

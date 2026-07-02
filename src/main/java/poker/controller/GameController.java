@@ -59,7 +59,12 @@ public class GameController {
     public void deleteGame(@PathVariable Long id) {
         long userId = Util.getPlayerDetailsFronCtx().getUser().getId();
         log.info("Remove game request, game id {}, user id {}", id, userId);
-        gameService.removeGame(id);
+
+        boolean isSuccess = gameService.removeGame(id);
+        if (isSuccess) {
+            gameEngineRegistry.removeGame(id);
+        }
+
         log.info("Game id {} successfully removed", id);
     }
 
