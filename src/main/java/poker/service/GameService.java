@@ -7,15 +7,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import poker.config.GameProps;
 import poker.dto.game.CreateGameRequest;
-import poker.dto.game.GameConverter;
-import poker.dto.game.GameDTO;
 import poker.core.game.GameStatus;
 import poker.model.*;
 import poker.repository.GameRepository;
 import poker.util.Util;
 
 import java.sql.Timestamp;
-import java.util.LinkedList;
 import java.util.List;
 
 @Service("GameService")
@@ -29,22 +26,6 @@ public class GameService {
     private final PlayerBetService playerBetService;
     private final PlayerService playerService;
     private final GameSeatService gameSeatService;
-
-    @Transactional(readOnly = true)
-    public List<GameDTO> getGamesList() {
-        List<GameDTO> gameDTOList = new LinkedList<>();
-        List<Game> games = gameRepo.findAllNotEndedGames(GameStatus.END.getIntStatus());
-
-//        todo: refactoring
-        List<GameSeat> gameSeats;
-        for (Game game : games) {
-            gameSeats = gameSeatService.getGameSeatsByGameId(game.getId());
-            GameDTO gameDTO = GameConverter.toDTO(game, gameSeats.size());
-            gameDTOList.add(gameDTO);
-        }
-
-        return gameDTOList;
-    }
 
     @Transactional(rollbackFor = Exception.class)
     public Game createGame(long creatorPlayerId, CreateGameRequest createGameRequest) {

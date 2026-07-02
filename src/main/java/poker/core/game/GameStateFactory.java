@@ -11,16 +11,20 @@ public class GameStateFactory {
     public static GameState create(GameTable table) {
         return GameState.builder()
             .gameId(table.getId())
+            .name(table.getName())
+            .creatorPlayerId(table.getCreatorPlayerId())
             .maxPlayers(table.getMaxPlayers())
             .buyIn(table.getBuyIn())
             .gameStatus(table.getGameStatus().getIntStatus())
-            .creatorPlayerId(table.getCreatorPlayerId())
             .dealerId(table.getDealerId())
-            .name(table.getName())
+            .activePlayerId(table.getActivePlayerId())
             .smallBlind(table.getSmallBlind())
             .bigBlind(table.getBigBlind())
-            .gamePlayers(new LinkedList<>(table.getPlayers()))
+            .minRaise(table.getMinRaise())
             .gamePot(table.getPot())
+            .gamePlayers(new LinkedList<>(table.getPlayers()))
+            .deck(table.getDeck())
+            .communityCards(new LinkedList<>(table.getCommunityCards()))
             .build();
     }
 

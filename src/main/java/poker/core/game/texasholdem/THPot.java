@@ -10,12 +10,22 @@ import java.util.Map;
 public class THPot implements GamePot {
     @Getter
     private final long id;
+    @Getter
     private int total;
 //    todo: key - player's id
     private final Map<GamePlayer, Integer> playerBets = new HashMap<>();
 
     public THPot(long id) {
         this.id = id;
+    }
+
+    @Override
+    public Map<Long, Integer> getPlayersBets() {
+        var playersBets = new HashMap<Long, Integer>();
+        for (Map.Entry<GamePlayer, Integer> pair : playerBets.entrySet()) {
+            playersBets.put(pair.getKey().getId(), pair.getValue());
+        }
+        return playersBets;
     }
 
     @Override

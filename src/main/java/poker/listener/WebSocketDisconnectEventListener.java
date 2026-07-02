@@ -66,7 +66,7 @@ public class WebSocketDisconnectEventListener {
 
     private boolean isJoinedPlayerDisconnect(long gameId, long playerId) {
         var gameStateDTOBeforeDisconnect = gameStateResponseGenerator.generateResponse(gameId);
-        for (PlayerDTO playerDTO : gameStateDTOBeforeDisconnect.playerDTOList()) {
+        for (PlayerDTO playerDTO : gameStateDTOBeforeDisconnect.gameDTO().players()) {
             if (playerDTO.id() == playerId) {
                 return true;
             }
