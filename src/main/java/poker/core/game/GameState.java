@@ -16,7 +16,7 @@ public class GameState {
     private long gameId;
     private String name;
     private long creatorPlayerId;
-    private int status;
+    private int gameStatus;
     private long dealerId;
     private int dealerIndex;
     private long activePlayerId;

@@ -20,4 +20,6 @@ public interface GamePlayer {
     void bet(int bet);
 
     void takeReward(int reward);
+
+    GamePlayer snapshot();
 }

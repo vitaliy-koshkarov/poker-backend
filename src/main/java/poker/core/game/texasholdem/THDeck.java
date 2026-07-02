@@ -24,6 +24,16 @@ public class THDeck implements Deck {
         }
     }
 
+    /**
+     * Used for rollback
+     * @param deckSize size of the deck
+     * @param deck {@link Card} array
+     */
+    private THDeck(int deckSize, Card[] deck) {
+        this.deckSize = deckSize;
+        this.deck = deck;
+    }
+
     @Override
     public int getSize() {
         return deckSize;
@@ -45,6 +55,16 @@ public class THDeck implements Deck {
             deck[randomIdx] = deck[i];
             deck[i] = tempCard;
         }
+    }
+
+    @Override
+    public Deck snapshot() {
+        int snapshotDeckSize = this.deckSize;
+        Card[] snapshotDeck = new Card[snapshotDeckSize];
+        for (int i = 0; i < this.deckSize; i++) {
+            snapshotDeck[i] = new Card(deck[i].rank(), deck[i].suit());
+        }
+        return new THDeck(snapshotDeckSize, snapshotDeck);
     }
 
     @Override

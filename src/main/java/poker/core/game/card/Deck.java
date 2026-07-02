@@ -15,4 +15,6 @@ public interface Deck {
      * Shuffling the deck
      */
     void shuffle();
+
+    Deck snapshot();
 }

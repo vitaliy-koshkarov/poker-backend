@@ -17,7 +17,7 @@ public class GameStateConverter {
             .buyIn(gameState.getBuyIn())
             .smallBlind(gameState.getSmallBlind())
             .bigBlind(gameState.getBigBlind())
-            .status(gameState.getStatus())
+            .status(gameState.getGameStatus())
             .name(gameState.getName())
             .creatorPlayerId(gameState.getCreatorPlayerId())
             .dealerId(gameState.getDealerId())

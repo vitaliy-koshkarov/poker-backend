@@ -20,4 +20,8 @@ public record Card(Rank rank, Suit suit) implements Comparable<Card>, Serializab
     public int compareTo(Card card) {
         return Integer.compare(rank.getSeniority(), card.rank().getSeniority());
     }
+
+    public Card snapshot() {
+        return new Card(this.rank, this.suit);
+    }
 }

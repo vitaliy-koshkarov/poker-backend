@@ -47,13 +47,12 @@ public class THEngine implements GameEngine {
 
     @Override
     public GameState snapshot() {
-//        TODO: implement
-        return null;
+        return GameStateFactory.createSnapshot(table);
     }
 
     @Override
     public void rollback(GameState snapshot) {
-        table.setGameStatus(GameStatus.getGameStatusByInt(snapshot.getStatus()));
+        table.setGameStatus(GameStatus.getGameStatusByInt(snapshot.getGameStatus()));
         table.setDealerId(snapshot.getDealerId());
         table.setDealerIndex(snapshot.getDealerIndex());
         table.setActivePlayerId(snapshot.getActivePlayerId());
