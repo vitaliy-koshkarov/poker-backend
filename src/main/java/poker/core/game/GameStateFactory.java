@@ -1,28 +1,65 @@
 package poker.core.game;
 
+import poker.core.game.card.Card;
+import poker.core.game.card.Deck;
 import poker.core.player.GamePlayer;
 
 import java.util.LinkedList;
-import java.util.List;
 
 public class GameStateFactory {
-//    TODO: refactoring method parameter to interface
+
     public static GameState create(GameTable table) {
-//        TODO: refactoring THTable List<THPlayer> to List<GamePlayer>
-        List<GamePlayer> gamePlayerList = new LinkedList<>();
+        return GameState.builder()
+            .gameId(table.getId())
+            .name(table.getName())
+            .creatorPlayerId(table.getCreatorPlayerId())
+            .maxPlayers(table.getMaxPlayers())
+            .buyIn(table.getBuyIn())
+            .gameStatus(table.getGameStatus().getIntStatus())
+            .dealerId(table.getDealerId())
+            .activePlayerId(table.getActivePlayerId())
+            .smallBlind(table.getSmallBlind())
+            .bigBlind(table.getBigBlind())
+            .minRaise(table.getMinRaise())
+            .gamePot(table.getPot())
+            .gamePlayers(new LinkedList<>(table.getPlayers()))
+            .communityCards(new LinkedList<>(table.getCommunityCards()))
+            .build();
+    }
+
+    public static GameState createSnapshot(GameTable table) {
+        var snapshotGamePlayers = new LinkedList<GamePlayer>();
+        for (GamePlayer gamePlayer : table.getPlayers()) {
+            snapshotGamePlayers.add(gamePlayer.snapshot());
+        }
+
+        Deck deckSnapshot = table.getDeck().snapshot();
+
+        var snapshotCommunityCards = new LinkedList<Card>();
+        for (Card card : table.getCommunityCards()) {
+            snapshotCommunityCards.add(card.snapshot());
+        }
 
         return GameState.builder()
             .gameId(table.getId())
-            .currentPlayers(table.getPlayers().size())
+            .name(table.getName())
+            .creatorPlayerId(table.getCreatorPlayerId())
             .maxPlayers(table.getMaxPlayers())
             .buyIn(table.getBuyIn())
-            .status(table.getGameStatus().getIntStatus())
-            .creatorPlayerId(table.getCreatorPlayerId())
+            .gameStatus(table.getGameStatus().getIntStatus())
             .dealerId(table.getDealerId())
-            .name(table.getName())
+            .dealerIndex(table.getDealerIndex())
+            .activePlayerId(table.getActivePlayerId())
+            .activePlayerIndex(table.getActivePlayerIndex())
             .smallBlind(table.getSmallBlind())
+            .smallBlindIndex(table.getSmallBlindIndex())
             .bigBlind(table.getBigBlind())
-            .gamePlayerList(gamePlayerList)
+            .bigBlindIndex(table.getBigBlindIndex())
+            .minRaise(table.getMinRaise())
+            .gamePot(table.getPot().snapshot())
+            .gamePlayers(snapshotGamePlayers)
+            .deck(deckSnapshot)
+            .communityCards(snapshotCommunityCards)
             .build();
     }
 }

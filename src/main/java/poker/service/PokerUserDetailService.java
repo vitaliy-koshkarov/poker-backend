@@ -28,6 +28,7 @@ public class PokerUserDetailService implements UserDetailsService {
         return playerDetails;
     }
 
+    @Transactional(readOnly = true)
     public UserDetails getUserById(long userId) {
         var user = userRepo.findUserById(userId);
         var player = playerRepo.findPlayerByUserId(userId);

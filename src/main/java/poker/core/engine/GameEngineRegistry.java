@@ -11,6 +11,7 @@ import poker.core.game.texasholdem.THPot;
 import poker.core.game.texasholdem.THTable;
 import poker.model.Game;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -39,5 +40,14 @@ public class GameEngineRegistry {
 
     public GameEngine getGameEngine(long gameId) {
         return gameEngineMap.get(gameId);
+    }
+
+    public Collection<GameEngine> getGameEngineCollection() {
+        return gameEngineMap.values();
+    }
+
+    public void removeGame(long gameId) {
+        gameEngineMap.remove(gameId);
+        log.info("Game id {} removed from engine", gameId);
     }
 }

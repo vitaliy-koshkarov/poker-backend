@@ -1,6 +1,5 @@
 package poker.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -11,19 +10,12 @@ import poker.core.player.PlayerStatus;
 import poker.repository.PlayerRepository;
 
 import java.sql.Timestamp;
-import java.util.List;
 
 @Service("PlayerService")
 @Log4j2
 @RequiredArgsConstructor
 public class PlayerService {
     private final PlayerRepository playerRepo;
-
-    @Transactional(readOnly = true)
-    public Player getPlayerById(long playerId) {
-        return playerRepo.findById(playerId)
-            .orElseThrow(() -> new EntityNotFoundException("Can not find player by id " + playerId));
-    }
 
     @Transactional(readOnly = true)
     public boolean isPlayerExistsByNickname(String nickname) {
@@ -65,14 +57,5 @@ public class PlayerService {
     public void updatePlayerStatus(long playerId, PlayerStatus playerStatus) {
         playerRepo.updateStatus(playerId, playerStatus.getIntStatus());
         log.info("Player id {} status updated to {}", playerId, playerStatus);
-    }
-
-    public List<Player> getPlayersByIds(List<Long> playerIdsList) {
-        return playerRepo.findAllById(playerIdsList);
-    }
-
-    public void updatePlayers(List<Player> players) {
-        playerRepo.saveAll(players);
-        log.info("Updated players {}", players);
     }
 }

@@ -7,6 +7,7 @@ import poker.core.game.card.Card;
 import poker.core.player.GamePlayer;
 import poker.core.player.PlayerStatus;
 
+import java.util.LinkedList;
 import java.util.List;
 
 @Builder
@@ -47,6 +48,18 @@ public class THPlayer implements GamePlayer {
     @Override
     public void takeReward(int reward) {
         chips += reward;
+    }
+
+    @Override
+    public GamePlayer snapshot() {
+        return THPlayer.builder()
+            .id(this.id)
+            .nickname(this.nickname)
+            .status(this.status)
+            .chips(this.chips)
+            .currentBet(this.currentBet)
+            .cards(new LinkedList<>(cards))
+            .build();
     }
 
     @Override

@@ -1,18 +1,27 @@
 package poker.dto.game;
 
 import lombok.Builder;
+import poker.dto.CardDTO;
+import poker.dto.PotDTO;
+import poker.dto.player.PlayerDTO;
+
+import java.util.List;
 
 @Builder
 public record GameDTO(
     long id,
+    String name,
+    long creatorPlayerId,
     int currentPlayers,
     int maxPlayers,
     int buyIn,
+    int status,
+    long dealerId,
+    long activePlayerId,
     int smallBlind,
     int bigBlind,
-    int status,
-    String name,
-    long creatorPlayerId,
-    long dealerId,
-    long activePlayerId) {
+    int minRaise,
+    PotDTO pot,
+    List<PlayerDTO> players,
+    List<CardDTO> communityCards) {
 }

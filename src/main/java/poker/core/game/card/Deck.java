@@ -1,6 +1,8 @@
 package poker.core.game.card;
 
-public interface Deck {
+import poker.core.Snapshot;
+
+public interface Deck extends Snapshot<Deck> {
     /**
      * @return current deck size
      */

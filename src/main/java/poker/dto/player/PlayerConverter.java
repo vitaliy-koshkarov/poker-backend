@@ -1,25 +1,25 @@
 package poker.dto.player;
 
-import poker.model.Player;
+import poker.core.player.GamePlayer;
 
 import java.util.LinkedList;
 import java.util.List;
 
 public class PlayerConverter {
 
-    public static LinkedList<PlayerDTO> toListDTO(List<Player> players) {
-        var playerDTOList = new LinkedList<PlayerDTO>();
-        for (Player player : players) {
-            var playerDTO = PlayerDTO.builder()
-                .id(player.getId())
-                .nickname(player.getNickname())
-                .status(player.getStatus())
-                .chips(player.getChips())
-                .currentBet(player.getCurrentBet())
-                .build();
-            playerDTOList.add(playerDTO);
+    public static List<PlayerDTO> toPlayerDTO(List<GamePlayer> gamePlayerList) {
+        var playersDTOList = new LinkedList<PlayerDTO>();
+        for (GamePlayer gamePlayer : gamePlayerList) {
+            playersDTOList.add(
+                PlayerDTO.builder()
+                    .id(gamePlayer.getId())
+                    .nickname(gamePlayer.getNickname())
+                    .status(gamePlayer.getStatus().getIntStatus()) // todo: return String status (do not expose internal implementation details)
+                    .chips(gamePlayer.getChips())
+                    .currentBet(gamePlayer.getCurrentBet())
+                    .build()
+            );
         }
-
-        return playerDTOList;
+        return playersDTOList;
     }
 }

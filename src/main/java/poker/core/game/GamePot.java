@@ -1,12 +1,15 @@
 package poker.core.game;
 
+import poker.core.Snapshot;
 import poker.core.game.texasholdem.HandEvaluator;
 import poker.core.player.GamePlayer;
 
 import java.util.Map;
 
-public interface GamePot {
+public interface GamePot extends Snapshot<GamePot> {
     long getId();
+    int getTotal();
+    Map<GamePlayer, Integer> getPlayersBets();
 
     void addPlayerBet(GamePlayer gamePlayer, int bet);
 

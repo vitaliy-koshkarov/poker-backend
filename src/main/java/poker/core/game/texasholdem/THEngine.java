@@ -25,7 +25,7 @@ public class THEngine implements GameEngine {
     private final GameTable table;
 
     @Override
-    public GameState getCurrentGameState() {
+    public GameState getGameState() {
         return GameStateFactory.create(table);
     }
 
@@ -46,8 +46,26 @@ public class THEngine implements GameEngine {
     }
 
     @Override
+    public GameState snapshot() {
+        return GameStateFactory.createSnapshot(table);
+    }
+
+    @Override
     public void rollback(GameState snapshot) {
-        log.info("Rollback to {}", snapshot);
+        table.setGameStatus(GameStatus.getGameStatusByInt(snapshot.getGameStatus()));
+        table.setDealerId(snapshot.getDealerId());
+        table.setDealerIndex(snapshot.getDealerIndex());
+        table.setActivePlayerId(snapshot.getActivePlayerId());
+        table.setActivePlayerIndex(snapshot.getActivePlayerIndex());
+        table.setSmallBlind(snapshot.getSmallBlind());
+        table.setSmallBlindIndex(snapshot.getSmallBlindIndex());
+        table.setBigBlind(snapshot.getBigBlind());
+        table.setBigBlindIndex(snapshot.getBigBlindIndex());
+        table.setMinRaise(snapshot.getMinRaise());
+        table.setPot(snapshot.getGamePot());
+        table.setPlayers(snapshot.getGamePlayers());
+        table.setDeck(snapshot.getDeck());
+        table.setCommunityCards(snapshot.getCommunityCards());
     }
 
     private void startGame() {
@@ -87,7 +105,7 @@ public class THEngine implements GameEngine {
             .status(PlayerStatus.JOIN_THE_GAME)
             .chips(pad.getPlayerDetails().getPlayer().getChips())
             .currentBet(Util.DEFAULT_INT_VALUE)
-            .cards(Collections.emptyList())
+            .cards(new ArrayList<>())
             .build();
 
         table.addPlayer(gamePlayer);

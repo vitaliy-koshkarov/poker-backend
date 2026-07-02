@@ -7,15 +7,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import poker.config.GameProps;
 import poker.dto.game.CreateGameRequest;
-import poker.dto.game.GameConverter;
-import poker.dto.game.GameDTO;
 import poker.core.game.GameStatus;
 import poker.model.*;
 import poker.repository.GameRepository;
 import poker.util.Util;
 
 import java.sql.Timestamp;
-import java.util.LinkedList;
 import java.util.List;
 
 @Service("GameService")
@@ -23,26 +20,12 @@ import java.util.List;
 @RequiredArgsConstructor
 @ToString
 public class GameService {
+    private final GameProps gameProps;
     private final GameRepository gameRepo;
     private final PotService potService;
+    private final PlayerBetService playerBetService;
     private final PlayerService playerService;
     private final GameSeatService gameSeatService;
-    private final GameProps gameProps;
-
-    @Transactional(readOnly = true)
-    public List<GameDTO> getGamesList() {
-        List<GameDTO> gameDTOList = new LinkedList<>();
-        List<Game> games = gameRepo.findAllNotEndedGames(GameStatus.END.getIntStatus());
-
-        List<GameSeat> gameSeats;
-        for (Game game : games) {
-            gameSeats = gameSeatService.getGameSeatsByGameId(game.getId());
-            GameDTO gameDTO = GameConverter.toDTO(game, gameSeats.size());
-            gameDTOList.add(gameDTO);
-        }
-
-        return gameDTOList;
-    }
 
     @Transactional(rollbackFor = Exception.class)
     public Game createGame(long creatorPlayerId, CreateGameRequest createGameRequest) {
@@ -69,9 +52,9 @@ public class GameService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void removeGame(long gameId) {
+    public boolean removeGame(long gameId) {
         var game = gameRepo.findGameById(gameId);
-        Long potId = game.getPotId();
+        long potId = game.getPotId();
 
         gameSeatService.deleteGameSeatByIdGameId(gameId);
         log.info("Removed game table with game id {}", gameId);
@@ -81,11 +64,11 @@ public class GameService {
 
         potService.deleteById(potId);
         log.info("Removed pot id {}", potId);
-    }
 
-    @Transactional(readOnly = true)
-    public Game getGameById(Long gameId) {
-        return gameRepo.findGameById(gameId);
+        playerBetService.deletePlayersBets(potId);
+        log.info("Removed players' bets, pot id {}", potId);
+
+        return true;
     }
 
     public void startGame(long gameId, long dealerId, long activePlayerId, GameStatus gameStatus, Timestamp startedAt) {

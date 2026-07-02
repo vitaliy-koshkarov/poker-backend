@@ -3,23 +3,37 @@ package poker.service;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
+import poker.core.engine.GameEngine;
+import poker.dto.game.GameDTO;
 import poker.dto.game.GameStateConverter;
 import poker.dto.game.GameStateDTO;
 import poker.core.engine.GameEngineRegistry;
 import poker.core.game.GameState;
 
-@Service("GameStateResponseGenerator")
+import java.util.LinkedList;
+import java.util.List;
+
+@Component("GameStateResponseGenerator")
 @RequiredArgsConstructor
 @Log4j2
 @ToString
 public class GameStateResponseGenerator {
     private final GameEngineRegistry gameEngineRegistry;
 
+    public List<GameDTO> getGamesListForLobby() {
+        var gameStateDTOInLobbyList = new LinkedList<GameDTO>();
+
+        for (GameEngine gameEngine : gameEngineRegistry.getGameEngineCollection()) {
+            gameStateDTOInLobbyList.add(GameStateConverter.toGameStateDTOInLobby(gameEngine.getGameState()));
+        }
+
+        return gameStateDTOInLobbyList;
+    }
+
     public GameStateDTO generateResponse(long gameId) {
-        GameState gameState = gameEngineRegistry.getGameEngine(gameId)
-            .getCurrentGameState();
+        GameState gameState = gameEngineRegistry.getGameEngine(gameId).getGameState();
         log.debug("Game state {}", gameState);
-        return GameStateConverter.toDTO(gameState);
+        return GameStateConverter.toGameFlowGameStateDTO(gameState);
     }
 }

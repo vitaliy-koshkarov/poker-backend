@@ -27,23 +27,26 @@ public class PlayerActionHandlerService {
         log.info("Handling action {} from player id {} in game {}",
             actionName, pad.getPlayerDetails().getPlayer().getId(), pad.getGameId());
 //        TODO: Implement:
-//              1. Snapshot of game state
-//              2. Handle action in Engine
-//              3. DB + Event in a single transaction
-//              3.1. If success -> do nothing on this step
-//              3.2. If fails -> rollback engine to snapshot
+//              ✓ 1. Snapshot of game state
+//              2. Handle action in Engine ( ✓ - join, start, disconnect)
+//              3. DB (✓ - join, start, disconnect) + Event in a single transaction
+//              ✓ 3.1. If success -> do nothing on this step
+//              ✓ 3.2. If fails -> rollback engine to snapshot
 //              ✓ 4. Return response from engine (already implemented in GameStateReportGenerator)
 
         var gameEngine = gameEngineRegistry.getGameEngine(pad.getGameId());
-        GameState snapshot = gameEngine.getCurrentGameState();
+        GameState snapshot = gameEngine.snapshot();
+        log.debug("Snapshot: {}", snapshot);
 
         gameEngine.handlePlayerAction(pad);
+        log.debug("Game state after handling action: {}", gameEngine.getGameState());
 
         var dbPlayerActionHandler = dbPlayerActionHandlerMap.get(actionName);
         // todo: TX: DB handling + game action event generation
         boolean isSuccess = dbPlayerActionHandler.handleAction(gameEngine, pad);
         if (!isSuccess) {
             gameEngine.rollback(snapshot);
+            log.error("Rollback game state to {}", snapshot);
         }
     }
 }

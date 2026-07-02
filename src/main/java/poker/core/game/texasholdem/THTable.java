@@ -1,6 +1,7 @@
 package poker.core.game.texasholdem;
 
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import poker.core.game.GamePot;
 import poker.core.game.GameStatus;
@@ -22,30 +23,43 @@ public class THTable implements GameTable {
     private final long id;
     private final String name;
     private final long creatorPlayerId;
-
-    private GameStatus gameStatus;
-
-    private long dealerId;
-    private int dealerIdx;
-
-    private long activePlayerId;
-    private int activePlayerIdx;
-
     private final int maxPlayers;
-
-    private int smallBlind;
-    private int smallBlindIdx;
-
-    private int bigBlind;
-    private int bigBlindIdx;
-
-    private int minRaise;
     private final int buyIn;
 
-    private final GamePot pot;
-    private final List<GamePlayer> players;
-    private final Deck deck;
-    private final List<Card> communityCards;
+    @Setter
+    private GameStatus gameStatus;
+
+    @Setter
+    private long dealerId;
+    @Setter
+    private int dealerIndex;
+
+    @Setter
+    private long activePlayerId;
+    @Setter
+    private int activePlayerIndex;
+
+    @Setter
+    private int smallBlind;
+    @Setter
+    private int smallBlindIndex;
+
+    @Setter
+    private int bigBlind;
+    @Setter
+    private int bigBlindIndex;
+
+    @Setter
+    private int minRaise;
+
+    @Setter
+    private GamePot pot;
+    @Setter
+    private List<GamePlayer> players;
+    @Setter
+    private Deck deck;
+    @Setter
+    private List<Card> communityCards;
 
     public THTable(long id, String name, long creatorPlayerId, int maxPlayers, int buyIn,
                    GamePot pot, GameStatus gameStatus, int smallBlind, int bigBlind) {
@@ -61,11 +75,6 @@ public class THTable implements GameTable {
         this.buyIn = buyIn;
         this.smallBlind = smallBlind;
         this.bigBlind = bigBlind;
-    }
-
-    @Override
-    public int getCurrentPlayersCount() {
-        return players.size();
     }
 
     @Override
@@ -99,10 +108,12 @@ public class THTable implements GameTable {
     @Override
     public void overrideActivePlayer() {
 //        todo: implement
-        activePlayerIdx++;
-        if (activePlayerIdx >= players.size()) {
-            activePlayerIdx = 0;
-            players.get(activePlayerIdx).setStatus(PlayerStatus.ACTIVE);
+        activePlayerIndex++;
+        if (activePlayerIndex >= players.size()) {
+            activePlayerIndex = 0;
+            if (!players.isEmpty()) {
+                players.get(activePlayerIndex).setStatus(PlayerStatus.ACTIVE);
+            }
         }
     }
 
@@ -143,17 +154,17 @@ public class THTable implements GameTable {
 
     @Override
     public void betBlinds() {
-        setBlind(getSmallBlindIdx(), smallBlind);
-        setBlind(getBigBlindIdx(), bigBlind);
+        setBlindByIndex(getSmallBlindIndex(), smallBlind);
+        setBlindByIndex(getBigBlindIndex(), bigBlind);
     }
 
     @Override
     public String toString() {
         return "THTable{id " + id + ", deck size " + deck.getSize()
             + ", community cards " + communityCards + ", " + pot
-            + ", Players{" + playersInfo() + ", dealer idx " + dealerIdx
-            + ", small blind idx " + smallBlindIdx + ", big blind idx " + bigBlindIdx
-            + ", active player idx " + activePlayerIdx + ", min raise " + minRaise
+            + ", Players{" + playersInfo() + ", dealer idx " + dealerIndex
+            + ", small blind idx " + smallBlindIndex + ", big blind idx " + bigBlindIndex
+            + ", active player idx " + activePlayerIndex + ", min raise " + minRaise
             + "}";
     }
 
@@ -176,7 +187,7 @@ public class THTable implements GameTable {
         gameStatus = GameStatus.PRE_FLOP;
     }
 
-    private void setBlind(int blindIdx, int blind) {
+    private void setBlindByIndex(int blindIdx, int blind) {
         var playerWithBlind = players.get(blindIdx);
         playerWithBlind.bet(blind);
         pot.addPlayerBet(playerWithBlind, blind);
@@ -199,32 +210,32 @@ public class THTable implements GameTable {
     }
 
     private void defineDealerIdx() {
-        dealerIdx++;
-        if (dealerIdx >= players.size()) {
-            dealerIdx = 0;
+        dealerIndex++;
+        if (dealerIndex >= players.size()) {
+            dealerIndex = 0;
         }
-        dealerId = players.get(dealerIdx).getId();
+        dealerId = players.get(dealerIndex).getId();
     }
 
     private void defineBlindIndices() {
-        smallBlindIdx = dealerIdx + 1;
-        if (smallBlindIdx >= players.size()) {
-            smallBlindIdx = 0;
+        smallBlindIndex = dealerIndex + 1;
+        if (smallBlindIndex >= players.size()) {
+            smallBlindIndex = 0;
         }
 
-        bigBlindIdx = smallBlindIdx + 1;
-        if (bigBlindIdx >= players.size()) {
-            bigBlindIdx = 0;
+        bigBlindIndex = smallBlindIndex + 1;
+        if (bigBlindIndex >= players.size()) {
+            bigBlindIndex = 0;
         }
     }
 
     private void defineActivePlayer() {
-        activePlayerIdx = bigBlindIdx + 1;
-        if (activePlayerIdx >= players.size()) {
-            activePlayerIdx = 0;
+        activePlayerIndex = bigBlindIndex + 1;
+        if (activePlayerIndex >= players.size()) {
+            activePlayerIndex = 0;
         }
 
-        GamePlayer activePlayer = players.get(activePlayerIdx);
+        GamePlayer activePlayer = players.get(activePlayerIndex);
         activePlayer.setStatus(PlayerStatus.ACTIVE);
 
         activePlayerId = activePlayer.getId();
