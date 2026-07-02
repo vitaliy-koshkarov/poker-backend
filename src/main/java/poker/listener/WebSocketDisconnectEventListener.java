@@ -7,12 +7,13 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
+import poker.core.engine.GameEngineRegistry;
+import poker.core.player.GamePlayer;
 import poker.core.player.PlayerActionData;
 import poker.dto.PlayerActionDataConverter;
 import poker.dto.game.GameStateDTO;
 import poker.core.game.GameStatus;
 import poker.core.player.PlayerAction;
-import poker.dto.player.PlayerDTO;
 import poker.model.*;
 import poker.service.*;
 
@@ -20,6 +21,7 @@ import poker.service.*;
 @Log4j2
 @RequiredArgsConstructor
 public class WebSocketDisconnectEventListener {
+    private final GameEngineRegistry gameEngineRegistry;
     private final PlayerActionHandlerService playerActionHandlerService;
     private final GameStateResponseGenerator gameStateResponseGenerator;
     private final WebSocketPlayerSessionService webSocketPlayerSessionService;
@@ -65,9 +67,8 @@ public class WebSocketDisconnectEventListener {
     }
 
     private boolean isJoinedPlayerDisconnect(long gameId, long playerId) {
-        var gameStateDTOBeforeDisconnect = gameStateResponseGenerator.generateResponse(gameId);
-        for (PlayerDTO playerDTO : gameStateDTOBeforeDisconnect.gameDTO().players()) {
-            if (playerDTO.id() == playerId) {
+        for (GamePlayer gamePlayer : gameEngineRegistry.getGameEngine(gameId).getTable().getPlayers()) {
+            if (gamePlayer.getId() == playerId) {
                 return true;
             }
         }

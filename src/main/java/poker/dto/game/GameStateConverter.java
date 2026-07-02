@@ -1,13 +1,9 @@
 package poker.dto.game;
 
-import poker.core.player.GamePlayer;
-import poker.dto.CardsDTO;
-import poker.dto.PotDTO;
-import poker.dto.player.PlayerDTO;
+import poker.dto.CardConverter;
+import poker.dto.PotConverter;
 import poker.core.game.GameState;
-
-import java.util.LinkedList;
-import java.util.List;
+import poker.dto.player.PlayerConverter;
 
 public class GameStateConverter {
 
@@ -24,9 +20,8 @@ public class GameStateConverter {
         return new GameStateDTO(gameDTO);
     }
 
-    public static GameStateDTO toDTO(GameState gameState) {
-//        TODO: refactoring
-        GameDTO gameDTO = GameDTO.builder()
+    public static GameStateDTO toGameFlowGameStateDTO(GameState gameState) {
+        var gameDTO = GameDTO.builder()
             .id(gameState.getGameId())
             .name(gameState.getName())
             .creatorPlayerId(gameState.getCreatorPlayerId())
@@ -38,35 +33,11 @@ public class GameStateConverter {
             .smallBlind(gameState.getSmallBlind())
             .bigBlind(gameState.getBigBlind())
             .minRaise(gameState.getMinRaise())
-            .pot(
-                PotDTO.builder()
-                    .total(gameState.getGamePot().getTotal())
-                    .playersBets(gameState.getGamePot().getPlayersBets())
-                    .build()
-            )
-            .communityCards(
-                CardsDTO.builder()
-                    .cards(gameState.getCommunityCards())
-                    .build()
-            )
+            .pot(PotConverter.toDTO(gameState.getGamePot()))
+            .players(PlayerConverter.toPlayerDTO(gameState.getGamePlayers()))
+            .communityCards(CardConverter.toCardDTOList(gameState.getCommunityCards()))
             .build();
 
-        List<PlayerDTO> playerDTOList = new LinkedList<>();
-        for (GamePlayer gamePlayer : gameState.getGamePlayers()) {
-            playerDTOList.add(
-                PlayerDTO.builder()
-                    .id(gamePlayer.getId())
-                    .nickname(gamePlayer.getNickname())
-                    .status(gamePlayer.getStatus().getIntStatus())
-                    .chips(gamePlayer.getChips())
-                    .currentBet(gamePlayer.getCurrentBet())
-                    .build()
-            );
-        }
-
         return new GameStateDTO(gameDTO);
-//            .gameDTO(gameDTO)
-//            .playerDTOList(playerDTOList)
-//            .build();
     }
 }

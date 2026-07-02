@@ -23,7 +23,6 @@ public class GameStateFactory {
             .minRaise(table.getMinRaise())
             .gamePot(table.getPot())
             .gamePlayers(new LinkedList<>(table.getPlayers()))
-            .deck(table.getDeck())
             .communityCards(new LinkedList<>(table.getCommunityCards()))
             .build();
     }

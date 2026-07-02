@@ -12,7 +12,7 @@ public enum Suit {
     SPADES("♠", "Spades", 3);
 
     private final String symbol;
-    private final String name;
+    private final String shortName;
 
     /**
      * Used to evaluate card combinations

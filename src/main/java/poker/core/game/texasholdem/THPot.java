@@ -7,41 +7,31 @@ import poker.core.player.GamePlayer;
 import java.util.HashMap;
 import java.util.Map;
 
+@Getter
 public class THPot implements GamePot {
-    @Getter
     private final long id;
-    @Getter
     private int total;
 //    todo: key - player's id
-    private final Map<GamePlayer, Integer> playerBets = new HashMap<>();
+    private final Map<GamePlayer, Integer> playersBets = new HashMap<>();
 
     public THPot(long id) {
         this.id = id;
     }
 
     @Override
-    public Map<Long, Integer> getPlayersBets() {
-        var playersBets = new HashMap<Long, Integer>();
-        for (Map.Entry<GamePlayer, Integer> pair : playerBets.entrySet()) {
-            playersBets.put(pair.getKey().getId(), pair.getValue());
-        }
-        return playersBets;
-    }
-
-    @Override
     public void addPlayerBet(GamePlayer player, int bet) {
         total += bet;
-        if (!playerBets.containsKey(player)) {
-            playerBets.put(player, bet);
+        if (!playersBets.containsKey(player)) {
+            playersBets.put(player, bet);
         } else {
-            playerBets.put(player, playerBets.get(player) + bet);
+            playersBets.put(player, playersBets.get(player) + bet);
         }
     }
 
     @Override
     public void refresh() {
         total = 0;
-        playerBets.clear();
+        playersBets.clear();
     }
 
     @Override
@@ -55,7 +45,7 @@ public class THPot implements GamePot {
     @Override
     public GamePot snapshot() {
         GamePot pot = new THPot(id);
-        playerBets.forEach(pot::addPlayerBet);
+        playersBets.forEach(pot::addPlayerBet);
         return pot;
     }
 
@@ -65,10 +55,10 @@ public class THPot implements GamePot {
     }
 
     private String playersBet() {
-        if (playerBets.isEmpty()) return null;
+        if (playersBets.isEmpty()) return null;
 
         var sb = new StringBuilder();
-        for (Map.Entry<GamePlayer, Integer> pair : playerBets.entrySet()) {
+        for (Map.Entry<GamePlayer, Integer> pair : playersBets.entrySet()) {
             sb.append("id: ").append(pair.getKey().getId())
                 .append(", bet: ").append(pair.getValue())
                 .append("; ");

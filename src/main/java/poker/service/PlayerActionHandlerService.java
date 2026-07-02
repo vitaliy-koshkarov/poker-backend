@@ -39,7 +39,7 @@ public class PlayerActionHandlerService {
         log.debug("Snapshot: {}", snapshot);
 
         gameEngine.handlePlayerAction(pad);
-        log.debug("Game state after handling action: {}", gameEngine.getCurrentGameState());
+        log.debug("Game state after handling action: {}", gameEngine.getGameState());
 
         var dbPlayerActionHandler = dbPlayerActionHandlerMap.get(actionName);
         // todo: TX: DB handling + game action event generation

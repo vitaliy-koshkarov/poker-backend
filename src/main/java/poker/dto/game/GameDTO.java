@@ -1,7 +1,7 @@
 package poker.dto.game;
 
 import lombok.Builder;
-import poker.dto.CardsDTO;
+import poker.dto.CardDTO;
 import poker.dto.PotDTO;
 import poker.dto.player.PlayerDTO;
 
@@ -23,5 +23,5 @@ public record GameDTO(
     int minRaise,
     PotDTO pot,
     List<PlayerDTO> players,
-    CardsDTO communityCards) {
+    List<CardDTO> communityCards) {
 }

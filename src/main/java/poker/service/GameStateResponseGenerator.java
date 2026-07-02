@@ -24,16 +24,15 @@ public class GameStateResponseGenerator {
         var gameStateDTOInLobbyList = new LinkedList<GameStateDTO>();
 
         for (GameEngine gameEngine : gameEngineRegistry.getGameEngineCollection()) {
-            gameStateDTOInLobbyList.add(GameStateConverter.toGameStateDTOInLobby(gameEngine.getCurrentGameState()));
+            gameStateDTOInLobbyList.add(GameStateConverter.toGameStateDTOInLobby(gameEngine.getGameState()));
         }
 
         return gameStateDTOInLobbyList;
     }
 
     public GameStateDTO generateResponse(long gameId) {
-        GameState gameState = gameEngineRegistry.getGameEngine(gameId)
-            .getCurrentGameState();
+        GameState gameState = gameEngineRegistry.getGameEngine(gameId).getGameState();
         log.debug("Game state {}", gameState);
-        return GameStateConverter.toDTO(gameState);
+        return GameStateConverter.toGameFlowGameStateDTO(gameState);
     }
 }

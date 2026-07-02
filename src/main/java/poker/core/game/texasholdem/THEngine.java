@@ -25,7 +25,7 @@ public class THEngine implements GameEngine {
     private final GameTable table;
 
     @Override
-    public GameState getCurrentGameState() {
+    public GameState getGameState() {
         return GameStateFactory.create(table);
     }
 
