@@ -7,8 +7,8 @@ import poker.dto.player.PlayerConverter;
 
 public class GameStateConverter {
 
-    public static GameStateDTO toGameStateDTOInLobby(GameState gameState) {
-        GameDTO gameDTO = GameDTO.builder()
+    public static GameDTO toGameStateDTOInLobby(GameState gameState) {
+        return GameDTO.builder()
             .id(gameState.getGameId())
             .name(gameState.getName())
             .currentPlayers(gameState.getGamePlayers().size())
@@ -16,8 +16,6 @@ public class GameStateConverter {
             .buyIn(gameState.getBuyIn())
             .status(gameState.getGameStatus()) // TODO: return String status (do not expose internal implementation details)
             .build();
-
-        return new GameStateDTO(gameDTO);
     }
 
     public static GameStateDTO toGameFlowGameStateDTO(GameState gameState) {
