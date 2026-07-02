@@ -1,8 +1,10 @@
 package poker.core.game.card;
 
+import poker.core.Snapshot;
+
 import java.io.Serializable;
 
-public record Card(Rank rank, Suit suit) implements Comparable<Card>, Serializable {
+public record Card(Rank rank, Suit suit) implements Comparable<Card>, Snapshot<Card>, Serializable {
     @Override
     public String toString() {
         return rank.getShortName() + suit.getSymbol();
@@ -21,6 +23,7 @@ public record Card(Rank rank, Suit suit) implements Comparable<Card>, Serializab
         return Integer.compare(rank.getSeniority(), card.rank().getSeniority());
     }
 
+    @Override
     public Card snapshot() {
         return new Card(this.rank, this.suit);
     }

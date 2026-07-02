@@ -1,11 +1,12 @@
 package poker.core.game;
 
+import poker.core.Snapshot;
 import poker.core.game.texasholdem.HandEvaluator;
 import poker.core.player.GamePlayer;
 
 import java.util.Map;
 
-public interface GamePot {
+public interface GamePot extends Snapshot<GamePot> {
     long getId();
 
     void addPlayerBet(GamePlayer gamePlayer, int bet);
@@ -13,6 +14,4 @@ public interface GamePot {
     void refresh();
 
     void distributeReward(Map<GamePlayer, HandEvaluator> winners);
-
-    GamePot snapshot();
 }

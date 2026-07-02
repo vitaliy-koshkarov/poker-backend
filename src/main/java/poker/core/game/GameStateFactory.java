@@ -26,12 +26,16 @@ public class GameStateFactory {
 
     public static GameState createSnapshot(GameTable table) {
         var snapshotGamePlayers = new LinkedList<GamePlayer>();
-        table.getPlayers().forEach(gamePlayer -> snapshotGamePlayers.add(gamePlayer.snapshot()));
+        for (GamePlayer gamePlayer : table.getPlayers()) {
+            snapshotGamePlayers.add(gamePlayer.snapshot());
+        }
 
         Deck deckSnapshot = table.getDeck().snapshot();
 
         var snapshotCommunityCards = new LinkedList<Card>();
-        table.getCommunityCards().forEach(card -> snapshotCommunityCards.add(card.snapshot()));
+        for (Card card : table.getCommunityCards()) {
+            snapshotCommunityCards.add(card.snapshot());
+        }
 
         return GameState.builder()
             .gameId(table.getId())

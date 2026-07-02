@@ -1,10 +1,11 @@
 package poker.core.player;
 
+import poker.core.Snapshot;
 import poker.core.game.card.Card;
 
 import java.util.List;
 
-public interface GamePlayer {
+public interface GamePlayer extends Snapshot<GamePlayer> {
     long getId();
     String getNickname();
     PlayerStatus getStatus();
@@ -20,6 +21,4 @@ public interface GamePlayer {
     void bet(int bet);
 
     void takeReward(int reward);
-
-    GamePlayer snapshot();
 }
