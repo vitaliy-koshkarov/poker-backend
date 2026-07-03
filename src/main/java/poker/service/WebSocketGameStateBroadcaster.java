@@ -7,7 +7,7 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.stereotype.Service;
-import poker.dto.game.GameStateDTO;
+import poker.dto.game.GameDTO;
 import poker.core.player.PlayerAction;
 
 @Service("WebSocketGameStateBroadcaster")
@@ -17,13 +17,13 @@ import poker.core.player.PlayerAction;
 public class WebSocketGameStateBroadcaster {
     private final SimpMessagingTemplate simpMessagingTemplate;
 
-    public void broadcast(GameStateDTO gameStateDTO, PlayerAction playerAction) {
+    public void broadcast(GameDTO gameDTO, PlayerAction playerAction) {
 //        TODO: refactoring 'destination' way of passing and passing to this method
-        long gameId = gameStateDTO.gameDTO().id();
+        long gameId = gameDTO.id();
         String destination = "/topic/gameTable/" + gameId;
-        Message<GameStateDTO> message = new GenericMessage<>(gameStateDTO);
+        Message<GameDTO> message = new GenericMessage<>(gameDTO);
         simpMessagingTemplate.convertAndSend(destination, message);
 
-        log.info("Broadcast {} for game id {} response: {}", playerAction.getActionName(), gameId, gameStateDTO);
+        log.info("Broadcast {} game id {} response: {}", playerAction.getActionName(), gameId, gameDTO);
     }
 }

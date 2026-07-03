@@ -22,9 +22,9 @@ public class PlayerActionHandlerService {
     private final PlayerService playerService;
     private final GameSeatService gameSeatService;
 
-    public void handlePlayerAction(PlayerActionData pad) {
+    public void handle(PlayerActionData pad) {
         String actionName = pad.getPlayerAction().getActionName();
-        log.info("Handling action {} from player id {} in game {}",
+        log.info("Handling {} from player id {} in game {}",
             actionName, pad.getPlayerDetails().getPlayer().getId(), pad.getGameId());
 //        TODO: Implement:
 //              ✓ 1. Snapshot of game state

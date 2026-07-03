@@ -11,7 +11,7 @@ import poker.core.engine.GameEngineRegistry;
 import poker.core.player.GamePlayer;
 import poker.core.player.PlayerActionData;
 import poker.dto.PlayerActionDataConverter;
-import poker.dto.game.GameStateDTO;
+import poker.dto.game.GameDTO;
 import poker.core.game.GameStatus;
 import poker.core.player.PlayerAction;
 import poker.model.*;
@@ -52,15 +52,15 @@ public class WebSocketDisconnectEventListener {
         boolean isJoinedPlayerDisconnect = isJoinedPlayerDisconnect(gameId, playerId);
 
         PlayerActionData pad = PlayerActionDataConverter.convert(gameId, playerDetails, PlayerAction.DISCONNECT);
-        playerActionHandlerService.handlePlayerAction(pad);
+        playerActionHandlerService.handle(pad);
 
         webSocketPlayerSessionService.removeSession(sessionId);
         log.info("Disconnect player id {} session id {}", playerId, sessionId);
 
-        GameStateDTO gameStateDTO = gameStateResponseGenerator.generateResponse(gameId);
+        GameDTO gameDTO = gameStateResponseGenerator.generateResponse(gameId);
 
-        if (gameStateDTO.gameDTO().status() != GameStatus.WAITING_FOR_PLAYERS.getIntStatus() || isJoinedPlayerDisconnect) {
-            webSocketGameStateBroadcaster.broadcast(gameStateDTO, PlayerAction.DISCONNECT);
+        if (gameDTO.status() != GameStatus.WAITING_FOR_PLAYERS.getIntStatus() || isJoinedPlayerDisconnect) {
+            webSocketGameStateBroadcaster.broadcast(gameDTO, PlayerAction.DISCONNECT);
         }
 
         log.info("Player id {} {} from game id {}", playerId, pad.getPlayerAction(), gameId);

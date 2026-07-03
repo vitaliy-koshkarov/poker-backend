@@ -13,7 +13,7 @@ import org.springframework.stereotype.Controller;
 import poker.core.player.PlayerActionData;
 import poker.dto.PlayerActionDataConverter;
 import poker.dto.PlayerActionRequest;
-import poker.dto.game.GameStateDTO;
+import poker.dto.game.GameDTO;
 import poker.core.player.PlayerAction;
 import poker.model.PlayerDetails;
 import poker.service.WebSocketGameStateBroadcaster;
@@ -31,9 +31,9 @@ public class WebSocketGameController {
     private final WebSocketGameStateBroadcaster webSocketGameStateBroadcaster;
 
     @SubscribeMapping("/gameTable/{id}")
-    public GameStateDTO subscribe(@DestinationVariable("id") Long gameId,
-                                  @AuthenticationPrincipal Authentication authentication,
-                                  StompHeaderAccessor stompHeaderAccessor) {
+    public GameDTO subscribe(@DestinationVariable("id") Long gameId,
+                             @AuthenticationPrincipal Authentication authentication,
+                             StompHeaderAccessor stompHeaderAccessor) {
         var playerDetails = ((PlayerDetails) authentication.getPrincipal());
         log.debug("Subscribe player details {}", playerDetails);
         long userId = playerDetails.getUser().getId();
@@ -45,10 +45,10 @@ public class WebSocketGameController {
         String sessionID = stompHeaderAccessor.getSessionId();
         webSocketPlayerSessionService.addSession(userId, playerId, gameId, sessionID);
 
-        var gameStateDTO = gameStateResponseGenerator.generateResponse(gameId);
+        var gameDTO = gameStateResponseGenerator.generateResponse(gameId);
         log.info("Player id {} subscribed", playerId);
 
-        return gameStateDTO;
+        return gameDTO;
     }
 
     @MessageMapping("/table/{id}/action")
@@ -58,15 +58,15 @@ public class WebSocketGameController {
         var playerDetails = ((PlayerDetails) authentication.getPrincipal());
         var playerAction = PlayerAction.fromActionName(playerActionRequest.actionName());
         long playerId = playerDetails.getPlayer().getId();
-        log.info("Action {} from player id {} in game id {}", playerAction.getActionName(), playerId, gameId);
+        log.info("Action {}, player id {}, game id {}", playerAction.getActionName(), playerId, gameId);
 
         // todo: validate
 
         PlayerActionData pad = PlayerActionDataConverter.convert(gameId, playerActionRequest, playerDetails, playerAction);
-        playerActionHandlerService.handlePlayerAction(pad);
+        playerActionHandlerService.handle(pad);
 
-        var gameStateDTO = gameStateResponseGenerator.generateResponse(gameId);
-        webSocketGameStateBroadcaster.broadcast(gameStateDTO, playerAction);
-        log.info("Handled {} from player id {} in game id {}", playerAction.getActionName(), playerId, gameId);
+        var gameDTO = gameStateResponseGenerator.generateResponse(gameId);
+        webSocketGameStateBroadcaster.broadcast(gameDTO, playerAction);
+        log.info("Handled {}, player id {}, game id {}", playerAction.getActionName(), playerId, gameId);
     }
 }

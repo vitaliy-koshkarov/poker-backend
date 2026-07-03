@@ -24,7 +24,7 @@ public class GameSeatService {
             .build();
 
         var newGameSeat = gameSeatRepo.save(gameSeat);
-        log.info("Game seat created {}", newGameSeat);
+        log.info("Created game seat {}", newGameSeat);
         return newGameSeat;
     }
 

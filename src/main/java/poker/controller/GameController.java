@@ -79,10 +79,10 @@ public class GameController {
 //        TODO: validate
 
         PlayerActionData pad = PlayerActionDataConverter.convert(gameId, playerDetails, PlayerAction.START_GAME);
-        playerActionHandlerService.handlePlayerAction(pad);
+        playerActionHandlerService.handle(pad);
 
-        GameStateDTO gameStateDTO = gameStateResponseGenerator.generateResponse(gameId);
-        webSocketGameStateBroadcaster.broadcast(gameStateDTO, PlayerAction.START_GAME);
+        GameDTO gameDTO = gameStateResponseGenerator.generateResponse(gameId);
+        webSocketGameStateBroadcaster.broadcast(gameDTO, PlayerAction.START_GAME);
 
         log.info("Start game {} response OK", gameId);
         return ResponseEntity.ok().build();
