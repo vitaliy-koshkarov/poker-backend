@@ -60,6 +60,7 @@ public class GameController {
         long userId = Util.getPlayerDetailsFronCtx().getUser().getId();
         log.info("Remove game request, game id {}, user id {}", id, userId);
 
+//        TODO: validation
         boolean isSuccess = gameService.removeGame(id);
         if (isSuccess) {
             gameEngineRegistry.removeGame(id);

@@ -53,6 +53,7 @@ public class ProfileController {
     public ResponseEntity<?> updateProfileInfo(@RequestBody ProfileInfoRequest req) {
         var playerDetails = Util.getPlayerDetailsFronCtx();
 
+//        todo: validation
         playerService.updateProfileInfo(playerDetails, req.nickname());
 
         return ResponseEntity.ok().build();

@@ -11,6 +11,7 @@ public class GameStateConverter {
         return GameDTO.builder()
             .id(gameState.getGameId())
             .name(gameState.getName())
+            .creatorPlayerId(gameState.getCreatorPlayerId())
             .currentPlayers(gameState.getGamePlayers().size())
             .maxPlayers(gameState.getMaxPlayers())
             .buyIn(gameState.getBuyIn())
