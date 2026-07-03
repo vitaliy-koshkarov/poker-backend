@@ -6,7 +6,6 @@ import lombok.extern.log4j.Log4j2;
 import poker.core.engine.GameEngine;
 import poker.core.game.GameState;
 import poker.core.game.GameStateFactory;
-import poker.core.game.GameStatus;
 import poker.core.game.GameTable;
 import poker.core.game.card.Card;
 import poker.core.player.GamePlayer;
@@ -31,7 +30,7 @@ public class THEngine implements GameEngine {
 
     @Override
     public void handlePlayerAction(PlayerActionData pad) {
-        log.info("Handling action {} from player id {}",
+        log.info("Handling {}, player id {}",
             pad.getPlayerAction().getActionName(), pad.getPlayerDetails().getPlayer().getId());
 
         switch (pad.getPlayerAction()) {
@@ -52,7 +51,7 @@ public class THEngine implements GameEngine {
 
     @Override
     public void rollback(GameState snapshot) {
-        table.setGameStatus(GameStatus.getGameStatusByInt(snapshot.getGameStatus()));
+        table.setGameStatus(snapshot.getGameStatus());
         table.setDealerId(snapshot.getDealerId());
         table.setDealerIndex(snapshot.getDealerIndex());
         table.setActivePlayerId(snapshot.getActivePlayerId());
@@ -109,7 +108,7 @@ public class THEngine implements GameEngine {
             .build();
 
         table.addPlayer(gamePlayer);
-        log.info("Player id {} joined the game {}", gamePlayer.getId(), pad.getGameId());
+        log.info("Player id {} {} game {}", gamePlayer.getId(), pad.getPlayerAction(), pad.getGameId());
     }
 
     private void disconnectPlayer(PlayerActionData pad) {
@@ -120,7 +119,7 @@ public class THEngine implements GameEngine {
             table.overrideActivePlayer();
         }
 
-        log.info("Player id {} disconnected from game {}", playerId, pad.getGameId());
+        log.info("Player id {} {} game id {}", playerId, pad.getPlayerAction().getActionName(), pad.getGameId());
     }
 
     private void nextPhase(PlayerActionData pad) {

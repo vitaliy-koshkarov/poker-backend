@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 import poker.core.engine.GameEngine;
 import poker.dto.game.GameDTO;
 import poker.dto.game.GameStateConverter;
-import poker.dto.game.GameStateDTO;
 import poker.core.engine.GameEngineRegistry;
 import poker.core.game.GameState;
 
@@ -31,7 +30,7 @@ public class GameStateResponseGenerator {
         return gameStateDTOInLobbyList;
     }
 
-    public GameStateDTO generateResponse(long gameId) {
+    public GameDTO generateResponse(long gameId) {
         GameState gameState = gameEngineRegistry.getGameEngine(gameId).getGameState();
         log.debug("Game state {}", gameState);
         return GameStateConverter.toGameFlowGameStateDTO(gameState);

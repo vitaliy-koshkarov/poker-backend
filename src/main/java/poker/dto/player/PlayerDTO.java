@@ -6,7 +6,7 @@ import lombok.Builder;
 public record PlayerDTO(
     long id,
     String nickname,
-    int status,
+    String status,
     int chips,
     int currentBet) {
 }

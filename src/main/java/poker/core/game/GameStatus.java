@@ -8,15 +8,16 @@ import lombok.ToString;
 @Getter
 @ToString
 public enum GameStatus {
-    WAITING_FOR_PLAYERS(0),
-    PRE_FLOP(1),
-    FLOP(2),
-    TURN(3),
-    RIVER(4),
-    SHOWDOWN(5),
-    END(6);
+    WAITING_FOR_PLAYERS(0, "Waiting for players"),
+    PRE_FLOP(1, "Pre-flop"),
+    FLOP(2, "Flop"),
+    TURN(3, "Turn"),
+    RIVER(4, "River"),
+    SHOWDOWN(5, "Showdown"),
+    END(6, "End");
 
     private final int intStatus;
+    private final String shortName;
 
     public static GameStatus getGameStatusByInt(int intStatus) {
         for (GameStatus gameStatus : values()) {

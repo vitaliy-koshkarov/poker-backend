@@ -11,21 +11,23 @@ public class GameStateConverter {
         return GameDTO.builder()
             .id(gameState.getGameId())
             .name(gameState.getName())
+            .creatorPlayerId(gameState.getCreatorPlayerId())
             .currentPlayers(gameState.getGamePlayers().size())
             .maxPlayers(gameState.getMaxPlayers())
             .buyIn(gameState.getBuyIn())
-            .status(gameState.getGameStatus()) // TODO: return String status (do not expose internal implementation details)
+            .status(gameState.getGameStatus().getShortName())
             .build();
     }
 
-    public static GameStateDTO toGameFlowGameStateDTO(GameState gameState) {
-        var gameDTO = GameDTO.builder()
+    public static GameDTO toGameFlowGameStateDTO(GameState gameState) {
+        return GameDTO.builder()
             .id(gameState.getGameId())
             .name(gameState.getName())
             .creatorPlayerId(gameState.getCreatorPlayerId())
+            .currentPlayers(gameState.getGamePlayers().size())
             .maxPlayers(gameState.getMaxPlayers())
             .buyIn(gameState.getBuyIn())
-            .status(gameState.getGameStatus())
+            .status(gameState.getGameStatus().getShortName())
             .dealerId(gameState.getDealerId())
             .activePlayerId(gameState.getActivePlayerId())
             .smallBlind(gameState.getSmallBlind())
@@ -35,7 +37,5 @@ public class GameStateConverter {
             .players(PlayerConverter.toPlayerDTO(gameState.getGamePlayers()))
             .communityCards(CardConverter.toCardDTOList(gameState.getCommunityCards()))
             .build();
-
-        return new GameStateDTO(gameDTO);
     }
 }

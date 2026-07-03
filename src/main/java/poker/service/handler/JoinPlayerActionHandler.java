@@ -37,12 +37,13 @@ public class JoinPlayerActionHandler implements DBPlayerActionHandler {
             playerChips = gameEngine.getTable().getBuyIn();
 
             GameSeat gameSeat = gameSeatService.createGameSeat(userId, playerId, gameId);
-            log.info("Player id {} {}, game seat id {}", playerId, pad.getPlayerAction(), gameSeat);
+            log.info("Player id {} {}, game seat id {}",
+                playerId, pad.getPlayerAction().getActionName(), gameSeat.getId());
         }
 
         playerService.updatePlayerStatusAndChips(playerId, playerChips, PlayerStatus.JOIN_THE_GAME);
 
-        log.info("Player id {} {}, game id {}", playerId, pad.getPlayerAction(), gameId);
+        log.info("Player id {} {}, game id {}", playerId, pad.getPlayerAction().getActionName(), gameId);
 
         return true;
     }

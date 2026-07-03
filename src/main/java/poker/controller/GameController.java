@@ -60,6 +60,7 @@ public class GameController {
         long userId = Util.getPlayerDetailsFronCtx().getUser().getId();
         log.info("Remove game request, game id {}, user id {}", id, userId);
 
+//        TODO: validation
         boolean isSuccess = gameService.removeGame(id);
         if (isSuccess) {
             gameEngineRegistry.removeGame(id);
@@ -79,10 +80,10 @@ public class GameController {
 //        TODO: validate
 
         PlayerActionData pad = PlayerActionDataConverter.convert(gameId, playerDetails, PlayerAction.START_GAME);
-        playerActionHandlerService.handlePlayerAction(pad);
+        playerActionHandlerService.handle(pad);
 
-        GameStateDTO gameStateDTO = gameStateResponseGenerator.generateResponse(gameId);
-        webSocketGameStateBroadcaster.broadcast(gameStateDTO, PlayerAction.START_GAME);
+        GameDTO gameDTO = gameStateResponseGenerator.generateResponse(gameId);
+        webSocketGameStateBroadcaster.broadcast(gameDTO, PlayerAction.START_GAME);
 
         log.info("Start game {} response OK", gameId);
         return ResponseEntity.ok().build();
