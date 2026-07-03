@@ -14,7 +14,7 @@ public class PlayerConverter {
                 PlayerDTO.builder()
                     .id(gamePlayer.getId())
                     .nickname(gamePlayer.getNickname())
-                    .status(gamePlayer.getStatus().getIntStatus()) // todo: return String status (do not expose internal implementation details)
+                    .status(gamePlayer.getStatus().getShortName())
                     .chips(gamePlayer.getChips())
                     .currentBet(gamePlayer.getCurrentBet())
                     .build()
