@@ -15,7 +15,7 @@ public class GameStateConverter {
             .currentPlayers(gameState.getGamePlayers().size())
             .maxPlayers(gameState.getMaxPlayers())
             .buyIn(gameState.getBuyIn())
-            .status(gameState.getGameStatus()) // TODO: return String status (do not expose internal implementation details)
+            .status(gameState.getGameStatus().getShortName())
             .build();
     }
 
@@ -27,7 +27,7 @@ public class GameStateConverter {
             .currentPlayers(gameState.getGamePlayers().size())
             .maxPlayers(gameState.getMaxPlayers())
             .buyIn(gameState.getBuyIn())
-            .status(gameState.getGameStatus()) // TODO: return String status (do not expose internal implementation details)
+            .status(gameState.getGameStatus().getShortName())
             .dealerId(gameState.getDealerId())
             .activePlayerId(gameState.getActivePlayerId())
             .smallBlind(gameState.getSmallBlind())

@@ -6,7 +6,6 @@ import lombok.extern.log4j.Log4j2;
 import poker.core.engine.GameEngine;
 import poker.core.game.GameState;
 import poker.core.game.GameStateFactory;
-import poker.core.game.GameStatus;
 import poker.core.game.GameTable;
 import poker.core.game.card.Card;
 import poker.core.player.GamePlayer;
@@ -52,7 +51,7 @@ public class THEngine implements GameEngine {
 
     @Override
     public void rollback(GameState snapshot) {
-        table.setGameStatus(GameStatus.getGameStatusByInt(snapshot.getGameStatus()));
+        table.setGameStatus(snapshot.getGameStatus());
         table.setDealerId(snapshot.getDealerId());
         table.setDealerIndex(snapshot.getDealerIndex());
         table.setActivePlayerId(snapshot.getActivePlayerId());

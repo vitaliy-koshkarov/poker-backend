@@ -59,7 +59,7 @@ public class WebSocketDisconnectEventListener {
 
         GameDTO gameDTO = gameStateResponseGenerator.generateResponse(gameId);
 
-        if (gameDTO.status() != GameStatus.WAITING_FOR_PLAYERS.getIntStatus() || isJoinedPlayerDisconnect) {
+        if (!GameStatus.WAITING_FOR_PLAYERS.getShortName().equals(gameDTO.status()) || isJoinedPlayerDisconnect) {
             webSocketGameStateBroadcaster.broadcast(gameDTO, PlayerAction.DISCONNECT);
         }
 

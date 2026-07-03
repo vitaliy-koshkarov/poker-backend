@@ -15,7 +15,7 @@ public record GameDTO(
     int currentPlayers,
     int maxPlayers,
     int buyIn,
-    int status,
+    String status,
     long dealerId,
     long activePlayerId,
     int smallBlind,
