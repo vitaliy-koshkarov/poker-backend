@@ -9,7 +9,7 @@ import poker.core.engine.GameEngine;
 import poker.core.player.PlayerAction;
 import poker.core.player.PlayerActionData;
 import poker.core.player.PlayerStatus;
-import poker.service.GameSeatService;
+import poker.service.PlayerSeatService;
 import poker.service.PlayerService;
 import poker.service.UserService;
 
@@ -20,7 +20,7 @@ import poker.service.UserService;
 public class DisconnectPlayerActionHandler implements DBPlayerActionHandler {
     private final PlayerService playerService;
     private final UserService userService;
-    private final GameSeatService gameSeatService;
+    private final PlayerSeatService playerSeatService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -29,7 +29,7 @@ public class DisconnectPlayerActionHandler implements DBPlayerActionHandler {
         long playerId = pad.getPlayerDetails().getPlayer().getId();
 
         playerService.updatePlayerStatus(playerId, PlayerStatus.NOT_IN_GAME);
-        gameSeatService.releaseGameSeat(pad.getPlayerDetails().getUser().getId(), playerId, gameId);
+        playerSeatService.releasePlayerSeat(pad.getPlayerDetails().getUser().getId(), playerId, gameId);
 
         log.info("Player id {} {} from game id {}", playerId, PlayerAction.DISCONNECT.getActionName(), gameId);
 

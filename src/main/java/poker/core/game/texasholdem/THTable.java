@@ -91,6 +91,15 @@ public class THTable implements GameTable {
     }
 
     @Override
+    public int getPlayerSeatNumber(long playerId) {
+        for (int i = 0; i < playersSeats.length; i++) {
+            if (playersSeats[i] == playerId) return i;
+        }
+        log.error("Player id {} seat number not found", playerId);
+        return Util.INVALID_INT_VALUE;
+    }
+
+    @Override
     public void addPlayer(GamePlayer gamePlayer) {
         players.add(gamePlayer);
         seatPlayer(gamePlayer.getId());

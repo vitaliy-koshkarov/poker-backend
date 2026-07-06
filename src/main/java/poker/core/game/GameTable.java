@@ -28,6 +28,7 @@ public interface GameTable {
     Deck getDeck();
     List<Card> getCommunityCards();
     long[] getPlayersSeats();
+    int getPlayerSeatNumber(long playerId);
 
     void setGameStatus(GameStatus gameStatus);
     void setDealerId(long dealerId);
