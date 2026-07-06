@@ -65,6 +65,7 @@ public class THEngine implements GameEngine {
         table.setPlayers(snapshot.getGamePlayers());
         table.setDeck(snapshot.getDeck());
         table.setCommunityCards(snapshot.getCommunityCards());
+        table.setPlayersSeats(snapshot.getPlayersSeats());
     }
 
     private void startGame() {

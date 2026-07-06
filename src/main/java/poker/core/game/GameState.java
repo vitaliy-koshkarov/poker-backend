@@ -32,4 +32,5 @@ public class GameState {
     private List<GamePlayer> gamePlayers;
     private Deck deck;
     private List<Card> communityCards;
+    private long[] playersSeats;
 }

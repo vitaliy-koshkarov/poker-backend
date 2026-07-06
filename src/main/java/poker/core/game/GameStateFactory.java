@@ -40,6 +40,11 @@ public class GameStateFactory {
             snapshotCommunityCards.add(card.snapshot());
         }
 
+        long[] snapshotPlayersSeats = new long[table.getMaxPlayers()];
+        for (int i = 0; i < table.getPlayersSeats().length; i++) {
+            snapshotPlayersSeats[i] = table.getPlayersSeats()[i];
+        }
+
         return GameState.builder()
             .gameId(table.getId())
             .name(table.getName())
@@ -60,6 +65,7 @@ public class GameStateFactory {
             .gamePlayers(snapshotGamePlayers)
             .deck(deckSnapshot)
             .communityCards(snapshotCommunityCards)
+            .playersSeats(snapshotPlayersSeats)
             .build();
     }
 }
