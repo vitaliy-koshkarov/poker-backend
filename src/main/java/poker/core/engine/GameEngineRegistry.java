@@ -30,8 +30,8 @@ public class GameEngineRegistry {
 //        TODO: refactoring creation of the THTable
 //        TODO: When game load, all fields must be correctly set
         GameTable table = new THTable(gameId, game.getName(), game.getCreatorPlayerId(),
-            game.getMaxPlayers(), game.getBuyIn(), pot, GameStatus.getGameStatusByInt(game.getStatus()),
-            game.getSmallBlind(), game.getBigBlind());
+            game.getMaxPlayers(), game.getBuyIn(), GameStatus.getGameStatusByInt(game.getStatus()),
+            game.getSmallBlind(), game.getBigBlind(), pot);
         GameEngine engine = new THEngine(table);
 
         gameEngineMap.put(gameId, engine);

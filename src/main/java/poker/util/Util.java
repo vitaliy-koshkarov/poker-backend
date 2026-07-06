@@ -12,6 +12,7 @@ import java.security.Principal;
 public class Util {
     public static final long DEFAULT_LONG_VALUE = 0;
     public static final int DEFAULT_INT_VALUE = 0;
+    public static final int INVALID_INT_VALUE = -1;
 
     public static PlayerDetails getPlayerDetailsFronCtx() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

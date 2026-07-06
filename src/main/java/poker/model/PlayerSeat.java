@@ -6,14 +6,14 @@ import lombok.*;
 import java.sql.Timestamp;
 
 @Entity
-@Table(schema = "public", name = "game_seats")
+@Table(schema = "public", name = "players_seats")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @Builder
 @ToString
-public class GameSeat {
+public class PlayerSeat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -29,6 +29,12 @@ public class GameSeat {
      */
     @Column(name = "game_id", nullable = false)
     private Long gameId;
+
+    /**
+     * Seat number at the table in engine. Could be 0
+     */
+    @Column(name = "seat_number", nullable = false)
+    private Integer seatNumber;
 
     @Column(name = "created_at", nullable = false)
     private Timestamp createdAt;

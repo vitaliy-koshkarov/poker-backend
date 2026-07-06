@@ -9,8 +9,8 @@ import poker.core.engine.GameEngine;
 import poker.core.game.GameStatus;
 import poker.core.player.PlayerActionData;
 import poker.core.player.PlayerStatus;
-import poker.model.GameSeat;
-import poker.service.GameSeatService;
+import poker.model.PlayerSeat;
+import poker.service.PlayerSeatService;
 import poker.service.PlayerService;
 
 @Component("JOIN")
@@ -18,7 +18,7 @@ import poker.service.PlayerService;
 @ToString
 @RequiredArgsConstructor
 public class JoinPlayerActionHandler implements DBPlayerActionHandler {
-    private final GameSeatService gameSeatService;
+    private final PlayerSeatService playerSeatService;
     private final PlayerService playerService;
 
     @Override
@@ -33,12 +33,13 @@ public class JoinPlayerActionHandler implements DBPlayerActionHandler {
 //        because the last value is already stored in the database
         GameStatus gameStatus = gameEngine.getTable().getGameStatus();
         if (GameStatus.WAITING_FOR_PLAYERS.equals(gameStatus)) {
-//            update player chips to buyIn and create game seat
+//            update player chips to buyIn and create player seat
             playerChips = gameEngine.getTable().getBuyIn();
+            int playerSeatNumber = gameEngine.getTable().getPlayerSeatNumber(playerId);
 
-            GameSeat gameSeat = gameSeatService.createGameSeat(userId, playerId, gameId);
-            log.info("Player id {} {}, game seat id {}",
-                playerId, pad.getPlayerAction().getActionName(), gameSeat.getId());
+            PlayerSeat playerSeat = playerSeatService.createPlayerSeat(userId, playerId, gameId, playerSeatNumber);
+            log.info("Player id {} {}, player seat id {}",
+                playerId, pad.getPlayerAction().getActionName(), playerSeat.getId());
         }
 
         playerService.updatePlayerStatusAndChips(playerId, playerChips, PlayerStatus.JOIN_THE_GAME);

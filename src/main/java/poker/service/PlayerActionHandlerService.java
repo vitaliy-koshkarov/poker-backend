@@ -18,9 +18,6 @@ import java.util.Map;
 public class PlayerActionHandlerService {
     private final GameEngineRegistry gameEngineRegistry;
     private final Map<String, DBPlayerActionHandler> dbPlayerActionHandlerMap;
-    private final GameService gameService;
-    private final PlayerService playerService;
-    private final GameSeatService gameSeatService;
 
     public void handle(PlayerActionData pad) {
         String actionName = pad.getPlayerAction().getActionName();
