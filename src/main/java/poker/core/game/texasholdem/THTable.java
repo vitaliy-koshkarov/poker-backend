@@ -10,6 +10,7 @@ import poker.core.game.card.Card;
 import poker.core.game.card.Deck;
 import poker.core.player.GamePlayer;
 import poker.core.player.PlayerStatus;
+import poker.util.Util;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -18,8 +19,6 @@ import java.util.List;
 @Getter
 @Log4j2
 public class THTable implements GameTable {
-//    TODO: map: [playerId -> playerPosition] on the table (in 'players' list) ?
-
     private final long id;
     private final String name;
     private final long creatorPlayerId;
@@ -60,21 +59,24 @@ public class THTable implements GameTable {
     private Deck deck;
     @Setter
     private List<Card> communityCards;
+    @Setter
+    private long[] playersSeats;
 
     public THTable(long id, String name, long creatorPlayerId, int maxPlayers, int buyIn,
-                   GamePot pot, GameStatus gameStatus, int smallBlind, int bigBlind) {
+                   GameStatus gameStatus, int smallBlind, int bigBlind, GamePot pot) {
         this.id = id;
         this.name = name;
         this.creatorPlayerId = creatorPlayerId;
-        this.gameStatus = gameStatus;
-        this.deck = new THDeck();
-        this.communityCards = new ArrayList<>();
-        this.pot = pot;
-        this.players = new ArrayList<>();
         this.maxPlayers = maxPlayers;
         this.buyIn = buyIn;
+        this.gameStatus = gameStatus;
         this.smallBlind = smallBlind;
         this.bigBlind = bigBlind;
+        this.pot = pot;
+        this.deck = new THDeck();
+        this.communityCards = new ArrayList<>();
+        this.players = new ArrayList<>();
+        this.playersSeats = new long[maxPlayers];
     }
 
     @Override
@@ -91,6 +93,7 @@ public class THTable implements GameTable {
     @Override
     public void addPlayer(GamePlayer gamePlayer) {
         players.add(gamePlayer);
+        seatPlayer(gamePlayer.getId());
     }
 
     @Override
@@ -103,6 +106,8 @@ public class THTable implements GameTable {
             }
         }
         players.remove(playerToRemove);
+
+        releaseSeat(playerId);
     }
 
     @Override
@@ -239,5 +244,23 @@ public class THTable implements GameTable {
         activePlayer.setStatus(PlayerStatus.ACTIVE);
 
         activePlayerId = activePlayer.getId();
+    }
+
+    private void seatPlayer(long playerId) {
+        for (int i = 0; i < playersSeats.length; i++) {
+            if (playersSeats[i] == Util.DEFAULT_LONG_VALUE) {
+                playersSeats[i] = playerId;
+                break;
+            }
+        }
+    }
+
+    private void releaseSeat(long playerId) {
+        for (int i = 0; i < playersSeats.length; i++) {
+            if (playersSeats[i] == playerId) {
+                playersSeats[i] = Util.DEFAULT_LONG_VALUE;
+                break;
+            }
+        }
     }
 }
