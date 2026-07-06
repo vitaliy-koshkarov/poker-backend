@@ -27,6 +27,8 @@ public interface GameTable {
     List<GamePlayer> getActivePlayers();
     Deck getDeck();
     List<Card> getCommunityCards();
+    long[] getPlayersSeats();
+    int getPlayerSeatNumber(long playerId);
 
     void setGameStatus(GameStatus gameStatus);
     void setDealerId(long dealerId);
@@ -42,6 +44,7 @@ public interface GameTable {
     void setPlayers(List<GamePlayer> players);
     void setDeck(Deck deck);
     void setCommunityCards(List<Card> communityCards);
+    void setPlayersSeats(long[] playersSeats);
 
     void addPlayer(GamePlayer gamePlayer);
     void removePlayer(long playerId);

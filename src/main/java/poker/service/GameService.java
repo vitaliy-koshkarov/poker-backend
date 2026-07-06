@@ -25,7 +25,7 @@ public class GameService {
     private final PotService potService;
     private final PlayerBetService playerBetService;
     private final PlayerService playerService;
-    private final GameSeatService gameSeatService;
+    private final PlayerSeatService playerSeatService;
 
     @Transactional(rollbackFor = Exception.class)
     public Game createGame(long creatorPlayerId, CreateGameRequest createGameRequest) {
@@ -56,8 +56,7 @@ public class GameService {
         var game = gameRepo.findGameById(gameId);
         long potId = game.getPotId();
 
-        gameSeatService.deleteGameSeatByIdGameId(gameId);
-        log.info("Removed game table with game id {}", gameId);
+        playerSeatService.deletePlayerSeatByIdGameId(gameId);
 
         gameRepo.deleteById(gameId);
         log.info("Removed game id {}", gameId);
