@@ -23,14 +23,20 @@ public class GameEvent {
     @Column(name = "game_id", nullable = false)
     private Long gameId;
 
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
     @Column(name = "player_id", nullable = false)
     private Long playerId;
+
+    @Column(name = "pot_it", nullable = false)
+    private Long potId;
 
     @Column(name = "type", nullable = false)
     private Integer type;
 
     @Type(JsonBinaryType.class)
-    @Column(name = "data", columnDefinition = "jsonb", nullable = false)
+    @Column(name = "game_event_data", columnDefinition = "jsonb", nullable = false)
     private GameEventData gameEventData;
 
     @Column(name = "created_at", nullable = false)

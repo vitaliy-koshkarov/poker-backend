@@ -13,6 +13,7 @@ public class PlayerActionDataConverter {
             .gameId(gameId)
             .playerAction(playerAction)
             .playerDetails(playerDetails)
+            .dateTimeMs(System.currentTimeMillis())
             .build();
     }
 
@@ -21,6 +22,7 @@ public class PlayerActionDataConverter {
             .gameId(gameId)
             .playerAction(playerAction)
             .playerDetails(playerDetails)
+            .dateTimeMs(System.currentTimeMillis())
             .build();
     }
 }
