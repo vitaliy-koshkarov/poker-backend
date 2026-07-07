@@ -6,4 +6,5 @@ public interface PlayerActionData {
     long getGameId();
     PlayerAction getPlayerAction();
     PlayerDetails getPlayerDetails();
+    long getDateTimeMs();
 }

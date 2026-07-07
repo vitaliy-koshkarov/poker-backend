@@ -7,6 +7,7 @@ import lombok.ToString;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 @Builder
 @Getter
@@ -27,10 +28,11 @@ public class GameEventData implements Serializable {
     private int bigBlind;
     private int buyIn;
     private int actionType;
-    private int playerChips;
     private int currentBet;
-    private int potTotal;
-    private List<EventCard> playerCards;
+    /**
+     * Key - player id, value - player cards
+     */
+    private Map<Long, List<EventCard>> playersCards;
     private List<EventCard> communityCards;
     private long dateTimeMs;
 }
