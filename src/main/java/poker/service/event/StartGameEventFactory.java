@@ -1,10 +1,16 @@
-package poker.model.event;
+package poker.service.event;
 
+import lombok.extern.log4j.Log4j2;
+import org.springframework.stereotype.Component;
 import poker.core.engine.GameEngine;
 import poker.core.game.card.Card;
 import poker.core.player.GamePlayer;
+import poker.core.player.PlayerAction;
 import poker.core.player.PlayerActionData;
 import poker.dto.CardConverter;
+import poker.model.event.EventCard;
+import poker.model.event.GameEvent;
+import poker.model.event.GameEventData;
 import poker.util.Util;
 
 import java.sql.Timestamp;
@@ -13,10 +19,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class GameEventFactory {
+@Component
+@Log4j2
+public class StartGameEventFactory implements GameEventFactory {
+    @Override
+    public PlayerAction supportsPlayerAction() {
+        return PlayerAction.START_GAME;
+    }
 
-    public static GameEvent create(GameEngine engine, PlayerActionData pad) {
-//        todo: create corresponding event according to action
+    @Override
+    public GameEvent create(GameEngine engine, PlayerActionData pad) {
         GameEventData gameEventData = GameEventData.builder()
             .gameId(engine.getTable().getId())
             .userId(pad.getPlayerDetails().getUser().getId())
@@ -33,7 +45,7 @@ public class GameEventFactory {
             .bigBlind(engine.getTable().getBigBlind())
             .buyIn(engine.getTable().getBuyIn())
             .actionType(pad.getPlayerAction().getType())
-            .playersCards(toPlayersCards(engine.getTable().getPlayers()))
+            .playerIdsAndCards(toPlayerIdsAndCardsMap(engine.getTable().getPlayers()))
             .dateTimeMs(pad.getDateTimeMs())
             .build();
 
@@ -48,6 +60,12 @@ public class GameEventFactory {
             .build();
     }
 
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + '{'
+            + PlayerAction.class.getSimpleName() + '=' + PlayerAction.START_GAME.name() + '}';
+    }
+
     private static int getPlayerStatus(List<GamePlayer> gamePlayers, long playerId) {
         for (GamePlayer gp : gamePlayers) {
             if (gp.getId() == playerId) {
@@ -57,7 +75,7 @@ public class GameEventFactory {
         return Util.INVALID_INT_VALUE; // TODO: throw ex and handle it above
     }
 
-    private static Map<Long, List<EventCard>> toPlayersCards(List<GamePlayer> gamePlayers) {
+    private static Map<Long, List<EventCard>> toPlayerIdsAndCardsMap(List<GamePlayer> gamePlayers) {
         var playersCards = new HashMap<Long, List<EventCard>>();
         for (GamePlayer gp : gamePlayers) {
             var cards = new ArrayList<EventCard>();

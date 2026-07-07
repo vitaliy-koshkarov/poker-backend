@@ -6,17 +6,18 @@ import org.springframework.stereotype.Service;
 import poker.core.engine.GameEngine;
 import poker.core.player.PlayerActionData;
 import poker.model.event.GameEvent;
-import poker.model.event.GameEventFactory;
 import poker.repository.GameEventRepository;
+import poker.service.event.GameEventFactoryProvider;
 
 @Service
 @Log4j2
 @RequiredArgsConstructor
 public class GameEventService {
+    private final GameEventFactoryProvider gameEventFactoryProvider;
     private final GameEventRepository gameEventRepo;
 
     public long createAndSaveEvent(GameEngine engine, PlayerActionData pad) {
-        GameEvent gameEvent = GameEventFactory.create(engine, pad);
+        GameEvent gameEvent = gameEventFactoryProvider.create(engine, pad);
         var savedEvent = gameEventRepo.save(gameEvent);
         log.info("Saved game event {}", savedEvent);
         return savedEvent.getId();

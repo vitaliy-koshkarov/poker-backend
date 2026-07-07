@@ -42,6 +42,7 @@ public class JoinPlayerActionHandler implements DBPlayerActionHandler {
                 playerId, pad.getPlayerAction().getActionName(), playerSeat.getId());
         }
 
+//        FIXME: before game start players must have 0 chips
         playerService.updatePlayerStatusAndChips(playerId, playerChips, PlayerStatus.JOIN_THE_GAME);
 
         log.info("Player id {} {}, game id {}", playerId, pad.getPlayerAction().getActionName(), gameId);

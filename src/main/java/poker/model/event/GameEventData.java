@@ -1,5 +1,6 @@
 package poker.model.event;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,30 +10,31 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @Getter
 @Setter
 @ToString
 public class GameEventData implements Serializable {
-    private long gameId;
-    private long userId;
-    private long playerId;
-    private long potId;
-    private long gameSeatId;
-    private long dealerId;
-    private long activePlayerId;
-    private int seatNumber;
-    private int gameStatus;
-    private int playerStatus;
-    private int smallBlind;
-    private int bigBlind;
-    private int buyIn;
-    private int actionType;
-    private int currentBet;
+    private Long gameId;
+    private Long userId;
+    private Long playerId;
+    private Long potId;
+    private Long gameSeatId;
+    private Long dealerId;
+    private Long activePlayerId;
+    private Integer seatNumber;
+    private Integer gameStatus;
+    private Integer playerStatus;
+    private Integer smallBlind;
+    private Integer bigBlind;
+    private Integer buyIn;
+    private Integer actionType;
+    private Integer currentBet;
     /**
      * Key - player id, value - player cards
      */
-    private Map<Long, List<EventCard>> playersCards;
+    private Map<Long, List<EventCard>> playerIdsAndCards;
     private List<EventCard> communityCards;
-    private long dateTimeMs;
+    private Long dateTimeMs;
 }
