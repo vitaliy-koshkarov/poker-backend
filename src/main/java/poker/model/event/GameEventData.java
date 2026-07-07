@@ -4,7 +4,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import poker.core.game.card.Card;
 
 import java.io.Serializable;
 import java.util.List;
@@ -14,7 +13,24 @@ import java.util.List;
 @Setter
 @ToString
 public class GameEventData implements Serializable {
-    private List<Card> communityCards;
-
-    private List<PlayerEventInfo> playerEventInfo;
+    private long gameId;
+    private long userId;
+    private long playerId;
+    private long potId;
+    private long gameSeatId;
+    private long dealerId;
+    private long activePlayerId;
+    private int seatNumber;
+    private int gameStatus;
+    private int playerStatus;
+    private int smallBlind;
+    private int bigBlind;
+    private int buyIn;
+    private int actionType;
+    private int playerChips;
+    private int currentBet;
+    private int potTotal;
+    private List<EventCard> playerCards;
+    private List<EventCard> communityCards;
+    private long dateTimeMs;
 }
