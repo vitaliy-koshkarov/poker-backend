@@ -6,10 +6,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import poker.core.engine.GameEngine;
-import poker.core.game.GameStatus;
 import poker.core.player.PlayerActionData;
-import poker.core.player.PlayerStatus;
-import poker.model.PlayerSeat;
 import poker.service.GameEventService;
 import poker.service.PlayerSeatService;
 import poker.service.PlayerService;
@@ -29,24 +26,11 @@ public class JoinPlayerActionHandler implements DBPlayerActionHandler {
         long gameId = pad.getGameId();
         long userId = pad.getPlayerDetails().getUser().getId();
         long playerId = pad.getPlayerDetails().getPlayer().getId();
-        int playerChips = pad.getPlayerDetails().getPlayer().getChips();
 
-//        If player join when the game already started, then player's chips do not need to update,
-//        because the last value is already stored in the database
-        GameStatus gameStatus = gameEngine.getTable().getGameStatus();
-        if (GameStatus.WAITING_FOR_PLAYERS.equals(gameStatus)) {
-//            update player chips to buyIn and create player seat
-            playerChips = gameEngine.getTable().getBuyIn();
-            int playerSeatNumber = gameEngine.getTable().getPlayerSeatNumber(playerId);
-
-            PlayerSeat playerSeat = playerSeatService.createPlayerSeat(userId, playerId, gameId, playerSeatNumber);
-            log.info("Player id {} {}, player seat id {}",
-                playerId, pad.getPlayerAction().getActionName(), playerSeat.getId());
-        }
-
-//        FIXME: before game start players must have 0 chips
-        playerService.updatePlayerStatusAndChips(playerId, playerChips, PlayerStatus.JOIN_THE_GAME);
-
+        int playerSeatNumber = gameEngine.getTable().getPlayerSeatNumber(playerId);
+        long playerSeatId = playerSeatService.createPlayerSeat(userId, playerId, gameId, playerSeatNumber);
+        log.info("Player id {} {} game id {} player seat id {}",
+            playerId, pad.getPlayerAction().getActionName(), gameId, playerSeatId);
 
         long eventId = gameEventService.createAndSaveEvent(gameEngine, pad);
 

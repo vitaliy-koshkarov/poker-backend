@@ -14,7 +14,7 @@ import java.sql.Timestamp;
 public class PlayerSeatService {
     private final PlayerSeatRepository playerSeatRepo;
 
-    public PlayerSeat createPlayerSeat(long userId, long playerId, long gameId, int seatNumber) {
+    public long createPlayerSeat(long userId, long playerId, long gameId, int seatNumber) {
         var playerSeat = PlayerSeat.builder()
             .userId(userId)
             .playerId(playerId)
@@ -24,8 +24,8 @@ public class PlayerSeatService {
             .build();
 
         var newPlayerSeat = playerSeatRepo.save(playerSeat);
-        log.info("Created player seat {}", newPlayerSeat);
-        return newPlayerSeat;
+        log.debug("Created player seat {}", newPlayerSeat);
+        return newPlayerSeat.getId();
     }
 
     public void releasePlayerSeat(long userId, long playerId, long gameId) {
