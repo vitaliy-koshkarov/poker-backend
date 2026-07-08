@@ -62,7 +62,7 @@ public class StartGamePlayerActionHandler implements DBPlayerActionHandler {
         long eventId = gameEventService.createAndSaveEvent(gameEngine, pad);
 
         log.info("Player id {} {} game id {} event id {}",
-            pad.getPlayerDetails().getPlayer().getId(), pad.getPlayerAction(), gameId, eventId);
+            pad.getPlayerDetails().getPlayer().getId(), pad.getPlayerAction().getActionName(), gameId, eventId);
 
         return true;
     }
