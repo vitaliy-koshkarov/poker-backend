@@ -73,8 +73,8 @@ public class THEngine implements GameEngine {
     }
 
     private void fold(PlayerActionData pad) {
-//        todo: update player status
-//              define next active player
+        table.foldPlayer(pad.getPlayerDetails().getPlayer().getId());
+        table.overrideActivePlayer();
     }
 
     private void check(PlayerActionData pad) {

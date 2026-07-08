@@ -51,6 +51,7 @@ public interface GameTable {
     void overrideActivePlayer();
     void updateGameStatus(GameStatus gameStatus);
     void startGame();
+    void foldPlayer(long playerId);
     void betBlinds();
     void dealStartHands();
 }
