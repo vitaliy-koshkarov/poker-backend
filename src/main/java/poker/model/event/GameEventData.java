@@ -20,7 +20,6 @@ public class GameEventData implements Serializable {
     private Long userId;
     private Long playerId;
     private Long potId;
-    private Long gameSeatId;
     private Long dealerId;
     private Long activePlayerId;
     private Integer seatNumber;

@@ -11,7 +11,6 @@ import poker.dto.CardConverter;
 import poker.model.event.EventCard;
 import poker.model.event.GameEvent;
 import poker.model.event.GameEventData;
-import poker.util.Util;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -37,7 +36,7 @@ public class StartGameEventFactory implements GameEventFactory {
             .dealerId(engine.getTable().getDealerId())
             .activePlayerId(engine.getTable().getActivePlayerId())
             .gameStatus(engine.getTable().getGameStatus().getIntStatus())
-            .playerStatus(getPlayerStatus(
+            .playerStatus(EventUtil.getPlayerStatus(
                 engine.getTable().getPlayers(),
                 pad.getPlayerDetails().getPlayer().getId())
             )
@@ -58,21 +57,6 @@ public class StartGameEventFactory implements GameEventFactory {
             .gameEventData(gameEventData)
             .createdAt(new Timestamp(pad.getDateTimeMs()))
             .build();
-    }
-
-    @Override
-    public String toString() {
-        return this.getClass().getSimpleName() + '{'
-            + PlayerAction.class.getSimpleName() + '=' + PlayerAction.START_GAME.name() + '}';
-    }
-
-    private static int getPlayerStatus(List<GamePlayer> gamePlayers, long playerId) {
-        for (GamePlayer gp : gamePlayers) {
-            if (gp.getId() == playerId) {
-                return gp.getStatus().getIntStatus();
-            }
-        }
-        return Util.INVALID_INT_VALUE; // TODO: throw ex and handle it above
     }
 
     private static Map<Long, List<EventCard>> toPlayerIdsAndCardsMap(List<GamePlayer> gamePlayers) {
