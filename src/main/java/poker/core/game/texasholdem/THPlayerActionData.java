@@ -14,4 +14,5 @@ public class THPlayerActionData implements PlayerActionData {
     private final long gameId;
     private final PlayerAction playerAction;
     private final PlayerDetails playerDetails;
+    private final long dateTimeMs;
 }

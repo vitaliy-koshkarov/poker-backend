@@ -10,6 +10,7 @@ import poker.core.player.GamePlayer;
 import poker.core.game.GameStatus;
 import poker.core.player.PlayerActionData;
 import poker.model.PlayerBet;
+import poker.service.GameEventService;
 import poker.service.GameService;
 import poker.service.PlayerBetService;
 import poker.service.PlayerService;
@@ -26,6 +27,7 @@ public class StartGamePlayerActionHandler implements DBPlayerActionHandler {
     private final GameService gameService;
     private final PlayerService playerService;
     private final PlayerBetService playerBetService;
+    private final GameEventService gameEventService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -52,13 +54,15 @@ public class StartGamePlayerActionHandler implements DBPlayerActionHandler {
         }
         playerBetService.createPlayersBets(playersBets);
 
-
         for (GamePlayer gPlayer : gamePlayers) {
             playerService.updatePlayerStatusAndChips(gPlayer.getId(), gPlayer.getChips(), gPlayer.getStatus());
         }
 
-        log.info("Player id {} {} game id {}",
-            pad.getPlayerDetails().getPlayer().getId(), pad.getPlayerAction(), gameId);
+
+        long eventId = gameEventService.createAndSaveEvent(gameEngine, pad);
+
+        log.info("Player id {} {} game id {} event id {}",
+            pad.getPlayerDetails().getPlayer().getId(), pad.getPlayerAction().getActionName(), gameId, eventId);
 
         return true;
     }

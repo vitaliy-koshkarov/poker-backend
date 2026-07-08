@@ -1,6 +1,7 @@
 package poker.dto;
 
 import poker.core.game.card.Card;
+import poker.model.event.EventCard;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -18,5 +19,12 @@ public class CardConverter {
             );
         }
         return cardDTOList;
+    }
+
+    public static EventCard toEventCard(Card card) {
+        return EventCard.builder()
+            .rank(card.rank().getName())
+            .suit(card.suit().getShortName())
+            .build();
     }
 }
