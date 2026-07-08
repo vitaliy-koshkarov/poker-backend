@@ -10,6 +10,7 @@ import poker.core.game.GameStatus;
 import poker.core.player.PlayerActionData;
 import poker.core.player.PlayerStatus;
 import poker.model.PlayerSeat;
+import poker.service.GameEventService;
 import poker.service.PlayerSeatService;
 import poker.service.PlayerService;
 
@@ -20,6 +21,7 @@ import poker.service.PlayerService;
 public class JoinPlayerActionHandler implements DBPlayerActionHandler {
     private final PlayerSeatService playerSeatService;
     private final PlayerService playerService;
+    private final GameEventService gameEventService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -42,9 +44,14 @@ public class JoinPlayerActionHandler implements DBPlayerActionHandler {
                 playerId, pad.getPlayerAction().getActionName(), playerSeat.getId());
         }
 
+//        FIXME: before game start players must have 0 chips
         playerService.updatePlayerStatusAndChips(playerId, playerChips, PlayerStatus.JOIN_THE_GAME);
 
-        log.info("Player id {} {}, game id {}", playerId, pad.getPlayerAction().getActionName(), gameId);
+
+        long eventId = gameEventService.createAndSaveEvent(gameEngine, pad);
+
+        log.info("Player id {} {} game id {} event id {}",
+            playerId, pad.getPlayerAction().getActionName(), gameId, eventId);
 
         return true;
     }
