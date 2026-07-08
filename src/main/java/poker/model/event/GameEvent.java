@@ -29,6 +29,7 @@ public class GameEvent {
     @Column(name = "player_id", nullable = false)
     private Long playerId;
 
+//    TODO: Do I really need this?
     @Column(name = "pot_it", nullable = false)
     private Long potId;
 

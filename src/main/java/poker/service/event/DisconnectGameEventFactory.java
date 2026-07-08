@@ -36,7 +36,7 @@ public class DisconnectGameEventFactory implements GameEventFactory {
             .gameId(gameEventData.getGameId())
             .userId(gameEventData.getUserId())
             .playerId(gameEventData.getPlayerId())
-            .potId(gameEventData.getPotId())
+            .potId(engine.getTable().getPot().getId())
             .type(gameEventData.getActionType())
             .gameEventData(gameEventData)
             .createdAt(new Timestamp(gameEventData.getDateTimeMs()))
