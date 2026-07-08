@@ -16,7 +16,7 @@ public class PlayerBetService {
 
     public void createPlayersBets(List<PlayerBet> playersBets) {
         List<PlayerBet> newPlayersBets = playerBetRepo.saveAllAndFlush(playersBets);
-        log.info("Created players bets {}", newPlayersBets);
+        log.debug("Created players bets {}", newPlayersBets);
     }
 
     public void deletePlayersBets(long potId) {

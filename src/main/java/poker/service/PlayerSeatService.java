@@ -30,7 +30,7 @@ public class PlayerSeatService {
 
     public void releasePlayerSeat(long userId, long playerId, long gameId) {
         playerSeatRepo.removePlayerSeatByUserIdAndPlayerIdAndGameId(userId, playerId, gameId);
-        log.info("Removed player seat, user id {}, player id {}, game id {}", userId, playerId, gameId);
+        log.debug("Removed player seat user id {} player id {} game id {}", userId, playerId, gameId);
     }
 
     public void deletePlayerSeatByIdGameId(long gameId) {

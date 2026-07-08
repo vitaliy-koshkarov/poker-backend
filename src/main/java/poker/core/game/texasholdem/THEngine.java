@@ -109,18 +109,18 @@ public class THEngine implements GameEngine {
             .build();
 
         table.addPlayer(gamePlayer);
-        log.info("Player id {} {} game {}", gamePlayer.getId(), pad.getPlayerAction(), pad.getGameId());
+        log.debug("Player id {} {} game {}", gamePlayer.getId(), pad.getPlayerAction(), pad.getGameId());
     }
 
     private void disconnectPlayer(PlayerActionData pad) {
         long playerId = pad.getPlayerDetails().getPlayer().getId();
         table.removePlayer(playerId);
 
-        if (table.getActivePlayerId() == playerId) {
-            table.overrideActivePlayer();
-        }
+//        if (table.getActivePlayerId() == playerId) {
+//            table.overrideActivePlayer();
+//        }
 
-        log.info("Player id {} {} game id {}", playerId, pad.getPlayerAction().getActionName(), pad.getGameId());
+        log.debug("Player id {} {} game id {}", playerId, pad.getPlayerAction().getActionName(), pad.getGameId());
     }
 
     private void nextPhase(PlayerActionData pad) {
