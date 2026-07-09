@@ -79,4 +79,8 @@ public class GameService {
     public List<Game> getListNonEndedGames() {
         return gameRepo.findAllNotEndedGames(GameStatus.END.getIntStatus());
     }
+
+    public void updateActivePlayer(long gameId, long activePlayerId) {
+        gameRepo.updateActivePlayerId(gameId, activePlayerId);
+    }
 }

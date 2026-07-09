@@ -34,4 +34,8 @@ public interface GameRepository extends JpaRepository<Game, Long> {
                    @Param("status") int status,
                    @Param("startedAt") Timestamp startedAt
     );
+
+    @Modifying
+    @Query("UPDATE Game g SET g.activePlayerId = :activePlayerId WHERE g.id = :gameId")
+    void updateActivePlayerId(@Param("gameId") long gameId, @Param("activePlayerId") long activePlayerId);
 }
