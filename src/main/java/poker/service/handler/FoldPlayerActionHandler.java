@@ -9,6 +9,7 @@ import poker.core.engine.GameEngine;
 import poker.core.player.PlayerAction;
 import poker.core.player.PlayerActionData;
 import poker.core.player.PlayerStatus;
+import poker.service.GameEventService;
 import poker.service.PlayerBetService;
 import poker.service.PlayerService;
 import poker.util.Util;
@@ -20,6 +21,7 @@ import poker.util.Util;
 public class FoldPlayerActionHandler implements DBPlayerActionHandler {
     private final PlayerService playerService;
     private final PlayerBetService playerBetService;
+    private final GameEventService gameEventService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -30,8 +32,9 @@ public class FoldPlayerActionHandler implements DBPlayerActionHandler {
         playerBetService.updatePlayerBet(playerId, gameEngine.getTable().getPot().getId(), Util.DEFAULT_INT_VALUE);
         log.info("Player id {} status {} current bet {}", playerId, PlayerStatus.FOLD, Util.DEFAULT_INT_VALUE);
 
-        log.info("Player id {} {} game id {}",
-            playerId, PlayerAction.FOLD.getActionName(), gameEngine.getTable().getId());
+        long eventId = gameEventService.createAndSaveEvent(gameEngine, pad);
+        log.info("Player id {} {} game id {} event id {}",
+            playerId, PlayerAction.FOLD.getActionName(), gameEngine.getTable().getId(), eventId);
 
         return true;
     }
