@@ -63,4 +63,8 @@ public class PlayerService {
         playerRepo.updateStatusAndCurrentBet(playerId, status.getIntStatus(), bet);
         log.debug("Player id {} current bet {}", playerId, bet);
     }
+
+    public void updateStatusAndChipsAndCurrentBet(long playerId, PlayerStatus status, int chips, int currentBet) {
+        playerRepo.updateStatusAndChipsAndCurrentBet(playerId, status.getIntStatus(), chips, currentBet);
+    }
 }
