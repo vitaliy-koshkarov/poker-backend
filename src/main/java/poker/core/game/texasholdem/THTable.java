@@ -185,6 +185,16 @@ public class THTable implements GameTable {
     }
 
     @Override
+    public void checkPlayer(long playerId) {
+        for (GamePlayer gp : players) {
+            if (gp.getId() == playerId) {
+                gp.setStatus(PlayerStatus.WAIT);
+                gp.setCurrentBet(0);
+            }
+        }
+    }
+
+    @Override
     public String toString() {
         return "THTable{id " + id + ", deck size " + deck.getSize()
             + ", community cards " + communityCards + ", " + pot

@@ -54,4 +54,5 @@ public interface GameTable {
     void foldPlayer(long playerId);
     void betBlinds();
     void dealStartHands();
+    void checkPlayer(long playerId);
 }

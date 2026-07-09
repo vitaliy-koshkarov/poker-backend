@@ -78,9 +78,8 @@ public class THEngine implements GameEngine {
     }
 
     private void check(PlayerActionData pad) {
-//        todo: update player status
-//              define check value (*)
-//              define next active player
+        table.checkPlayer(pad.getPlayerDetails().getPlayer().getId());
+        table.overrideActivePlayer();
     }
 
     private void bet(PlayerActionData pad) {

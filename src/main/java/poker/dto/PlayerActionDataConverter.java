@@ -6,7 +6,7 @@ import poker.core.player.PlayerActionData;
 import poker.model.PlayerDetails;
 
 public class PlayerActionDataConverter {
-
+//    TODO: Do not use PlayerDetails in engine and DB layer
     public static PlayerActionData convert(long gameId, PlayerActionRequest request,
                                            PlayerDetails playerDetails, PlayerAction playerAction) {
         return THPlayerActionData.builder()
