@@ -92,10 +92,11 @@ public class THEngine implements GameEngine {
     }
 
     private void allIn(PlayerActionData pad) {
-//        todo: subtract all chips from player
-//              add them to the pot
-//              update player's status
-//              define next active player
+        int playerBet = pad.getPlayerBet();
+        GamePlayer player = table.getActivePlayers().get(0);
+        table.betPlayer(player.getId(), playerBet);
+        table.getPot().addPlayerBet(player, playerBet);
+        table.overrideActivePlayer();
     }
 
     private void joinPlayer(PlayerActionData pad) {
