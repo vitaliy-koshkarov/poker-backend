@@ -7,10 +7,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import poker.core.engine.GameEngine;
 import poker.core.game.GamePot;
-import poker.core.game.texasholdem.THPlayer;
 import poker.core.player.GamePlayer;
 import poker.core.player.PlayerActionData;
 import poker.service.*;
+import poker.util.Util;
 
 @Component("BET")
 @RequiredArgsConstructor
@@ -31,7 +31,7 @@ public class BetPlayerActionHandler implements DBPlayerActionHandler {
 
         gameService.updateActivePlayer(gameId, gameEngine.getTable().getActivePlayerId());
 
-        GamePlayer player = getPlayerById(gameEngine, playerId);
+        GamePlayer player = Util.getPlayerById(gameEngine, playerId);
         int currentBet = player.getCurrentBet();
         playerService.updateStatusAndChipsAndCurrentBet(player.getId(), player.getStatus(), player.getChips(), currentBet);
 
@@ -46,14 +46,5 @@ public class BetPlayerActionHandler implements DBPlayerActionHandler {
             playerId, pad.getPlayerAction(), gameId, pot.getId(), eventId);
 
         return true;
-    }
-
-    private GamePlayer getPlayerById(GameEngine engine, long playerId) {
-        for (GamePlayer gp : engine.getTable().getPlayers()) {
-            if (gp.getId() == playerId) {
-                return gp;
-            }
-        }
-        return THPlayer.builder().build(); // temporary
     }
 }
