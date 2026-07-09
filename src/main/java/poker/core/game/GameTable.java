@@ -6,6 +6,7 @@ import poker.core.player.GamePlayer;
 
 import java.util.List;
 
+// TODO: refactoring
 public interface GameTable {
     long getId();
     String getName();
@@ -55,4 +56,5 @@ public interface GameTable {
     void betBlinds();
     void dealStartHands();
     void checkPlayer(long playerId);
+    void betPlayer(long playerId, int bet);
 }

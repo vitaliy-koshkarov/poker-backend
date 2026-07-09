@@ -33,6 +33,7 @@ public class THEngine implements GameEngine {
         log.info("Handling {}, player id {}",
             pad.getPlayerAction().getActionName(), pad.getPlayerDetails().getPlayer().getId());
 
+//        TODO: define minRaise value for the next active player
         switch (pad.getPlayerAction()) {
             case START_GAME -> startGame();
             case FOLD -> fold(pad);
@@ -83,11 +84,11 @@ public class THEngine implements GameEngine {
     }
 
     private void bet(PlayerActionData pad) {
-//        todo: subtract bet from player
-//              add player's bet to pot
-//              define check or min raise value (*)
-//              update player's status
-//              define next active player
+        int playerBet = pad.getPlayerBet();
+        GamePlayer player = table.getActivePlayers().get(0);
+        table.betPlayer(pad.getPlayerDetails().getPlayer().getId(), playerBet);
+        table.getPot().addPlayerBet(player, playerBet);
+        table.overrideActivePlayer();
     }
 
     private void allIn(PlayerActionData pad) {
