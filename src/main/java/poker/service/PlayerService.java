@@ -58,4 +58,9 @@ public class PlayerService {
         playerRepo.updateStatus(playerId, playerStatus.getIntStatus());
         log.debug("Player id {} status {}", playerId, playerStatus);
     }
+
+    public void updatePlayerStatusAndCurrentBet(long playerId, PlayerStatus status, int bet) {
+        playerRepo.updateStatusAndCurrentBet(playerId, status.getIntStatus(), bet);
+        log.debug("Player id {} current bet {}", playerId, bet);
+    }
 }

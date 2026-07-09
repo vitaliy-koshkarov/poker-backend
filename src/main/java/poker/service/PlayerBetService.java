@@ -23,4 +23,9 @@ public class PlayerBetService {
         playerBetRepo.removeAllPlayersBetsByPotId(potId);
         log.info("Players' bets removed, pot id {}", potId);
     }
+
+    public void updatePlayerBet(long playerId, long potId, int bet) {
+        playerBetRepo.updateBet(playerId, potId, bet);
+        log.debug("Player id {} pot id {} bet {}", playerId, potId, bet);
+    }
 }
