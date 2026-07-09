@@ -29,11 +29,11 @@ public class JoinPlayerActionHandler implements DBPlayerActionHandler {
 
         int playerSeatNumber = gameEngine.getTable().getPlayerSeatNumber(playerId);
         long playerSeatId = playerSeatService.createPlayerSeat(userId, playerId, gameId, playerSeatNumber);
-        log.info("Create seat id {} player id {} game id {}", playerSeatId, playerId, gameId);
 
         long eventId = gameEventService.createAndSaveEvent(gameEngine, pad);
-        log.info("Player id {} {} game id {} event id {}",
-            playerId, pad.getPlayerAction().getActionName(), gameId, eventId);
+
+        log.info("Player id {} {} seat id {} game id {} event id {}",
+            playerId, pad.getPlayerAction(), playerSeatId, gameId, eventId);
 
         return true;
     }

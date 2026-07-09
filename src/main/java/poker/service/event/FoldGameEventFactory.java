@@ -12,7 +12,7 @@ import java.sql.Timestamp;
 
 @Component
 @Log4j2
-public class FoldEventFactory implements GameEventFactory {
+public class FoldGameEventFactory implements GameEventFactory {
     @Override
     public PlayerAction supportsPlayerAction() {
         return PlayerAction.FOLD;
