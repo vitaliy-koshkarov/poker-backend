@@ -7,4 +7,5 @@ public interface PlayerActionData {
     PlayerAction getPlayerAction();
     PlayerDetails getPlayerDetails();
     long getDateTimeMs();
+    int getPlayerBet();
 }

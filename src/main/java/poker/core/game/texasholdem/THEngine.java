@@ -33,6 +33,7 @@ public class THEngine implements GameEngine {
         log.info("Handling {}, player id {}",
             pad.getPlayerAction().getActionName(), pad.getPlayerDetails().getPlayer().getId());
 
+//        TODO: define minRaise value for the next active player
         switch (pad.getPlayerAction()) {
             case START_GAME -> startGame();
             case FOLD -> fold(pad);
@@ -73,29 +74,29 @@ public class THEngine implements GameEngine {
     }
 
     private void fold(PlayerActionData pad) {
-//        todo: update player status
-//              define next active player
+        table.foldPlayer(pad.getPlayerDetails().getPlayer().getId());
+        table.overrideActivePlayer();
     }
 
     private void check(PlayerActionData pad) {
-//        todo: update player status
-//              define check value (*)
-//              define next active player
+        table.checkPlayer(pad.getPlayerDetails().getPlayer().getId());
+        table.overrideActivePlayer();
     }
 
     private void bet(PlayerActionData pad) {
-//        todo: subtract bet from player
-//              add player's bet to pot
-//              define check or min raise value (*)
-//              update player's status
-//              define next active player
+        int playerBet = pad.getPlayerBet();
+        GamePlayer player = table.getActivePlayers().get(0);
+        table.betPlayer(pad.getPlayerDetails().getPlayer().getId(), playerBet);
+        table.getPot().addPlayerBet(player, playerBet);
+        table.overrideActivePlayer();
     }
 
     private void allIn(PlayerActionData pad) {
-//        todo: subtract all chips from player
-//              add them to the pot
-//              update player's status
-//              define next active player
+        int playerBet = pad.getPlayerBet();
+        GamePlayer player = table.getActivePlayers().get(0);
+        table.betPlayer(player.getId(), playerBet);
+        table.getPot().addPlayerBet(player, playerBet);
+        table.overrideActivePlayer();
     }
 
     private void joinPlayer(PlayerActionData pad) {
@@ -109,18 +110,18 @@ public class THEngine implements GameEngine {
             .build();
 
         table.addPlayer(gamePlayer);
-        log.info("Player id {} {} game {}", gamePlayer.getId(), pad.getPlayerAction(), pad.getGameId());
+        log.debug("Player id {} {} game {}", gamePlayer.getId(), pad.getPlayerAction(), pad.getGameId());
     }
 
     private void disconnectPlayer(PlayerActionData pad) {
         long playerId = pad.getPlayerDetails().getPlayer().getId();
         table.removePlayer(playerId);
 
-        if (table.getActivePlayerId() == playerId) {
-            table.overrideActivePlayer();
-        }
+//        if (table.getActivePlayerId() == playerId) {
+//            table.overrideActivePlayer();
+//        }
 
-        log.info("Player id {} {} game id {}", playerId, pad.getPlayerAction().getActionName(), pad.getGameId());
+        log.debug("Player id {} {} game id {}", playerId, pad.getPlayerAction().getActionName(), pad.getGameId());
     }
 
     private void nextPhase(PlayerActionData pad) {

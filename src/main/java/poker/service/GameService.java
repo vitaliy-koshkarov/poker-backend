@@ -72,11 +72,15 @@ public class GameService {
 
     public void startGame(long gameId, long dealerId, long activePlayerId, GameStatus gameStatus, Timestamp startedAt) {
         gameRepo.startGame(gameId, dealerId, activePlayerId, gameStatus.getIntStatus(), startedAt);
-        log.info("Game id {} started at {}", gameId, startedAt);
+        log.debug("Game id {} started at {}", gameId, startedAt);
     }
 
     @Transactional(readOnly = true)
     public List<Game> getListNonEndedGames() {
         return gameRepo.findAllNotEndedGames(GameStatus.END.getIntStatus());
+    }
+
+    public void updateActivePlayer(long gameId, long activePlayerId) {
+        gameRepo.updateActivePlayerId(gameId, activePlayerId);
     }
 }

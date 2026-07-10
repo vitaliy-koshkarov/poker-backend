@@ -21,4 +21,6 @@ public interface GamePlayer extends Snapshot<GamePlayer> {
     void bet(int bet);
 
     void takeReward(int reward);
+
+    void setCurrentBet(int bet);
 }

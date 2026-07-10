@@ -20,7 +20,10 @@ public class THPlayer implements GamePlayer {
     private PlayerStatus status;
 
     private int chips;
+
+    @Setter
     private int currentBet;
+
     private final List<Card> cards;
 
     @Override

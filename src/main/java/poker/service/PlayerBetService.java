@@ -16,11 +16,16 @@ public class PlayerBetService {
 
     public void createPlayersBets(List<PlayerBet> playersBets) {
         List<PlayerBet> newPlayersBets = playerBetRepo.saveAllAndFlush(playersBets);
-        log.info("Created players bets {}", newPlayersBets);
+        log.debug("Created players bets {}", newPlayersBets);
     }
 
     public void deletePlayersBets(long potId) {
         playerBetRepo.removeAllPlayersBetsByPotId(potId);
         log.info("Players' bets removed, pot id {}", potId);
+    }
+
+    public void updatePlayerBet(long playerId, long potId, int bet) {
+        playerBetRepo.updateBet(playerId, potId, bet);
+        log.debug("Player id {} pot id {} bet {}", playerId, potId, bet);
     }
 }
