@@ -19,7 +19,7 @@ public class GameEventService {
     public long createAndSaveEvent(GameEngine engine, PlayerActionData pad) {
         GameEvent gameEvent = gameEventFactoryProvider.create(engine, pad);
         var savedEvent = gameEventRepo.save(gameEvent);
-        log.info("Saved game event {}", savedEvent);
+        log.debug("Saved game event {}", savedEvent);
         return savedEvent.getId();
     }
 }

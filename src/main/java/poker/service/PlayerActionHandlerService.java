@@ -21,7 +21,7 @@ public class PlayerActionHandlerService {
 
     public void handle(PlayerActionData pad) {
         String actionName = pad.getPlayerAction().getActionName();
-        log.info("Handling {} from player id {} in game {}",
+        log.info("Handling {} player id {} game id {}",
             actionName, pad.getPlayerDetails().getPlayer().getId(), pad.getGameId());
 //        TODO: Implement:
 //              ✓ 1. Snapshot of game state
@@ -39,7 +39,7 @@ public class PlayerActionHandlerService {
         log.debug("Game state after handling action: {}", gameEngine.getGameState());
 
         var dbPlayerActionHandler = dbPlayerActionHandlerMap.get(actionName);
-        // todo: TX: DB handling + game action event generation
+
         boolean isSuccess = dbPlayerActionHandler.handleAction(gameEngine, pad);
         if (!isSuccess) {
             gameEngine.rollback(snapshot);

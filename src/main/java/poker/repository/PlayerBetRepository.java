@@ -13,4 +13,8 @@ public interface PlayerBetRepository extends JpaRepository<PlayerBet, Long> {
     @Modifying
     @Query("DELETE FROM PlayerBet pb WHERE pb.potId = :potId")
     void removeAllPlayersBetsByPotId(@Param("potId") long potId);
+
+    @Modifying
+    @Query("UPDATE PlayerBet pb SET pb.playerBet = :bet WHERE pb.potId = :potId AND pb.playerId = :playerId")
+    void updateBet(@Param("playerId") long playerID, @Param("potId") long potId, @Param("bet") int bet);
 }

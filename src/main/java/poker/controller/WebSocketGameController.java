@@ -58,7 +58,7 @@ public class WebSocketGameController {
         var playerDetails = ((PlayerDetails) authentication.getPrincipal());
         var playerAction = PlayerAction.fromActionName(playerActionRequest.actionName());
         long playerId = playerDetails.getPlayer().getId();
-        log.info("Action {}, player id {}, game id {}", playerAction.getActionName(), playerId, gameId);
+        log.info("Action {} player id {} game id {}", playerAction.getActionName(), playerId, gameId);
 
         // todo: validate
 
@@ -67,6 +67,6 @@ public class WebSocketGameController {
 
         var gameDTO = gameStateResponseGenerator.generateResponse(gameId);
         webSocketGameStateBroadcaster.broadcast(gameDTO, playerAction);
-        log.info("Handled {}, player id {}, game id {}", playerAction.getActionName(), playerId, gameId);
+        log.info("Handled {} player id {} game id {}", playerAction.getActionName(), playerId, gameId);
     }
 }

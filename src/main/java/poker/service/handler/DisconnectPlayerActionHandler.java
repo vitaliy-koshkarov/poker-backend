@@ -32,11 +32,10 @@ public class DisconnectPlayerActionHandler implements DBPlayerActionHandler {
         playerService.updatePlayerStatus(playerId, PlayerStatus.NOT_IN_GAME);
         playerSeatService.releasePlayerSeat(pad.getPlayerDetails().getUser().getId(), playerId, gameId);
 
-
         long eventId = gameEventService.createAndSaveEvent(gameEngine, pad);
 
-        log.info("Player id {} {} game id {} event id {}",
-            playerId, pad.getPlayerAction().getActionName(), gameId, eventId);
+        log.info("Player id {} {} status {} game id {} event id {}",
+            playerId, pad.getPlayerAction(), PlayerStatus.NOT_IN_GAME, gameId, eventId);
 
         return true;
     }

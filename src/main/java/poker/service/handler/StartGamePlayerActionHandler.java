@@ -34,11 +34,11 @@ public class StartGamePlayerActionHandler implements DBPlayerActionHandler {
     public boolean handleAction(GameEngine gameEngine, PlayerActionData pad) {
         long gameId = gameEngine.getTable().getId();
         long dealerId = gameEngine.getTable().getDealerId();
+        long playerId = pad.getPlayerDetails().getPlayer().getId();
         long activePlayerId = gameEngine.getTable().getActivePlayerId();
 
         gameService.startGame(gameId, dealerId, activePlayerId,
-            GameStatus.PRE_FLOP, new Timestamp(System.currentTimeMillis()));
-
+            GameStatus.PRE_FLOP, new Timestamp(pad.getDateTimeMs()));
 
         List<GamePlayer> gamePlayers = gameEngine.getTable().getPlayers();
 
@@ -58,11 +58,10 @@ public class StartGamePlayerActionHandler implements DBPlayerActionHandler {
             playerService.updatePlayerStatusAndChips(gPlayer.getId(), gPlayer.getChips(), gPlayer.getStatus());
         }
 
-
         long eventId = gameEventService.createAndSaveEvent(gameEngine, pad);
 
-        log.info("Player id {} {} game id {} event id {}",
-            pad.getPlayerDetails().getPlayer().getId(), pad.getPlayerAction().getActionName(), gameId, eventId);
+        log.info("Player id {} {} game id {} status {} event id {}",
+            playerId, pad.getPlayerAction(), gameId, gameEngine.getTable().getGameStatus(), eventId);
 
         return true;
     }

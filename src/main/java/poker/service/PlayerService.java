@@ -51,11 +51,20 @@ public class PlayerService {
 
     public void updatePlayerStatusAndChips(long playerId, int chips, PlayerStatus playerStatus) {
         playerRepo.updatePlayerStatusAndChips(playerId, chips, playerStatus.getIntStatus());
-        log.info("Player id {} updated chips {}, status {}", playerId, chips, playerStatus);
+        log.debug("Player id {} chips {} status {}", playerId, chips, playerStatus);
     }
 
     public void updatePlayerStatus(long playerId, PlayerStatus playerStatus) {
         playerRepo.updateStatus(playerId, playerStatus.getIntStatus());
-        log.info("Player id {} status updated to {}", playerId, playerStatus);
+        log.debug("Player id {} status {}", playerId, playerStatus);
+    }
+
+    public void updatePlayerStatusAndCurrentBet(long playerId, PlayerStatus status, int bet) {
+        playerRepo.updateStatusAndCurrentBet(playerId, status.getIntStatus(), bet);
+        log.debug("Player id {} current bet {}", playerId, bet);
+    }
+
+    public void updateStatusAndChipsAndCurrentBet(long playerId, PlayerStatus status, int chips, int currentBet) {
+        playerRepo.updateStatusAndChipsAndCurrentBet(playerId, status.getIntStatus(), chips, currentBet);
     }
 }

@@ -55,7 +55,7 @@ public class WebSocketDisconnectEventListener {
         playerActionHandlerService.handle(pad);
 
         webSocketPlayerSessionService.removeSession(sessionId);
-        log.info("Disconnect player id {} session id {}", playerId, sessionId);
+        log.info("Remove player id {} session id {}", playerId, sessionId);
 
         GameDTO gameDTO = gameStateResponseGenerator.generateResponse(gameId);
 
@@ -63,7 +63,7 @@ public class WebSocketDisconnectEventListener {
             webSocketGameStateBroadcaster.broadcast(gameDTO, PlayerAction.DISCONNECT);
         }
 
-        log.info("Player id {} {} from game id {}", playerId, pad.getPlayerAction(), gameId);
+        log.info("Player id {} {} game id {}", playerId, pad.getPlayerAction(), gameId);
     }
 
     private boolean isJoinedPlayerDisconnect(long gameId, long playerId) {

@@ -53,6 +53,8 @@ public class THTable implements GameTable {
 
     @Setter
     private GamePot pot;
+
+//    TODO: use Map instead of list. Key - player id, value - GamePlayer
     @Setter
     private List<GamePlayer> players;
     @Setter
@@ -121,7 +123,6 @@ public class THTable implements GameTable {
 
     @Override
     public void overrideActivePlayer() {
-//        todo: implement
         activePlayerIndex++;
         if (activePlayerIndex >= players.size()) {
             activePlayerIndex = 0;
@@ -167,9 +168,40 @@ public class THTable implements GameTable {
     }
 
     @Override
+    public void foldPlayer(long playerId) {
+        for (GamePlayer gp : players) {
+            if (gp.getId() == playerId) {
+                gp.setStatus(PlayerStatus.FOLD);
+                gp.setCurrentBet(Util.DEFAULT_INT_VALUE);
+                break;
+            }
+        }
+    }
+
+    @Override
     public void betBlinds() {
         setBlindByIndex(getSmallBlindIndex(), smallBlind);
         setBlindByIndex(getBigBlindIndex(), bigBlind);
+    }
+
+    @Override
+    public void checkPlayer(long playerId) {
+        for (GamePlayer gp : players) {
+            if (gp.getId() == playerId) {
+                gp.setStatus(PlayerStatus.WAIT);
+                gp.setCurrentBet(0);
+            }
+        }
+    }
+
+    @Override
+    public void betPlayer(long playerId, int bet) {
+        for (GamePlayer gp : players) {
+            if (gp.getId() == playerId) {
+                gp.bet(bet);
+                gp.setStatus(PlayerStatus.WAIT);
+            }
+        }
     }
 
     @Override

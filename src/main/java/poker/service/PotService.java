@@ -24,4 +24,8 @@ public class PotService {
     public void deleteById(Long potId) {
         potRepo.deleteById(potId);
     }
+
+    public void updatePotTotal(long potId, int total) {
+        potRepo.updateTotal(potId, total);
+    }
 }
