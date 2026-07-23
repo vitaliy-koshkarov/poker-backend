@@ -90,17 +90,17 @@ public class THEngine implements GameEngine {
 
     private void bet(PlayerActionData pad) {
         int playerBet = pad.getPlayerBet();
-        GamePlayer activePlayer = table.getActivePlayer();
-        table.betPlayer(activePlayer.getId(), playerBet);
-        table.getPot().addPlayerBet(activePlayer, playerBet);
+        long activePlayerId = table.getActivePlayer().getId();
+        table.betPlayer(activePlayerId, playerBet);
+        table.getPot().addPlayerBet(activePlayerId, playerBet);
         table.defineNewActivePlayer();
     }
 
     private void allIn(PlayerActionData pad) {
         int playerBet = pad.getPlayerBet();
-        GamePlayer activePlayer = table.getActivePlayer();
-        table.betPlayer(activePlayer.getId(), playerBet);
-        table.getPot().addPlayerBet(activePlayer, playerBet);
+        long activePlayerId = table.getActivePlayer().getId();
+        table.betPlayer(activePlayerId, playerBet);
+        table.getPot().addPlayerBet(activePlayerId, playerBet);
         table.defineNewActivePlayer();
     }
 

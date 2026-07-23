@@ -213,9 +213,8 @@ public class THTable implements GameTable {
     }
 
     private void betPlayerBlind(long playerId, int blind) {
-        GamePlayer player = playersMap.get(playerId);
-        player.bet(blind);
-        pot.addPlayerBet(player, blind);
+        playersMap.get(playerId).bet(blind);
+        pot.addPlayerBet(playerId, blind);
     }
 
     private String playersInfo() {
