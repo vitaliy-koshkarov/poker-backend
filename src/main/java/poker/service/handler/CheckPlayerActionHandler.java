@@ -6,6 +6,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import poker.core.engine.GameEngine;
+import poker.core.player.PlayerAction;
 import poker.core.player.PlayerActionData;
 import poker.core.player.PlayerStatus;
 import poker.service.GameEventService;
@@ -13,7 +14,7 @@ import poker.service.GameService;
 import poker.service.PlayerService;
 import poker.util.Util;
 
-@Component("CHECK")
+@Component
 @RequiredArgsConstructor
 @Log4j2
 @ToString
@@ -21,6 +22,11 @@ public class CheckPlayerActionHandler implements DBPlayerActionHandler {
     private final GameService gameService;
     private final PlayerService playerService;
     private final GameEventService gameEventService;
+
+    @Override
+    public PlayerAction supportsPlayerAction() {
+        return PlayerAction.CHECK;
+    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)

@@ -8,11 +8,12 @@ import org.springframework.transaction.annotation.Transactional;
 import poker.core.engine.GameEngine;
 import poker.core.game.GamePot;
 import poker.core.player.GamePlayer;
+import poker.core.player.PlayerAction;
 import poker.core.player.PlayerActionData;
 import poker.service.*;
 import poker.util.Util;
 
-@Component("ALL_IN")
+@Component
 @RequiredArgsConstructor
 @Log4j2
 @ToString
@@ -22,6 +23,11 @@ public class AllInPlayerActionHandler implements DBPlayerActionHandler {
     private final PlayerBetService playerBetService;
     private final PotService potService;
     private final GameEventService gameEventService;
+
+    @Override
+    public PlayerAction supportsPlayerAction() {
+        return PlayerAction.ALL_IN;
+    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)

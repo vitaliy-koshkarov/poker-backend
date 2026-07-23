@@ -30,7 +30,7 @@ public class THEngine implements GameEngine {
 
     @Override
     public void handlePlayerAction(PlayerActionData pad) {
-        log.info("Handling {}, player id {}",
+        log.info("Handle {} player id {}",
             pad.getPlayerAction().getActionName(), pad.getPlayerDetails().getPlayer().getId());
 
 //        TODO: define minRaise value for the next active player

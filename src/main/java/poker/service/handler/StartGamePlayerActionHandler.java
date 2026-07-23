@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import poker.core.engine.GameEngine;
 import poker.core.player.GamePlayer;
 import poker.core.game.GameStatus;
+import poker.core.player.PlayerAction;
 import poker.core.player.PlayerActionData;
 import poker.model.PlayerBet;
 import poker.service.GameEventService;
@@ -19,7 +20,7 @@ import java.sql.Timestamp;
 import java.util.LinkedList;
 import java.util.List;
 
-@Component("START")
+@Component
 @Log4j2
 @RequiredArgsConstructor
 @ToString
@@ -28,6 +29,11 @@ public class StartGamePlayerActionHandler implements DBPlayerActionHandler {
     private final PlayerService playerService;
     private final PlayerBetService playerBetService;
     private final GameEventService gameEventService;
+
+    @Override
+    public PlayerAction supportsPlayerAction() {
+        return PlayerAction.START_GAME;
+    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)

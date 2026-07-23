@@ -1,44 +1,48 @@
 package poker.service;
 
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import poker.core.game.GameState;
+import poker.core.player.PlayerAction;
 import poker.core.player.PlayerActionData;
 import poker.core.engine.GameEngineRegistry;
 import poker.service.handler.DBPlayerActionHandler;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service("PlayerActionHandlerService")
 @Log4j2
-@RequiredArgsConstructor
 @ToString
 public class PlayerActionHandlerService {
     private final GameEngineRegistry gameEngineRegistry;
-    private final Map<String, DBPlayerActionHandler> dbPlayerActionHandlerMap;
+    private final Map<PlayerAction, DBPlayerActionHandler> dbPlayerActionHandlerMap;
+
+    public PlayerActionHandlerService(GameEngineRegistry gameEngineRegistry,
+                                      List<DBPlayerActionHandler> dbPlayerActionHandlerList) {
+        this.gameEngineRegistry = gameEngineRegistry;
+
+        dbPlayerActionHandlerMap = new HashMap<>();
+        for (DBPlayerActionHandler dbPlayerActionHandler : dbPlayerActionHandlerList) {
+            dbPlayerActionHandlerMap.put(dbPlayerActionHandler.supportsPlayerAction(), dbPlayerActionHandler);
+        }
+    }
 
     public void handle(PlayerActionData pad) {
-        String actionName = pad.getPlayerAction().getActionName();
-        log.info("Handling {} player id {} game id {}",
-            actionName, pad.getPlayerDetails().getPlayer().getId(), pad.getGameId());
-//        TODO: Implement:
-//              ✓ 1. Snapshot of game state
-//              2. Handle action in Engine ( ✓ - join, start, disconnect)
-//              3. DB (✓ - join, start, disconnect) + Event in a single transaction
-//              ✓ 3.1. If success -> do nothing on this step
-//              ✓ 3.2. If fails -> rollback engine to snapshot
-//              ✓ 4. Return response from engine (already implemented in GameStateReportGenerator)
+        log.info("Handle {} player id {} game id {}",
+                pad.getPlayerAction().getActionName(), pad.getPlayerDetails().getPlayer().getId(), pad.getGameId());
 
         var gameEngine = gameEngineRegistry.getGameEngine(pad.getGameId());
+
         GameState snapshot = gameEngine.snapshot();
         log.debug("Snapshot: {}", snapshot);
 
         gameEngine.handlePlayerAction(pad);
         log.debug("Game state after handling action: {}", gameEngine.getGameState());
 
-        var dbPlayerActionHandler = dbPlayerActionHandlerMap.get(actionName);
+        var dbPlayerActionHandler = dbPlayerActionHandlerMap.get(pad.getPlayerAction());
 
         boolean isSuccess = dbPlayerActionHandler.handleAction(gameEngine, pad);
         if (!isSuccess) {
