@@ -13,8 +13,8 @@ import java.security.Principal;
 
 @Log4j2
 public class Util {
-    public static final long DEFAULT_LONG_VALUE = 0;
-    public static final int DEFAULT_INT_VALUE = 0;
+    public static final long ZERO_LONG = 0;
+    public static final int ZERO_INT = 0;
     public static final int INVALID_INT_VALUE = -1;
 
     public static PlayerDetails getPlayerDetailsFronCtx() {

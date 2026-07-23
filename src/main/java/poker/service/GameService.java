@@ -41,8 +41,8 @@ public class GameService {
             .potId(pot.getId())
             .createdAt(new Timestamp(System.currentTimeMillis()))
             .creatorPlayerId(creatorPlayerId)
-            .dealerId(Util.DEFAULT_LONG_VALUE)
-            .activePlayerId(Util.DEFAULT_LONG_VALUE)
+            .dealerId(Util.ZERO_LONG)
+            .activePlayerId(Util.ZERO_LONG)
             .build();
 
         var newGame = gameRepo.save(game);

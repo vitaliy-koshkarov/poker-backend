@@ -23,9 +23,9 @@ public class GameState {
     private int activePlayerIndex;
     private int maxPlayers;
     private int smallBlind;
-    private int smallBlindIndex;
+    private long smallBlindPlayerId;
     private int bigBlind;
-    private int bigBlindIndex;
+    private long bigBlindPlayerId;
     private int minRaise;
     private int buyIn;
     private GamePot gamePot;

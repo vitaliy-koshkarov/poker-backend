@@ -56,14 +56,19 @@ public class THEngine implements GameEngine {
         table.setDealerId(snapshot.getDealerId());
         table.setDealerIndex(snapshot.getDealerIndex());
         table.setActivePlayerId(snapshot.getActivePlayerId());
-        table.setActivePlayerIndex(snapshot.getActivePlayerIndex());
         table.setSmallBlind(snapshot.getSmallBlind());
-        table.setSmallBlindIndex(snapshot.getSmallBlindIndex());
+        table.setSmallBlindPlayerId(snapshot.getSmallBlindPlayerId());
         table.setBigBlind(snapshot.getBigBlind());
-        table.setBigBlindIndex(snapshot.getBigBlindIndex());
+        table.setBigBlindPlayerId(snapshot.getBigBlindPlayerId());
         table.setMinRaise(snapshot.getMinRaise());
         table.setPot(snapshot.getGamePot());
-        table.setPlayers(snapshot.getGamePlayers());
+
+        var playersMap = new HashMap<Long, GamePlayer>();
+        for (GamePlayer gamePlayer : snapshot.getGamePlayers()) {
+            playersMap.put(gamePlayer.getId(), gamePlayer);
+        }
+        table.setPlayersMap(playersMap);
+
         table.setDeck(snapshot.getDeck());
         table.setCommunityCards(snapshot.getCommunityCards());
         table.setPlayersSeats(snapshot.getPlayersSeats());
@@ -75,28 +80,28 @@ public class THEngine implements GameEngine {
 
     private void fold(PlayerActionData pad) {
         table.foldPlayer(pad.getPlayerDetails().getPlayer().getId());
-        table.overrideActivePlayer();
+        table.defineNewActivePlayer();
     }
 
     private void check(PlayerActionData pad) {
         table.checkPlayer(pad.getPlayerDetails().getPlayer().getId());
-        table.overrideActivePlayer();
+        table.defineNewActivePlayer();
     }
 
     private void bet(PlayerActionData pad) {
         int playerBet = pad.getPlayerBet();
-        GamePlayer player = table.getActivePlayers().get(0);
-        table.betPlayer(pad.getPlayerDetails().getPlayer().getId(), playerBet);
-        table.getPot().addPlayerBet(player, playerBet);
-        table.overrideActivePlayer();
+        GamePlayer activePlayer = table.getActivePlayer();
+        table.betPlayer(activePlayer.getId(), playerBet);
+        table.getPot().addPlayerBet(activePlayer, playerBet);
+        table.defineNewActivePlayer();
     }
 
     private void allIn(PlayerActionData pad) {
         int playerBet = pad.getPlayerBet();
-        GamePlayer player = table.getActivePlayers().get(0);
-        table.betPlayer(player.getId(), playerBet);
-        table.getPot().addPlayerBet(player, playerBet);
-        table.overrideActivePlayer();
+        GamePlayer activePlayer = table.getActivePlayer();
+        table.betPlayer(activePlayer.getId(), playerBet);
+        table.getPot().addPlayerBet(activePlayer, playerBet);
+        table.defineNewActivePlayer();
     }
 
     private void joinPlayer(PlayerActionData pad) {
@@ -105,7 +110,7 @@ public class THEngine implements GameEngine {
             .nickname(pad.getPlayerDetails().getPlayer().getNickname())
             .status(PlayerStatus.JOIN_THE_GAME)
             .chips(pad.getPlayerDetails().getPlayer().getChips())
-            .currentBet(Util.DEFAULT_INT_VALUE)
+            .currentBet(Util.ZERO_INT)
             .cards(new ArrayList<>())
             .build();
 
@@ -163,7 +168,7 @@ public class THEngine implements GameEngine {
 
 //        TODO: improve logic of evaluating hands and splitting pot between players
         var playersAndCombinations = new HashMap<GamePlayer, HandEvaluator>();
-        for (GamePlayer activePlayer : table.getActivePlayers()) {
+        for (GamePlayer activePlayer : table.getPlayers()) {
             var cards = new ArrayList<Card>();
             cards.addAll(table.getCommunityCards());
             cards.addAll(activePlayer.getCards());
