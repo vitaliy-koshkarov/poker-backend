@@ -11,7 +11,6 @@ import poker.core.player.GamePlayer;
 import poker.core.player.PlayerAction;
 import poker.core.player.PlayerActionData;
 import poker.service.*;
-import poker.util.Util;
 
 @Component
 @RequiredArgsConstructor
@@ -37,7 +36,7 @@ public class BetPlayerActionHandler implements DBPlayerActionHandler {
 
         gameService.updateActivePlayer(gameId, gameEngine.table().getActivePlayerId());
 
-        GamePlayer player = Util.getPlayerById(gameEngine, playerId);
+        GamePlayer player = gameEngine.table().getPlayerById(playerId);
         int currentBet = player.getCurrentBet();
         playerService.updateStatusAndChipsAndCurrentBet(player.getId(), player.getStatus(), player.getChips(), currentBet);
 

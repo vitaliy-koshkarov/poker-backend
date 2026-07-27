@@ -11,7 +11,6 @@ import poker.core.player.GamePlayer;
 import poker.core.player.PlayerAction;
 import poker.core.player.PlayerActionData;
 import poker.service.*;
-import poker.util.Util;
 
 @Component
 @RequiredArgsConstructor
@@ -34,7 +33,7 @@ public class AllInPlayerActionHandler implements DBPlayerActionHandler {
     public boolean handleAction(GameEngine gameEngine, PlayerActionData pad) {
         long gameId = gameEngine.table().getId();
         long playerId = pad.getPlayerId();
-        GamePlayer player = Util.getPlayerById(gameEngine, playerId);
+        GamePlayer player = gameEngine.table().getPlayerById(playerId);
 
         gameService.updateActivePlayer(gameId, gameEngine.table().getActivePlayerId());
 
