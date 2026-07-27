@@ -3,7 +3,6 @@ package poker.core.engine;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
-import poker.core.game.GamePot;
 import poker.core.game.GameStatus;
 import poker.core.game.GameTable;
 import poker.core.game.texasholdem.THEngine;
@@ -28,6 +27,7 @@ public class GameEngineRegistry {
         GameTable table = new THTable(gameId, game.getName(), game.getCreatorPlayerId(),
             game.getMaxPlayers(), game.getBuyIn(), GameStatus.getGameStatusByInt(game.getStatus()),
             game.getSmallBlind(), game.getBigBlind(), new THPot(game.getPotId()));
+
         GameEngine engine = new THEngine(table);
 
         gameEngineMap.put(gameId, engine);

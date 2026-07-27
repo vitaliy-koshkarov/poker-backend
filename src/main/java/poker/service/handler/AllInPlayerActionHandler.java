@@ -32,16 +32,16 @@ public class AllInPlayerActionHandler implements DBPlayerActionHandler {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean handleAction(GameEngine gameEngine, PlayerActionData pad) {
-        long gameId = gameEngine.getTable().getId();
+        long gameId = gameEngine.table().getId();
         long playerId = pad.getPlayerId();
         GamePlayer player = Util.getPlayerById(gameEngine, playerId);
 
-        gameService.updateActivePlayer(gameId, gameEngine.getTable().getActivePlayerId());
+        gameService.updateActivePlayer(gameId, gameEngine.table().getActivePlayerId());
 
         playerService.updateStatusAndChipsAndCurrentBet(
             player.getId(), player.getStatus(), player.getChips(), player.getCurrentBet());
 
-        GamePot pot = gameEngine.getTable().getPot();
+        GamePot pot = gameEngine.table().getPot();
         int currentBet = player.getCurrentBet();
         playerBetService.updatePlayerBet(playerId, pot.getId(), currentBet);
 

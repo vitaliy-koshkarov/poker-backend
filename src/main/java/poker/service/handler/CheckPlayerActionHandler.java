@@ -31,10 +31,10 @@ public class CheckPlayerActionHandler implements DBPlayerActionHandler {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean handleAction(GameEngine gameEngine, PlayerActionData pad) {
-        long gameId = gameEngine.getTable().getId();
+        long gameId = gameEngine.table().getId();
         long playerId = pad.getPlayerId();
 
-        gameService.updateActivePlayer(gameId, gameEngine.getTable().getActivePlayerId());
+        gameService.updateActivePlayer(gameId, gameEngine.table().getActivePlayerId());
         playerService.updatePlayerStatusAndCurrentBet(playerId, PlayerStatus.WAIT, Util.ZERO_INT);
 
         long eventId = gameEventService.createAndSaveEvent(gameEngine, pad);

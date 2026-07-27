@@ -21,14 +21,14 @@ public class BetGameEventFactory implements GameEventFactory {
     @Override
     public GameEvent create(GameEngine engine, PlayerActionData pad) {
         var gameEventData = GameEventData.builder()
-            .gameId(engine.getTable().getId())
+            .gameId(engine.table().getId())
             .userId(pad.getUserId())
             .playerId(pad.getPlayerId())
-            .potId(engine.getTable().getPot().getId())
-            .activePlayerId(engine.getTable().getActivePlayerId())
-            .playerStatus(engine.getTable().getPlayerById(pad.getPlayerId()).getStatus().getIntStatus())
+            .potId(engine.table().getPot().getId())
+            .activePlayerId(engine.table().getActivePlayerId())
+            .playerStatus(engine.table().getPlayerById(pad.getPlayerId()).getStatus().getIntStatus())
             .actionType(pad.getPlayerAction().getType())
-            .currentBet(engine.getTable().getPlayerById(pad.getPlayerId()).getCurrentBet())
+            .currentBet(engine.table().getPlayerById(pad.getPlayerId()).getCurrentBet())
             .dateTimeMs(pad.getDateTimeMs())
             .build();
 
@@ -36,7 +36,7 @@ public class BetGameEventFactory implements GameEventFactory {
             .gameId(gameEventData.getGameId())
             .userId(gameEventData.getUserId())
             .playerId(gameEventData.getPlayerId())
-            .potId(engine.getTable().getPot().getId())
+            .potId(engine.table().getPot().getId())
             .type(gameEventData.getActionType())
             .gameEventData(gameEventData)
             .createdAt(new Timestamp(gameEventData.getDateTimeMs()))

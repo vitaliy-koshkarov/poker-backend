@@ -67,7 +67,7 @@ public class WebSocketDisconnectEventListener {
     }
 
     private boolean isJoinedPlayerDisconnect(long gameId, long playerId) {
-        for (GamePlayer gamePlayer : gameEngineRegistry.getGameEngine(gameId).getTable().getPlayers()) {
+        for (GamePlayer gamePlayer : gameEngineRegistry.getGameEngine(gameId).table().getPlayers()) {
             if (gamePlayer.getId() == playerId) {
                 return true;
             }

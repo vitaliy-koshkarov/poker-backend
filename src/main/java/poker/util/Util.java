@@ -32,7 +32,7 @@ public class Util {
     }
 
     public static GamePlayer getPlayerById(GameEngine engine, long playerId) {
-        for (GamePlayer gp : engine.getTable().getPlayers()) {
+        for (GamePlayer gp : engine.table().getPlayers()) {
             if (gp.getId() == playerId) {
                 return gp;
             }

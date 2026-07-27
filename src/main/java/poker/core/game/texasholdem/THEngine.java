@@ -1,7 +1,5 @@
 package poker.core.game.texasholdem;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import poker.core.engine.GameEngine;
 import poker.core.game.GameState;
@@ -17,11 +15,8 @@ import java.util.*;
 
 import static poker.core.game.GameStatus.*;
 
-@RequiredArgsConstructor
-@Getter
 @Log4j2
-public class THEngine implements GameEngine {
-    private final GameTable table;
+public record THEngine(GameTable table) implements GameEngine {
 
     @Override
     public GameState getGameState() {

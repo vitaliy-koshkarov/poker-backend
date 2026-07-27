@@ -38,21 +38,21 @@ public class StartGamePlayerActionHandler implements DBPlayerActionHandler {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean handleAction(GameEngine gameEngine, PlayerActionData pad) {
-        long gameId = gameEngine.getTable().getId();
-        long dealerId = gameEngine.getTable().getDealerId();
+        long gameId = gameEngine.table().getId();
+        long dealerId = gameEngine.table().getDealerId();
         long playerId = pad.getPlayerId();
-        long activePlayerId = gameEngine.getTable().getActivePlayerId();
+        long activePlayerId = gameEngine.table().getActivePlayerId();
 
         gameService.startGame(gameId, dealerId, activePlayerId,
             GameStatus.PRE_FLOP, new Timestamp(pad.getDateTimeMs()));
 
-        List<GamePlayer> gamePlayers = gameEngine.getTable().getPlayers();
+        List<GamePlayer> gamePlayers = gameEngine.table().getPlayers();
 
         List<PlayerBet> playersBets = new LinkedList<>();
         for (GamePlayer gamePlayer : gamePlayers) {
             playersBets.add(
                 PlayerBet.builder()
-                    .potId(gameEngine.getTable().getPot().getId())
+                    .potId(gameEngine.table().getPot().getId())
                     .playerId(gamePlayer.getId())
                     .playerBet(gamePlayer.getCurrentBet())
                     .build()
@@ -67,7 +67,7 @@ public class StartGamePlayerActionHandler implements DBPlayerActionHandler {
         long eventId = gameEventService.createAndSaveEvent(gameEngine, pad);
 
         log.info("Player id {} {} game id {} status {} event id {}",
-            playerId, pad.getPlayerAction(), gameId, gameEngine.getTable().getGameStatus(), eventId);
+            playerId, pad.getPlayerAction(), gameId, gameEngine.table().getGameStatus(), eventId);
 
         return true;
     }

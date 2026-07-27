@@ -88,7 +88,7 @@ public class THTable implements GameTable {
             if (playersSeats[i] == playerId) return i;
         }
         log.error("Player id {} seat number not found", playerId);
-        return Util.INVALID_INT_VALUE; // TODO: throw ex and handle it above
+        return Util.INVALID_INT_VALUE;
     }
 
     @Override

@@ -21,10 +21,10 @@ public class DisconnectGameEventFactory implements GameEventFactory {
     @Override
     public GameEvent create(GameEngine engine, PlayerActionData pad) {
         var gameEventData = GameEventData.builder()
-            .gameId(engine.getTable().getId())
+            .gameId(engine.table().getId())
             .userId(pad.getUserId())
             .playerId(pad.getPlayerId())
-            .playerStatus(engine.getTable().getPlayerById(pad.getPlayerId()).getStatus().getIntStatus())
+            .playerStatus(engine.table().getPlayerById(pad.getPlayerId()).getStatus().getIntStatus())
             .actionType(pad.getPlayerAction().getType())
             .dateTimeMs(pad.getDateTimeMs())
             .build();
@@ -33,7 +33,7 @@ public class DisconnectGameEventFactory implements GameEventFactory {
             .gameId(gameEventData.getGameId())
             .userId(gameEventData.getUserId())
             .playerId(gameEventData.getPlayerId())
-            .potId(engine.getTable().getPot().getId())
+            .potId(engine.table().getPot().getId())
             .type(gameEventData.getActionType())
             .gameEventData(gameEventData)
             .createdAt(new Timestamp(gameEventData.getDateTimeMs()))
