@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import poker.core.engine.GameEngine;
 import poker.core.player.PlayerAction;
 import poker.core.player.PlayerActionData;
+import poker.core.player.PlayerStatus;
 import poker.model.event.GameEvent;
 import poker.model.event.GameEventData;
 
@@ -24,7 +25,7 @@ public class DisconnectGameEventFactory implements GameEventFactory {
             .gameId(engine.table().getId())
             .userId(pad.getUserId())
             .playerId(pad.getPlayerId())
-            .playerStatus(engine.table().getPlayerById(pad.getPlayerId()).getStatus().getIntStatus())
+            .playerStatus(PlayerStatus.NOT_IN_GAME.getIntStatus()) // todo: think how to handle accidental disconnects
             .actionType(pad.getPlayerAction().getType())
             .dateTimeMs(pad.getDateTimeMs())
             .build();
