@@ -22,19 +22,19 @@ public class THPot implements GamePot {
 
     @Override
     public void addPlayerBet(long playerId, int bet) {
-        total += bet;
-
         if (!playersBets.containsKey(playerId)) {
             playersBets.put(playerId, bet);
         } else {
             playersBets.put(playerId, playersBets.get(playerId) + bet);
         }
+
+        total += bet;
     }
 
     @Override
     public void refresh() {
-        total = 0;
         playersBets.clear();
+        total = 0;
     }
 
     @Override

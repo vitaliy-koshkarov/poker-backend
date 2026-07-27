@@ -45,7 +45,7 @@ public class GameController {
         var game = gameService.createGame(creatorPlayerId, createGameRequest);
 
         if (game != null) {
-            gameEngineRegistry.registerGame(game);
+            gameEngineRegistry.registerNewGame(game);
             log.info("Created game id {}", game.getId());
             return ResponseEntity.ok().build();
         }

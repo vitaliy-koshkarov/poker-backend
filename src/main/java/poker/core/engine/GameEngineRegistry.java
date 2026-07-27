@@ -21,21 +21,23 @@ import java.util.concurrent.ConcurrentHashMap;
 public class GameEngineRegistry {
     private final Map<Long, GameEngine> gameEngineMap = new ConcurrentHashMap<>();
 
-    public void registerGame(Game game) {
+    public void registerNewGame(Game game) {
         long gameId = game.getId();
         log.info("Registering game id {} with blinds {}/{}", gameId, game.getSmallBlind(), game.getBigBlind());
 
-        GamePot pot = new THPot(game.getPotId());
-//        TODO: restore pot, deck, community cards, players list, player's cards
-//        TODO: refactoring creation of the THTable
-//        TODO: When game load, all fields must be correctly set
         GameTable table = new THTable(gameId, game.getName(), game.getCreatorPlayerId(),
             game.getMaxPlayers(), game.getBuyIn(), GameStatus.getGameStatusByInt(game.getStatus()),
-            game.getSmallBlind(), game.getBigBlind(), pot);
+            game.getSmallBlind(), game.getBigBlind(), new THPot(game.getPotId()));
         GameEngine engine = new THEngine(table);
 
         gameEngineMap.put(gameId, engine);
         log.info("Game id {} registered", gameId);
+    }
+
+    public void recoverGame(Game game) {
+//        TODO: restore pot, deck, community cards, players list, player's cards
+//        TODO: refactoring creation of the THTable
+//        TODO: When game load, all fields must be correctly set
     }
 
     public GameEngine getGameEngine(long gameId) {

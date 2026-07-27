@@ -23,7 +23,7 @@ public class StartUpGameLoader implements ApplicationRunner {
         var gamesList = gameService.getListNonEndedGames();
         gamesList.forEach(game -> {
             log.info("{}", game);
-            gameEngineRegistry.registerGame(game);
+            gameEngineRegistry.recoverGame(game);
         });
         log.info("Loaded {} games", gamesList.size());
     }
