@@ -33,7 +33,7 @@ public class AllInPlayerActionHandler implements DBPlayerActionHandler {
     @Transactional(rollbackFor = Exception.class)
     public boolean handleAction(GameEngine gameEngine, PlayerActionData pad) {
         long gameId = gameEngine.getTable().getId();
-        long playerId = pad.getPlayerDetails().getPlayer().getId();
+        long playerId = pad.getPlayerId();
         GamePlayer player = Util.getPlayerById(gameEngine, playerId);
 
         gameService.updateActivePlayer(gameId, gameEngine.getTable().getActivePlayerId());

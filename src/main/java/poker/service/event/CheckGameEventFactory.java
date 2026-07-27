@@ -22,18 +22,12 @@ public class CheckGameEventFactory implements GameEventFactory {
     public GameEvent create(GameEngine engine, PlayerActionData pad) {
         var gameEventData = GameEventData.builder()
             .gameId(engine.getTable().getId())
-            .userId(pad.getPlayerDetails().getUser().getId())
-            .playerId(pad.getPlayerDetails().getPlayer().getId())
+            .userId(pad.getUserId())
+            .playerId(pad.getPlayerId())
             .gameStatus(engine.getTable().getGameStatus().getIntStatus())
-            .playerStatus(EventUtil.getPlayerStatus(
-                engine.getTable().getPlayers(),
-                pad.getPlayerDetails().getPlayer().getId())
-            )
+            .playerStatus(EventUtil.getPlayerStatus(engine.getTable().getPlayers(), pad.getPlayerId()))
             .actionType(pad.getPlayerAction().getType())
-            .currentBet(EventUtil.getPlayerCurrentBet(
-                engine.getTable().getPlayers(),
-                pad.getPlayerDetails().getPlayer().getId())
-            )
+            .currentBet(EventUtil.getPlayerCurrentBet(engine.getTable().getPlayers(), pad.getPlayerId()))
             .dateTimeMs(pad.getDateTimeMs())
             .build();
 

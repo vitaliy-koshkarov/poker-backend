@@ -30,16 +30,13 @@ public class StartGameEventFactory implements GameEventFactory {
     public GameEvent create(GameEngine engine, PlayerActionData pad) {
         GameEventData gameEventData = GameEventData.builder()
             .gameId(engine.getTable().getId())
-            .userId(pad.getPlayerDetails().getUser().getId())
-            .playerId(pad.getPlayerDetails().getPlayer().getId())
+            .userId(pad.getUserId())
+            .playerId(pad.getPlayerId())
             .potId(engine.getTable().getPot().getId())
             .dealerId(engine.getTable().getDealerId())
             .activePlayerId(engine.getTable().getActivePlayerId())
             .gameStatus(engine.getTable().getGameStatus().getIntStatus())
-            .playerStatus(EventUtil.getPlayerStatus(
-                engine.getTable().getPlayers(),
-                pad.getPlayerDetails().getPlayer().getId())
-            )
+            .playerStatus(EventUtil.getPlayerStatus(engine.getTable().getPlayers(), pad.getPlayerId()))
             .smallBlind(engine.getTable().getSmallBlind())
             .bigBlind(engine.getTable().getBigBlind())
             .buyIn(engine.getTable().getBuyIn())
@@ -50,8 +47,8 @@ public class StartGameEventFactory implements GameEventFactory {
 
         return GameEvent.builder()
             .gameId(engine.getTable().getId())
-            .userId(pad.getPlayerDetails().getUser().getId())
-            .playerId(pad.getPlayerDetails().getPlayer().getId())
+            .userId(pad.getUserId())
+            .playerId(pad.getPlayerId())
             .potId(engine.getTable().getPot().getId())
             .type(pad.getPlayerAction().getType())
             .gameEventData(gameEventData)

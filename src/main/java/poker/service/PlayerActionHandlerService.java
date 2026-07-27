@@ -32,7 +32,7 @@ public class PlayerActionHandlerService {
 
     public void handle(PlayerActionData pad) {
         log.info("Handle {} player id {} game id {}",
-                pad.getPlayerAction().getActionName(), pad.getPlayerDetails().getPlayer().getId(), pad.getGameId());
+            pad.getPlayerAction().getActionName(), pad.getPlayerId(), pad.getGameId());
 
         var gameEngine = gameEngineRegistry.getGameEngine(pad.getGameId());
 

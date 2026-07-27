@@ -6,13 +6,15 @@ import poker.util.Util;
 import java.util.List;
 
 public class EventUtil {
+//    TODO: get status and bet from players map
+
     public static int getPlayerStatus(List<GamePlayer> gamePlayers, long playerId) {
         for (GamePlayer gp : gamePlayers) {
             if (gp.getId() == playerId) {
                 return gp.getStatus().getIntStatus();
             }
         }
-        return Util.INVALID_INT_VALUE; // TODO: throw ex and handle it above
+        return Util.INVALID_INT_VALUE;
     }
 
     public static int getPlayerCurrentBet(List<GamePlayer> gamePlayers, long playerId) {
@@ -21,6 +23,6 @@ public class EventUtil {
                 return gp.getCurrentBet();
             }
         }
-        return Util.INVALID_INT_VALUE; // TODO: throw ex and handle it above
+        return Util.INVALID_INT_VALUE;
     }
 }

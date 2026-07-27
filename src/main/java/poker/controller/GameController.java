@@ -79,7 +79,7 @@ public class GameController {
 
 //        TODO: validate
 
-        PlayerActionData pad = PlayerActionDataConverter.convert(gameId, playerDetails, PlayerAction.START_GAME);
+        PlayerActionData pad = PlayerActionDataConverter.forStartGameAndDisconnect(gameId, playerDetails, PlayerAction.START_GAME);
         playerActionHandlerService.handle(pad);
 
         GameDTO gameDTO = gameStateResponseGenerator.generateResponse(gameId);

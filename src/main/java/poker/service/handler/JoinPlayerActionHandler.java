@@ -30,8 +30,8 @@ public class JoinPlayerActionHandler implements DBPlayerActionHandler {
     @Transactional(rollbackFor = Exception.class)
     public boolean handleAction(GameEngine gameEngine, PlayerActionData pad) {
         long gameId = pad.getGameId();
-        long userId = pad.getPlayerDetails().getUser().getId();
-        long playerId = pad.getPlayerDetails().getPlayer().getId();
+        long userId = pad.getUserId();
+        long playerId = pad.getPlayerId();
 
         int playerSeatNumber = gameEngine.getTable().getPlayerSeatNumber(playerId);
         long playerSeatId = playerSeatService.createPlayerSeat(userId, playerId, gameId, playerSeatNumber);

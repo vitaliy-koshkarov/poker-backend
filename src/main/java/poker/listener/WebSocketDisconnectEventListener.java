@@ -51,7 +51,7 @@ public class WebSocketDisconnectEventListener {
 
         boolean isJoinedPlayerDisconnect = isJoinedPlayerDisconnect(gameId, playerId);
 
-        PlayerActionData pad = PlayerActionDataConverter.convert(gameId, playerDetails, PlayerAction.DISCONNECT);
+        PlayerActionData pad = PlayerActionDataConverter.forStartGameAndDisconnect(gameId, playerDetails, PlayerAction.DISCONNECT);
         playerActionHandlerService.handle(pad);
 
         webSocketPlayerSessionService.removeSession(sessionId);

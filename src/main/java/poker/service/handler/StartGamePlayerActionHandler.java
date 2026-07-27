@@ -40,7 +40,7 @@ public class StartGamePlayerActionHandler implements DBPlayerActionHandler {
     public boolean handleAction(GameEngine gameEngine, PlayerActionData pad) {
         long gameId = gameEngine.getTable().getId();
         long dealerId = gameEngine.getTable().getDealerId();
-        long playerId = pad.getPlayerDetails().getPlayer().getId();
+        long playerId = pad.getPlayerId();
         long activePlayerId = gameEngine.getTable().getActivePlayerId();
 
         gameService.startGame(gameId, dealerId, activePlayerId,

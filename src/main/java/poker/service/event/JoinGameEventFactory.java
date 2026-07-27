@@ -22,13 +22,10 @@ public class JoinGameEventFactory implements GameEventFactory {
     public GameEvent create(GameEngine engine, PlayerActionData pad) {
         var gameEventData = GameEventData.builder()
             .gameId(engine.getTable().getId())
-            .userId(pad.getPlayerDetails().getUser().getId())
-            .playerId(pad.getPlayerDetails().getPlayer().getId())
-            .seatNumber(engine.getTable().getPlayerSeatNumber(pad.getPlayerDetails().getPlayer().getId()))
-            .playerStatus(EventUtil.getPlayerStatus(
-                engine.getTable().getPlayers(),
-                pad.getPlayerDetails().getPlayer().getId())
-            )
+            .userId(pad.getUserId())
+            .playerId(pad.getPlayerId())
+            .seatNumber(engine.getTable().getPlayerSeatNumber(pad.getPlayerId()))
+            .playerStatus(EventUtil.getPlayerStatus(engine.getTable().getPlayers(), pad.getPlayerId()))
             .actionType(pad.getPlayerAction().getType())
             .dateTimeMs(pad.getDateTimeMs())
             .build();

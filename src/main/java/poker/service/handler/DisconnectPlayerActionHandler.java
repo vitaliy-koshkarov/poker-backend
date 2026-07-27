@@ -33,10 +33,10 @@ public class DisconnectPlayerActionHandler implements DBPlayerActionHandler {
     @Transactional(rollbackFor = Exception.class)
     public boolean handleAction(GameEngine gameEngine, PlayerActionData pad) {
         long gameId = pad.getGameId();
-        long playerId = pad.getPlayerDetails().getPlayer().getId();
+        long playerId = pad.getPlayerId();
 
         playerService.updatePlayerStatus(playerId, PlayerStatus.NOT_IN_GAME);
-        playerSeatService.releasePlayerSeat(pad.getPlayerDetails().getUser().getId(), playerId, gameId);
+        playerSeatService.releasePlayerSeat(pad.getUserId(), playerId, gameId);
 
         long eventId = gameEventService.createAndSaveEvent(gameEngine, pad);
 
