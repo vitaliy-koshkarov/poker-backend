@@ -50,6 +50,9 @@ public class THTable implements GameTable {
 
     private List<Card> communityCards;
 
+    /**
+     * Index is a player seat number
+     */
     private long[] playersSeats;
 
     public THTable(long id, String name, long creatorPlayerId, int maxPlayers, int buyIn,
@@ -86,6 +89,11 @@ public class THTable implements GameTable {
         }
         log.error("Player id {} seat number not found", playerId);
         return Util.INVALID_INT_VALUE; // TODO: throw ex and handle it above
+    }
+
+    @Override
+    public GamePlayer getPlayerById(long playerId) {
+        return playersMap.get(playerId);
     }
 
     @Override

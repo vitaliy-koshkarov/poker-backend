@@ -25,9 +25,9 @@ public class CheckGameEventFactory implements GameEventFactory {
             .userId(pad.getUserId())
             .playerId(pad.getPlayerId())
             .gameStatus(engine.getTable().getGameStatus().getIntStatus())
-            .playerStatus(EventUtil.getPlayerStatus(engine.getTable().getPlayers(), pad.getPlayerId()))
+            .playerStatus(engine.getTable().getPlayerById(pad.getPlayerId()).getStatus().getIntStatus())
             .actionType(pad.getPlayerAction().getType())
-            .currentBet(EventUtil.getPlayerCurrentBet(engine.getTable().getPlayers(), pad.getPlayerId()))
+            .currentBet(engine.getTable().getPlayerById(pad.getPlayerId()).getCurrentBet())
             .dateTimeMs(pad.getDateTimeMs())
             .build();
 

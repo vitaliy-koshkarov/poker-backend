@@ -24,7 +24,7 @@ public class DisconnectGameEventFactory implements GameEventFactory {
             .gameId(engine.getTable().getId())
             .userId(pad.getUserId())
             .playerId(pad.getPlayerId())
-            .playerStatus(EventUtil.getPlayerStatus(engine.getTable().getPlayers(), pad.getPlayerId()))
+            .playerStatus(engine.getTable().getPlayerById(pad.getPlayerId()).getStatus().getIntStatus())
             .actionType(pad.getPlayerAction().getType())
             .dateTimeMs(pad.getDateTimeMs())
             .build();

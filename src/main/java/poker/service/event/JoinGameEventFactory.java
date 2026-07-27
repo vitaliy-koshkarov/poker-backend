@@ -25,7 +25,7 @@ public class JoinGameEventFactory implements GameEventFactory {
             .userId(pad.getUserId())
             .playerId(pad.getPlayerId())
             .seatNumber(engine.getTable().getPlayerSeatNumber(pad.getPlayerId()))
-            .playerStatus(EventUtil.getPlayerStatus(engine.getTable().getPlayers(), pad.getPlayerId()))
+            .playerStatus(engine.getTable().getPlayerById(pad.getPlayerId()).getStatus().getIntStatus())
             .actionType(pad.getPlayerAction().getType())
             .dateTimeMs(pad.getDateTimeMs())
             .build();

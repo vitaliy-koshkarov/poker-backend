@@ -36,7 +36,7 @@ public class StartGameEventFactory implements GameEventFactory {
             .dealerId(engine.getTable().getDealerId())
             .activePlayerId(engine.getTable().getActivePlayerId())
             .gameStatus(engine.getTable().getGameStatus().getIntStatus())
-            .playerStatus(EventUtil.getPlayerStatus(engine.getTable().getPlayers(), pad.getPlayerId()))
+            .playerStatus(engine.getTable().getPlayerById(pad.getPlayerId()).getStatus().getIntStatus())
             .smallBlind(engine.getTable().getSmallBlind())
             .bigBlind(engine.getTable().getBigBlind())
             .buyIn(engine.getTable().getBuyIn())
