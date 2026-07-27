@@ -35,9 +35,6 @@ public class GameEngineRegistry {
     }
 
     public void recoverGame(Game game) {
-//        TODO: restore pot, deck, community cards, players list, player's cards
-//        TODO: refactoring creation of the THTable
-//        TODO: When game load, all fields must be correctly set
     }
 
     public GameEngine getGameEngine(long gameId) {
