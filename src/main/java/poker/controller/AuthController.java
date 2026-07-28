@@ -12,56 +12,43 @@ import poker.dto.auth.LoginRequest;
 import poker.dto.auth.GetCurrentPlayerIdResponse;
 import poker.dto.auth.RegistrationRequest;
 import poker.service.AuthService;
-import poker.service.PlayerService;
 import poker.service.UserService;
 import poker.util.Util;
-
-import java.sql.Timestamp;
 
 @RestController
 @RequestMapping("/api/auth")
 @Log4j2
 public class AuthController {
+    private final ValidationService validationService;
     private final UserService userService;
-    private final PlayerService playerService;
     private final PasswordEncoder passwordEncoder;
     private final AuthService authService;
 
-    public AuthController(UserService userService,
-                          PlayerService playerService,
+    public AuthController(ValidationService validationService,
+                          UserService userService,
                           @Qualifier("pokerPasswordEncoder") PasswordEncoder passwordEncoder,
                           AuthService authService) {
+        this.validationService = validationService;
         this.userService = userService;
-        this.playerService = playerService;
         this.passwordEncoder = passwordEncoder;
         this.authService = authService;
     }
 
     @PostMapping("/register")
-    public AuthResponse register(@RequestBody RegistrationRequest registerRequest) {
-        log.info("Register user with email {}, nickname {}", registerRequest.email(), registerRequest.nickname());
+    public ResponseEntity<?> register(@RequestBody RegistrationRequest request) {
+        log.info("Register user with email {}, nickname {}", request.email(), request.nickname());
 
-        if (userService.isUserExistsByEmail(registerRequest.email())) {
-            log.error("Email {} already exists", registerRequest.email());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email taken");
-        }
+//        TODO: handle error when empty token sends. Do not redirect to profile page
+        validationService.validateRegistration(request);
 
-        if (playerService.isPlayerExistsByNickname(registerRequest.nickname())) {
-            log.error("Nickname {} already exists", registerRequest.nickname());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nickname taken");
-        }
-
-        var now = new Timestamp(System.currentTimeMillis());
-
-        var user = userService.createUser(registerRequest.email(), registerRequest.password(),
-            registerRequest.nickname(), now);
+        var user = userService.createUser(request.email(), request.password(), request.nickname());
 
         String token = "";
         if (user != null) {
             token = authService.generateToken(user);
         }
 
-        return new AuthResponse(token);
+        return ResponseEntity.ok(new AuthResponse(token));
     }
 
     @PostMapping("/login")
