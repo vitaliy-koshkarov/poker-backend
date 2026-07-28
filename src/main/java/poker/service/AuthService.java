@@ -9,6 +9,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import poker.config.JwtProps;
 import poker.model.User;
 
 import java.nio.charset.StandardCharsets;
@@ -18,9 +19,7 @@ import java.util.Date;
 @Log4j2
 @RequiredArgsConstructor
 public class AuthService {
-//    TODO: use values from config file
-    private final String secret = "temp-more-long-enough-not-super-secret-key";
-    private final long expirationMs = 86_400_000; // 24h
+    private final JwtProps jwtProps;
     private final PokerUserDetailService puds;
 
     public String generateToken(User user) {
@@ -32,8 +31,8 @@ public class AuthService {
             .subject(user.getEmail())
             .claim("role", user.getRole())
             .issuedAt(now)
-            .expiration(new Date(now.getTime() + expirationMs))
-            .signWith(Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8)), Jwts.SIG.HS256)
+            .expiration(new Date(now.getTime() + jwtProps.getExpirationMs()))
+            .signWith(Keys.hmacShaKeyFor(jwtProps.getSecret().getBytes(StandardCharsets.UTF_8)), Jwts.SIG.HS256)
             .compact();
 
         log.info("Generated JWT for user {}", userId);
@@ -46,7 +45,7 @@ public class AuthService {
             extractClaims(token);
             return true;
         } catch (Exception ex) {
-            log.error("Invalid token received", ex);
+            log.error("Invalid token received\r\n{}: {}", ex.getClass(), ex.getMessage());
             return false;
         }
     }
@@ -82,7 +81,7 @@ public class AuthService {
 
     private Claims extractClaims(String token) {
         return Jwts.parser()
-            .verifyWith(Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8)))
+            .verifyWith(Keys.hmacShaKeyFor(jwtProps.getSecret().getBytes(StandardCharsets.UTF_8)))
             .build()
             .parseSignedClaims(token)
             .getPayload();

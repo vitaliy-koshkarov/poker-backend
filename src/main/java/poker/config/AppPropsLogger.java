@@ -8,15 +8,18 @@ import org.springframework.stereotype.Component;
 @Component
 @Log4j2
 public class AppPropsLogger implements ApplicationRunner {
+    private final JwtProps jwtProps;
     private final GameProps gameProps;
 
-    public AppPropsLogger(GameProps gameProps) {
+    public AppPropsLogger(JwtProps jwtProps, GameProps gameProps) {
+        this.jwtProps = jwtProps;
         this.gameProps = gameProps;
     }
 
     @Override
     public void run(ApplicationArguments args) {
         log.info("App properties:");
+        log.info("jwt.expirationMs={}", jwtProps.getExpirationMs());
         log.info("smallBlind={}", gameProps.getSmallBlind());
         log.info("bigBlind={}", gameProps.getBigBlind());
     }

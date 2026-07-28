@@ -1,5 +1,8 @@
 app:
   name: "poker-backend"
+  jwt:
+    secret: "temp-local-long-enough-not-super-secret-key"
+    expirationMs: 86400000 # 24 hours
   game:
     small-blind: 5
     big-blind: 10
