@@ -1,18 +1,15 @@
 package poker.controller;
 
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import poker.dto.auth.AuthResponse;
 import poker.dto.auth.LoginRequest;
 import poker.dto.auth.GetCurrentPlayerIdResponse;
 import poker.dto.auth.RegistrationRequest;
 import poker.service.AuthService;
 import poker.service.UserService;
+import poker.service.ValidationService;
 import poker.util.Util;
 
 @RestController
@@ -21,16 +18,13 @@ import poker.util.Util;
 public class AuthController {
     private final ValidationService validationService;
     private final UserService userService;
-    private final PasswordEncoder passwordEncoder;
     private final AuthService authService;
 
     public AuthController(ValidationService validationService,
                           UserService userService,
-                          @Qualifier("pokerPasswordEncoder") PasswordEncoder passwordEncoder,
                           AuthService authService) {
         this.validationService = validationService;
         this.userService = userService;
-        this.passwordEncoder = passwordEncoder;
         this.authService = authService;
     }
 
@@ -39,7 +33,7 @@ public class AuthController {
         log.info("Register user with email {}, nickname {}", request.email(), request.nickname());
 
 //        TODO: handle error when empty token sends. Do not redirect to profile page
-        validationService.validateRegistration(request);
+        validationService.validateRegistrationRequest(request);
 
         var user = userService.createUser(request.email(), request.password(), request.nickname());
 
@@ -54,21 +48,13 @@ public class AuthController {
     @PostMapping("/login")
     public AuthResponse login(@RequestBody LoginRequest loginReq) {
         log.info("Login user {}", loginReq.email());
+//        TODO: add email parsing validation
 
         var user = userService.getUserByEmail(loginReq.email());
 
-        if (user == null) {
-            log.info("User not found by email {}", loginReq.email());
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "User not found");
-        }
-
-        if (!passwordEncoder.matches(loginReq.password(), user.getPassword())) {
-            log.error("Passwords do not match for user {}", loginReq.email());
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Wrong password");
-        }
+        validationService.validateLogin(user, loginReq);
 
         var token = authService.generateToken(user);
-
         log.info("Successful login user id {}, email {}", user.getId(), user.getEmail());
 
         return new AuthResponse(token);
