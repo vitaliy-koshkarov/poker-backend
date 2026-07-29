@@ -2,7 +2,6 @@ package poker.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import poker.core.player.PlayerActionData;
@@ -10,19 +9,15 @@ import poker.dto.PlayerActionDataConverter;
 import poker.dto.game.*;
 import poker.core.engine.GameEngineRegistry;
 import poker.core.player.PlayerAction;
-import poker.service.WebSocketGameStateBroadcaster;
-import poker.service.GameStateResponseGenerator;
-import poker.service.PlayerActionHandlerService;
-import poker.service.GameService;
+import poker.service.*;
 import poker.util.Util;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/game")
 @Log4j2
 @RequiredArgsConstructor
 public class GameController {
+    private final ValidationService validationService;
     private final GameService gameService;
     private final GameEngineRegistry gameEngineRegistry;
     private final PlayerActionHandlerService playerActionHandlerService;
@@ -35,23 +30,17 @@ public class GameController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<String> createGame(@RequestBody CreateGameRequest createGameRequest) {
+    public ResponseEntity<?> createGame(@RequestBody CreateGameRequest createGameRequest) {
         var creatorPlayerId = Util.getPlayerDetailsFronCtx()
             .getPlayer()
             .getId();
-        log.info("Create game request {} from player id {}", createGameRequest, creatorPlayerId);
+        log.info("Create game request {}, player id {}", createGameRequest, creatorPlayerId);
 
-        var game = gameService.createGame(creatorPlayerId, createGameRequest);
+        validationService.validateCreatingGame(createGameRequest);
 
-        if (game != null) {
-            gameEngineRegistry.registerNewGame(game);
-            log.info("Created game id {}", game.getId());
-            return ResponseEntity.ok().build();
-        }
+        gameService.createGame(creatorPlayerId, createGameRequest);
 
-        log.error("Creation game error");
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body("Game creation error. Please, try again later");
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/delete/{id}")

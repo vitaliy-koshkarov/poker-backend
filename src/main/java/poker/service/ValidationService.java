@@ -6,8 +6,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import poker.core.engine.GameEngine;
+import poker.core.engine.GameEngineRegistry;
 import poker.dto.auth.LoginRequest;
 import poker.dto.auth.RegistrationRequest;
+import poker.dto.game.CreateGameRequest;
 import poker.dto.profile.ProfileInfoRequest;
 import poker.dto.profile.UpdatePasswordRequest;
 import poker.model.PlayerDetails;
@@ -18,6 +21,7 @@ import poker.model.User;
 @RequiredArgsConstructor
 public class ValidationService {
     private final PasswordEncoder passwordEncoder;
+    private final GameEngineRegistry gameEngineRegistry;
     private final UserService userService;
     private final PlayerService playerService;
 
@@ -66,6 +70,17 @@ public class ValidationService {
         if (currentPassword.equals(request.newPassword())) {
             log.info("The passwords must be different, user id {}", playerDetails.getUser().getId());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The new password must be different from the current one");
+        }
+    }
+
+    public void validateCreatingGame(CreateGameRequest request) {
+//        todo: add check for buyIn and maxPlayers values
+        String gameName = request.name();
+        for (GameEngine engine : gameEngineRegistry.getGameEngineCollection()) {
+            if (engine.table().getName().equals(gameName)) {
+                log.info("Game with name {} already exists", gameName);
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Game with name " + gameName + " already exists");
+            }
         }
     }
 }
