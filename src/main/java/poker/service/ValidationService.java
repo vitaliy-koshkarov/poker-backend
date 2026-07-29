@@ -9,6 +9,8 @@ import org.springframework.web.server.ResponseStatusException;
 import poker.dto.auth.LoginRequest;
 import poker.dto.auth.RegistrationRequest;
 import poker.dto.profile.ProfileInfoRequest;
+import poker.dto.profile.UpdatePasswordRequest;
+import poker.model.PlayerDetails;
 import poker.model.User;
 
 @Service
@@ -50,6 +52,20 @@ public class ValidationService {
         String nickname = request.nickname();
         if (playerService.isPlayerExistsByNickname(nickname)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Nickname " + nickname + " taken");
+        }
+    }
+
+    public void validateChangePassword(UpdatePasswordRequest request, PlayerDetails playerDetails) {
+        String currentPassword = request.currentPassword();
+
+        if (!passwordEncoder.matches(currentPassword, playerDetails.getUser().getPassword())) {
+            log.info("Passwords do not match, user id {}", playerDetails.getUser().getId());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong current password");
+        }
+
+        if (currentPassword.equals(request.newPassword())) {
+            log.info("The passwords must be different, user id {}", playerDetails.getUser().getId());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The new password must be different from the current one");
         }
     }
 }
