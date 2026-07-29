@@ -46,7 +46,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public AuthResponse login(@RequestBody LoginRequest loginReq) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginReq) {
         log.info("Login user {}", loginReq.email());
 //        TODO: add email parsing validation
 
@@ -57,7 +57,7 @@ public class AuthController {
         var token = authService.generateToken(user);
         log.info("Successful login user id {}, email {}", user.getId(), user.getEmail());
 
-        return new AuthResponse(token);
+        return ResponseEntity.ok(new AuthResponse(token));
     }
 
     @PostMapping("/logout")

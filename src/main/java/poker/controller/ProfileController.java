@@ -32,20 +32,17 @@ public class ProfileController {
     }
 
     @GetMapping("/getProfileInfo")
-    public ProfileInfoResponse getProfileInfo() {
+    public ResponseEntity<?> getProfileInfo() {
         var playerDetails = Util.getPlayerDetailsFronCtx();
-        Long userId = playerDetails.getUser().getId();
-
-        log.info("getProfileInfo user {}", userId);
-
-        var player = playerService.getPlayerByUserId(userId);
+        log.info("getProfileInfo user id {}", playerDetails.getUser().getId());
 
         var profileInfoResponse = ProfileInfoResponse.builder()
             .email(playerDetails.getUser().getEmail())
-            .nickname(player.getNickname())
+            .nickname(playerDetails.getPlayer().getNickname())
             .build();
-        log.info("getProfileInfo response {}", profileInfoResponse);
-        return profileInfoResponse;
+        log.debug("getProfileInfo response {}", profileInfoResponse);
+
+        return ResponseEntity.ok(profileInfoResponse);
     }
 
     @PostMapping("/updateProfileInfo")
