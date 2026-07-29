@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import poker.dto.auth.AuthResponse;
 import poker.dto.auth.LoginRequest;
-import poker.dto.auth.CurrentPlayerIdResponse;
 import poker.dto.auth.RegistrationRequest;
 import poker.service.AuthService;
 import poker.service.UserService;
@@ -67,13 +66,7 @@ public class AuthController {
     }
 
     @GetMapping("/getCurrentPlayerId")
-    public CurrentPlayerIdResponse getCurrentPlayerId() {
-        log.info("Request getCurrentPlayerId");
-        return CurrentPlayerIdResponse.builder()
-            .currentPlayerId(Util.getPlayerDetailsFronCtx()
-                .getPlayer()
-                .getId()
-            )
-            .build();
+    public ResponseEntity<?> getCurrentPlayerId() {
+        return ResponseEntity.ok(Util.getPlayerDetailsFronCtx().getPlayer().getId());
     }
 }
