@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import poker.dto.auth.AuthResponse;
 import poker.dto.auth.LoginRequest;
-import poker.dto.auth.GetCurrentPlayerIdResponse;
+import poker.dto.auth.CurrentPlayerIdResponse;
 import poker.dto.auth.RegistrationRequest;
 import poker.service.AuthService;
 import poker.service.UserService;
@@ -32,7 +32,7 @@ public class AuthController {
     public ResponseEntity<?> register(@RequestBody RegistrationRequest request) {
         log.info("Register user with email {}, nickname {}", request.email(), request.nickname());
 
-//        TODO: handle error when empty token sends. Do not redirect to profile page
+//        TODO: add email parsing validation
         validationService.validateRegistrationRequest(request);
 
         var user = userService.createUser(request.email(), request.password(), request.nickname());
@@ -62,18 +62,18 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout() {
-//        TODO: check id from JWT
-        Long userId = Util.getPlayerDetailsFronCtx().getUser().getId();
-        log.info("Logout user {}", userId);
+        log.info("Logout user {}", Util.getPlayerDetailsFronCtx().getUser().getId());
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/getCurrentPlayerId")
-    public GetCurrentPlayerIdResponse getCurrentPlayerId() {
+    public CurrentPlayerIdResponse getCurrentPlayerId() {
         log.info("Request getCurrentPlayerId");
-        var playerDetails = Util.getPlayerDetailsFronCtx();
-        return GetCurrentPlayerIdResponse.builder()
-            .currentPlayerId(playerDetails.getPlayer().getId())
+        return CurrentPlayerIdResponse.builder()
+            .currentPlayerId(Util.getPlayerDetailsFronCtx()
+                .getPlayer()
+                .getId()
+            )
             .build();
     }
 }

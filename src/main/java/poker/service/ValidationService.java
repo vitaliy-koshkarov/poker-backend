@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import poker.dto.auth.LoginRequest;
 import poker.dto.auth.RegistrationRequest;
+import poker.dto.profile.ProfileInfoRequest;
 import poker.model.User;
 
 @Service
@@ -42,6 +43,13 @@ public class ValidationService {
         if (!passwordEncoder.matches(loginReq.password(), user.getPassword())) {
             log.info("Passwords do not match for user {}", loginReq.email());
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Wrong password");
+        }
+    }
+
+    public void validateUpdProfileInfo(ProfileInfoRequest request) {
+        String nickname = request.nickname();
+        if (playerService.isPlayerExistsByNickname(nickname)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Nickname " + nickname + " taken");
         }
     }
 }

@@ -11,21 +11,25 @@ import poker.dto.profile.ProfileInfoResponse;
 import poker.dto.profile.UpdatePasswordRequest;
 import poker.service.PlayerService;
 import poker.service.UserService;
+import poker.service.ValidationService;
 import poker.util.Util;
 
 @RestController
 @RequestMapping("/api/profile")
 @Log4j2
 public class ProfileController {
+    private final ValidationService validationService;
     private final UserService userService;
     private final PlayerService playerService;
     private final PasswordEncoder passwordEncoder;
     private final AuthService authService;
 
-    public ProfileController(UserService userService,
+    public ProfileController(ValidationService validationService,
+                             UserService userService,
                              PlayerService playerService,
                              PasswordEncoder passwordEncoder,
                              AuthService authService) {
+        this.validationService = validationService;
         this.userService = userService;
         this.playerService = playerService;
         this.passwordEncoder = passwordEncoder;
@@ -53,10 +57,11 @@ public class ProfileController {
     public ResponseEntity<?> updateProfileInfo(@RequestBody ProfileInfoRequest req) {
         var playerDetails = Util.getPlayerDetailsFronCtx();
 
-//        todo: validation
+        validationService.validateUpdProfileInfo(req);
+
         playerService.updateProfileInfo(playerDetails, req.nickname());
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("Profile updated");
     }
 
     @PostMapping("/updatePassword")
