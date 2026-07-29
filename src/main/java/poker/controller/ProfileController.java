@@ -1,92 +1,69 @@
 package poker.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import poker.service.AuthService;
 import poker.dto.profile.ProfileInfoRequest;
 import poker.dto.profile.ProfileInfoResponse;
 import poker.dto.profile.UpdatePasswordRequest;
 import poker.service.PlayerService;
 import poker.service.UserService;
+import poker.service.ValidationService;
 import poker.util.Util;
 
 @RestController
 @RequestMapping("/api/profile")
 @Log4j2
 public class ProfileController {
+    private final ValidationService validationService;
     private final UserService userService;
     private final PlayerService playerService;
     private final PasswordEncoder passwordEncoder;
-    private final AuthService authService;
 
-    public ProfileController(UserService userService,
+    public ProfileController(ValidationService validationService,
+                             UserService userService,
                              PlayerService playerService,
-                             PasswordEncoder passwordEncoder,
-                             AuthService authService) {
+                             PasswordEncoder passwordEncoder) {
+        this.validationService = validationService;
         this.userService = userService;
         this.playerService = playerService;
         this.passwordEncoder = passwordEncoder;
-        this.authService = authService;
     }
 
     @GetMapping("/getProfileInfo")
-    public ProfileInfoResponse getProfileInfo() {
+    public ResponseEntity<?> getProfileInfo() {
         var playerDetails = Util.getPlayerDetailsFronCtx();
-        Long userId = playerDetails.getUser().getId();
-
-        log.info("getProfileInfo user {}", userId);
-
-        var player = playerService.getPlayerByUserId(userId);
+        log.info("getProfileInfo user id {}", playerDetails.getUser().getId());
 
         var profileInfoResponse = ProfileInfoResponse.builder()
             .email(playerDetails.getUser().getEmail())
-            .nickname(player.getNickname())
+            .nickname(playerDetails.getPlayer().getNickname())
             .build();
-        log.info("getProfileInfo response {}", profileInfoResponse);
-        return profileInfoResponse;
+        log.debug("getProfileInfo response {}", profileInfoResponse);
+
+        return ResponseEntity.ok(profileInfoResponse);
     }
 
     @PostMapping("/updateProfileInfo")
-    public ResponseEntity<?> updateProfileInfo(@RequestBody ProfileInfoRequest req) {
-        var playerDetails = Util.getPlayerDetailsFronCtx();
+    public ResponseEntity<?> updateProfileInfo(@RequestBody ProfileInfoRequest request) {
+        validationService.validateUpdProfileInfo(request);
 
-//        todo: validation
-        playerService.updateProfileInfo(playerDetails, req.nickname());
+        playerService.updateProfileInfo(request);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("Profile updated");
     }
 
     @PostMapping("/updatePassword")
-    public ResponseEntity<?> updatePassword(HttpServletRequest httpServletRequest,
-                                            @RequestBody UpdatePasswordRequest req) {
-        Long userId = authService.extractUserIdFromJwt(httpServletRequest);
-        log.info("Change password request user id {}", userId);
-
+    public ResponseEntity<?> updatePassword(@RequestBody UpdatePasswordRequest request) {
         var playerDetails = Util.getPlayerDetailsFronCtx();
+        log.info("Change password request, user id {}", playerDetails.getUser().getId());
 
-//        TODO: Check and compare:
-//         1. User.id from JWT and SecurityContextHolder
-//         2. current pass from SecurityContextHolder with current pass from request
-        var currentPass = req.currentPassword();
-        var newPass = req.newPassword();
+        validationService.validateChangePassword(request, playerDetails);
 
-        if (!passwordEncoder.matches(currentPass, playerDetails.getUser().getPassword())) {
-            log.error("Passwords do not match for user {}", userId);
-            return ResponseEntity.badRequest().body("Wrong current password");
-        }
+        String newPassword = passwordEncoder.encode(request.newPassword());
+        userService.updateUserPassword(playerDetails.getUser().getId(), newPassword);
 
-        if (currentPass.equals(newPass)) {
-            log.info("The passwords must be different");
-            return ResponseEntity.badRequest().body("The new password must be different from the current one");
-        }
-
-        String newPassword = passwordEncoder.encode(newPass);
-        userService.updateUserPassword(userId, newPassword);
-        log.info("Update password user id {}", userId);
-
-        return ResponseEntity.ok().body("Successfully updated password");
+        return ResponseEntity.ok().body("Password updated");
     }
 }

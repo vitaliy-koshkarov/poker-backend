@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import poker.core.engine.GameEngine;
 import poker.core.player.PlayerAction;
 import poker.core.player.PlayerActionData;
+import poker.core.player.PlayerStatus;
 import poker.model.event.GameEvent;
 import poker.model.event.GameEventData;
 
@@ -21,13 +22,10 @@ public class DisconnectGameEventFactory implements GameEventFactory {
     @Override
     public GameEvent create(GameEngine engine, PlayerActionData pad) {
         var gameEventData = GameEventData.builder()
-            .gameId(engine.getTable().getId())
-            .userId(pad.getPlayerDetails().getUser().getId())
-            .playerId(pad.getPlayerDetails().getPlayer().getId())
-            .playerStatus(EventUtil.getPlayerStatus(
-                engine.getTable().getPlayers(),
-                pad.getPlayerDetails().getPlayer().getId())
-            )
+            .gameId(engine.table().getId())
+            .userId(pad.getUserId())
+            .playerId(pad.getPlayerId())
+            .playerStatus(PlayerStatus.NOT_IN_GAME.getIntStatus()) // todo: think how to handle accidental disconnects
             .actionType(pad.getPlayerAction().getType())
             .dateTimeMs(pad.getDateTimeMs())
             .build();
@@ -36,7 +34,7 @@ public class DisconnectGameEventFactory implements GameEventFactory {
             .gameId(gameEventData.getGameId())
             .userId(gameEventData.getUserId())
             .playerId(gameEventData.getPlayerId())
-            .potId(engine.getTable().getPot().getId())
+            .potId(engine.table().getPot().getId())
             .type(gameEventData.getActionType())
             .gameEventData(gameEventData)
             .createdAt(new Timestamp(gameEventData.getDateTimeMs()))

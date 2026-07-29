@@ -10,28 +10,31 @@ import java.util.Map;
 @Getter
 public class THPot implements GamePot {
     private final long id;
+    /**
+     * Key - {@link GamePlayer#getId()}, value - player bet
+     */
+    private final Map<Long, Integer> playersBets = new HashMap<>();
     private int total;
-//    todo: key - player's id
-    private final Map<GamePlayer, Integer> playersBets = new HashMap<>();
 
     public THPot(long id) {
         this.id = id;
     }
 
     @Override
-    public void addPlayerBet(GamePlayer player, int bet) {
-        total += bet;
-        if (!playersBets.containsKey(player)) {
-            playersBets.put(player, bet);
+    public void addPlayerBet(long playerId, int bet) {
+        if (!playersBets.containsKey(playerId)) {
+            playersBets.put(playerId, bet);
         } else {
-            playersBets.put(player, playersBets.get(player) + bet);
+            playersBets.put(playerId, playersBets.get(playerId) + bet);
         }
+
+        total += bet;
     }
 
     @Override
     public void refresh() {
-        total = 0;
         playersBets.clear();
+        total = 0;
     }
 
     @Override
@@ -58,8 +61,8 @@ public class THPot implements GamePot {
         if (playersBets.isEmpty()) return null;
 
         var sb = new StringBuilder();
-        for (Map.Entry<GamePlayer, Integer> pair : playersBets.entrySet()) {
-            sb.append("id: ").append(pair.getKey().getId())
+        for (Map.Entry<Long, Integer> pair : playersBets.entrySet()) {
+            sb.append("id: ").append(pair.getKey())
                 .append(", bet: ").append(pair.getValue())
                 .append("; ");
         }

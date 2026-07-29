@@ -9,9 +9,9 @@ import java.util.Map;
 public interface GamePot extends Snapshot<GamePot> {
     long getId();
     int getTotal();
-    Map<GamePlayer, Integer> getPlayersBets();
+    Map<Long, Integer> getPlayersBets();
 
-    void addPlayerBet(GamePlayer gamePlayer, int bet);
+    void addPlayerBet(long playerId, int bet);
 
     void refresh();
 

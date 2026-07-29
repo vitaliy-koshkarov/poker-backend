@@ -6,6 +6,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import poker.config.GameProps;
+import poker.core.engine.GameEngineRegistry;
 import poker.dto.game.CreateGameRequest;
 import poker.core.game.GameStatus;
 import poker.model.*;
@@ -21,6 +22,7 @@ import java.util.List;
 @ToString
 public class GameService {
     private final GameProps gameProps;
+    private final GameEngineRegistry gameEngineRegistry;
     private final GameRepository gameRepo;
     private final PotService potService;
     private final PlayerBetService playerBetService;
@@ -28,7 +30,7 @@ public class GameService {
     private final PlayerSeatService playerSeatService;
 
     @Transactional(rollbackFor = Exception.class)
-    public Game createGame(long creatorPlayerId, CreateGameRequest createGameRequest) {
+    public void createGame(long creatorPlayerId, CreateGameRequest createGameRequest) {
         var pot = potService.createPot();
 
         var game = Game.builder()
@@ -41,18 +43,19 @@ public class GameService {
             .potId(pot.getId())
             .createdAt(new Timestamp(System.currentTimeMillis()))
             .creatorPlayerId(creatorPlayerId)
-            .dealerId(Util.DEFAULT_LONG_VALUE)
-            .activePlayerId(Util.DEFAULT_LONG_VALUE)
+            .dealerId(Util.ZERO_LONG)
+            .activePlayerId(Util.ZERO_LONG)
             .build();
 
         var newGame = gameRepo.save(game);
-        log.info("Created {} by player id {}", newGame, creatorPlayerId);
+        log.info("Created {}, player id {}", newGame, creatorPlayerId);
 
-        return newGame;
+        gameEngineRegistry.registerNewGame(game);
     }
 
     @Transactional(rollbackFor = Exception.class)
     public boolean removeGame(long gameId) {
+//        TODO: check correct game deletion
         var game = gameRepo.findGameById(gameId);
         long potId = game.getPotId();
 

@@ -15,7 +15,7 @@ import poker.service.PlayerBetService;
 import poker.service.PlayerService;
 import poker.util.Util;
 
-@Component("FOLD")
+@Component
 @RequiredArgsConstructor
 @Log4j2
 @ToString
@@ -26,19 +26,24 @@ public class FoldPlayerActionHandler implements DBPlayerActionHandler {
     private final GameEventService gameEventService;
 
     @Override
+    public PlayerAction supportsPlayerAction() {
+        return PlayerAction.FOLD;
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean handleAction(GameEngine gameEngine, PlayerActionData pad) {
-        long gameId = gameEngine.getTable().getId();
-        long playerId = pad.getPlayerDetails().getPlayer().getId();
+        long gameId = gameEngine.table().getId();
+        long playerId = pad.getPlayerId();
 
-        gameService.updateActivePlayer(gameId, gameEngine.getTable().getActivePlayerId());
-        playerService.updatePlayerStatusAndCurrentBet(playerId, PlayerStatus.FOLD, Util.DEFAULT_INT_VALUE);
-        playerBetService.updatePlayerBet(playerId, gameEngine.getTable().getPot().getId(), Util.DEFAULT_INT_VALUE);
+        gameService.updateActivePlayer(gameId, gameEngine.table().getActivePlayerId());
+        playerService.updatePlayerStatusAndCurrentBet(playerId, PlayerStatus.FOLD, Util.ZERO_INT);
+        playerBetService.updatePlayerBet(playerId, gameEngine.table().getPot().getId(), Util.ZERO_INT);
 
         long eventId = gameEventService.createAndSaveEvent(gameEngine, pad);
 
         log.info("Player id {} {} status {} game id {} current bet {} event id {}",
-            playerId, pad.getPlayerAction(), PlayerStatus.FOLD, gameId, Util.DEFAULT_INT_VALUE, eventId);
+            playerId, pad.getPlayerAction(), PlayerStatus.FOLD, gameId, Util.ZERO_INT, eventId);
 
         return true;
     }
