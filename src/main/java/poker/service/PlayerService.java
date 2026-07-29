@@ -4,10 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import poker.dto.profile.ProfileInfoRequest;
 import poker.model.Player;
-import poker.model.PlayerDetails;
 import poker.core.player.PlayerStatus;
 import poker.repository.PlayerRepository;
+import poker.util.Util;
 
 import java.sql.Timestamp;
 
@@ -42,9 +43,10 @@ public class PlayerService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void updateProfileInfo(PlayerDetails playerDetails, String nickname) {
-        log.info("Update nickname request to {}", nickname);
-        long playerId = playerDetails.getPlayer().getId();
+    public void updateProfileInfo(ProfileInfoRequest request) {
+        long playerId = Util.getPlayerDetailsFronCtx().getPlayer().getId();
+        String nickname = request.nickname();
+
         playerRepo.updatePlayerNickname(playerId, nickname);
         log.info("Updated nickname to {}, player id {}", nickname, playerId);
     }

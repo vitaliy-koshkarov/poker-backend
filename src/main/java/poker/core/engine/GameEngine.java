@@ -7,7 +7,7 @@ import poker.core.game.GameTable;
 import poker.core.player.PlayerActionData;
 
 public interface GameEngine extends Snapshot<GameState>, Rollback<GameState> {
-    GameTable getTable();
+    GameTable table();
 
     GameState getGameState();
 

@@ -30,7 +30,9 @@ public class UserService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public User createUser(String email, String password, String nickname, Timestamp now) {
+    public User createUser(String email, String password, String nickname) {
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+
         var player = playerService.createPlayer(nickname, now);
 
         var user = User.builder()

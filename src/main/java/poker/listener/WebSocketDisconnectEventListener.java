@@ -8,7 +8,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import poker.core.engine.GameEngineRegistry;
-import poker.core.player.GamePlayer;
 import poker.core.player.PlayerActionData;
 import poker.dto.PlayerActionDataConverter;
 import poker.dto.game.GameDTO;
@@ -51,7 +50,7 @@ public class WebSocketDisconnectEventListener {
 
         boolean isJoinedPlayerDisconnect = isJoinedPlayerDisconnect(gameId, playerId);
 
-        PlayerActionData pad = PlayerActionDataConverter.convert(gameId, playerDetails, PlayerAction.DISCONNECT);
+        PlayerActionData pad = PlayerActionDataConverter.forStartGameAndDisconnect(gameId, playerDetails, PlayerAction.DISCONNECT);
         playerActionHandlerService.handle(pad);
 
         webSocketPlayerSessionService.removeSession(sessionId);
@@ -66,12 +65,15 @@ public class WebSocketDisconnectEventListener {
         log.info("Player id {} {} game id {}", playerId, pad.getPlayerAction(), gameId);
     }
 
+    /**
+     * It is needed to notify players about a vacant seat at the table and broadcast correct game state <u>when the game has not yet started</u>.
+     * @param gameId {@link Game#getId()}
+     * @param playerId {@link Player#getId()}
+     * @return true if player seat at the table, false otherwise
+     */
     private boolean isJoinedPlayerDisconnect(long gameId, long playerId) {
-        for (GamePlayer gamePlayer : gameEngineRegistry.getGameEngine(gameId).getTable().getPlayers()) {
-            if (gamePlayer.getId() == playerId) {
-                return true;
-            }
-        }
-        return false;
+        return gameEngineRegistry.getGameEngine(gameId)
+            .table()
+            .getPlayerById(playerId) != null;
     }
 }

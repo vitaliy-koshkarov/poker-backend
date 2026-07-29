@@ -6,22 +6,27 @@ import poker.core.player.PlayerActionData;
 import poker.model.PlayerDetails;
 
 public class PlayerActionDataConverter {
-//    TODO: Do not use PlayerDetails in engine and DB layer
+
     public static PlayerActionData convert(long gameId, PlayerActionRequest request,
                                            PlayerDetails playerDetails, PlayerAction playerAction) {
         return THPlayerActionData.builder()
             .gameId(gameId)
             .playerAction(playerAction)
-            .playerDetails(playerDetails)
+            .userId(playerDetails.getUser().getId())
+            .playerId(playerDetails.getPlayer().getId())
+            .nickname(playerDetails.getPlayer().getNickname())
+            .chips(playerDetails.getPlayer().getChips())
+            .playerBet(playerDetails.getPlayer().getCurrentBet())
             .dateTimeMs(System.currentTimeMillis())
             .build();
     }
 
-    public static PlayerActionData convert(long gameId, PlayerDetails playerDetails, PlayerAction playerAction) {
+    public static PlayerActionData forStartGameAndDisconnect(long gameId, PlayerDetails playerDetails, PlayerAction playerAction) {
         return THPlayerActionData.builder()
             .gameId(gameId)
             .playerAction(playerAction)
-            .playerDetails(playerDetails)
+            .userId(playerDetails.getUser().getId())
+            .playerId(playerDetails.getPlayer().getId())
             .dateTimeMs(System.currentTimeMillis())
             .build();
     }

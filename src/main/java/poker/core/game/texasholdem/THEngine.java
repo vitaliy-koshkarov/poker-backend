@@ -1,7 +1,5 @@
 package poker.core.game.texasholdem;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import poker.core.engine.GameEngine;
 import poker.core.game.GameState;
@@ -17,11 +15,8 @@ import java.util.*;
 
 import static poker.core.game.GameStatus.*;
 
-@RequiredArgsConstructor
-@Getter
 @Log4j2
-public class THEngine implements GameEngine {
-    private final GameTable table;
+public record THEngine(GameTable table) implements GameEngine {
 
     @Override
     public GameState getGameState() {
@@ -30,8 +25,7 @@ public class THEngine implements GameEngine {
 
     @Override
     public void handlePlayerAction(PlayerActionData pad) {
-        log.info("Handling {}, player id {}",
-            pad.getPlayerAction().getActionName(), pad.getPlayerDetails().getPlayer().getId());
+        log.info("Handle {} player id {}", pad.getPlayerAction().getActionName(), pad.getPlayerId());
 
 //        TODO: define minRaise value for the next active player
         switch (pad.getPlayerAction()) {
@@ -56,56 +50,31 @@ public class THEngine implements GameEngine {
         table.setDealerId(snapshot.getDealerId());
         table.setDealerIndex(snapshot.getDealerIndex());
         table.setActivePlayerId(snapshot.getActivePlayerId());
-        table.setActivePlayerIndex(snapshot.getActivePlayerIndex());
         table.setSmallBlind(snapshot.getSmallBlind());
-        table.setSmallBlindIndex(snapshot.getSmallBlindIndex());
+        table.setSmallBlindPlayerId(snapshot.getSmallBlindPlayerId());
         table.setBigBlind(snapshot.getBigBlind());
-        table.setBigBlindIndex(snapshot.getBigBlindIndex());
+        table.setBigBlindPlayerId(snapshot.getBigBlindPlayerId());
         table.setMinRaise(snapshot.getMinRaise());
         table.setPot(snapshot.getGamePot());
-        table.setPlayers(snapshot.getGamePlayers());
+
+        var playersMap = new HashMap<Long, GamePlayer>();
+        for (GamePlayer gamePlayer : snapshot.getGamePlayers()) {
+            playersMap.put(gamePlayer.getId(), gamePlayer);
+        }
+        table.setPlayersMap(playersMap);
+
         table.setDeck(snapshot.getDeck());
         table.setCommunityCards(snapshot.getCommunityCards());
         table.setPlayersSeats(snapshot.getPlayersSeats());
     }
 
-    private void startGame() {
-        table.startGame();
-    }
-
-    private void fold(PlayerActionData pad) {
-        table.foldPlayer(pad.getPlayerDetails().getPlayer().getId());
-        table.overrideActivePlayer();
-    }
-
-    private void check(PlayerActionData pad) {
-        table.checkPlayer(pad.getPlayerDetails().getPlayer().getId());
-        table.overrideActivePlayer();
-    }
-
-    private void bet(PlayerActionData pad) {
-        int playerBet = pad.getPlayerBet();
-        GamePlayer player = table.getActivePlayers().get(0);
-        table.betPlayer(pad.getPlayerDetails().getPlayer().getId(), playerBet);
-        table.getPot().addPlayerBet(player, playerBet);
-        table.overrideActivePlayer();
-    }
-
-    private void allIn(PlayerActionData pad) {
-        int playerBet = pad.getPlayerBet();
-        GamePlayer player = table.getActivePlayers().get(0);
-        table.betPlayer(player.getId(), playerBet);
-        table.getPot().addPlayerBet(player, playerBet);
-        table.overrideActivePlayer();
-    }
-
     private void joinPlayer(PlayerActionData pad) {
         GamePlayer gamePlayer = THPlayer.builder()
-            .id(pad.getPlayerDetails().getPlayer().getId())
-            .nickname(pad.getPlayerDetails().getPlayer().getNickname())
+            .id(pad.getPlayerId())
+            .nickname(pad.getNickname())
             .status(PlayerStatus.JOIN_THE_GAME)
-            .chips(pad.getPlayerDetails().getPlayer().getChips())
-            .currentBet(Util.DEFAULT_INT_VALUE)
+            .chips(pad.getChips())
+            .currentBet(Util.ZERO_INT)
             .cards(new ArrayList<>())
             .build();
 
@@ -113,8 +82,12 @@ public class THEngine implements GameEngine {
         log.debug("Player id {} {} game {}", gamePlayer.getId(), pad.getPlayerAction(), pad.getGameId());
     }
 
+    private void startGame() {
+        table.startGame();
+    }
+
     private void disconnectPlayer(PlayerActionData pad) {
-        long playerId = pad.getPlayerDetails().getPlayer().getId();
+        long playerId = pad.getPlayerId();
         table.removePlayer(playerId);
 
 //        if (table.getActivePlayerId() == playerId) {
@@ -122,6 +95,32 @@ public class THEngine implements GameEngine {
 //        }
 
         log.debug("Player id {} {} game id {}", playerId, pad.getPlayerAction().getActionName(), pad.getGameId());
+    }
+
+    private void fold(PlayerActionData pad) {
+        table.foldPlayer(pad.getPlayerId());
+        table.defineNewActivePlayer();
+    }
+
+    private void check(PlayerActionData pad) {
+        table.checkPlayer(pad.getPlayerId());
+        table.defineNewActivePlayer();
+    }
+
+    private void bet(PlayerActionData pad) {
+        int playerBet = pad.getPlayerBet();
+        long activePlayerId = table.getActivePlayer().getId();
+        table.betPlayer(activePlayerId, playerBet);
+        table.getPot().addPlayerBet(activePlayerId, playerBet);
+        table.defineNewActivePlayer();
+    }
+
+    private void allIn(PlayerActionData pad) {
+        int playerBet = pad.getPlayerBet();
+        long activePlayerId = table.getActivePlayer().getId();
+        table.betPlayer(activePlayerId, playerBet);
+        table.getPot().addPlayerBet(activePlayerId, playerBet);
+        table.defineNewActivePlayer();
     }
 
     private void nextPhase(PlayerActionData pad) {
@@ -163,7 +162,7 @@ public class THEngine implements GameEngine {
 
 //        TODO: improve logic of evaluating hands and splitting pot between players
         var playersAndCombinations = new HashMap<GamePlayer, HandEvaluator>();
-        for (GamePlayer activePlayer : table.getActivePlayers()) {
+        for (GamePlayer activePlayer : table.getPlayers()) {
             var cards = new ArrayList<Card>();
             cards.addAll(table.getCommunityCards());
             cards.addAll(activePlayer.getCards());

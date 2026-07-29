@@ -8,11 +8,11 @@ import org.springframework.transaction.annotation.Transactional;
 import poker.core.engine.GameEngine;
 import poker.core.game.GamePot;
 import poker.core.player.GamePlayer;
+import poker.core.player.PlayerAction;
 import poker.core.player.PlayerActionData;
 import poker.service.*;
-import poker.util.Util;
 
-@Component("BET")
+@Component
 @RequiredArgsConstructor
 @Log4j2
 @ToString
@@ -24,18 +24,23 @@ public class BetPlayerActionHandler implements DBPlayerActionHandler {
     private final GameEventService gameEventService;
 
     @Override
+    public PlayerAction supportsPlayerAction() {
+        return PlayerAction.BET;
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean handleAction(GameEngine gameEngine, PlayerActionData pad) {
-        long gameId = gameEngine.getTable().getId();
-        long playerId = pad.getPlayerDetails().getPlayer().getId();
+        long gameId = gameEngine.table().getId();
+        long playerId = pad.getPlayerId();
 
-        gameService.updateActivePlayer(gameId, gameEngine.getTable().getActivePlayerId());
+        gameService.updateActivePlayer(gameId, gameEngine.table().getActivePlayerId());
 
-        GamePlayer player = Util.getPlayerById(gameEngine, playerId);
+        GamePlayer player = gameEngine.table().getPlayerById(playerId);
         int currentBet = player.getCurrentBet();
         playerService.updateStatusAndChipsAndCurrentBet(player.getId(), player.getStatus(), player.getChips(), currentBet);
 
-        GamePot pot = gameEngine.getTable().getPot();
+        GamePot pot = gameEngine.table().getPot();
         playerBetService.updatePlayerBet(playerId, pot.getId(), currentBet);
 
         potService.updatePotTotal(pot.getId(), pot.getTotal());
