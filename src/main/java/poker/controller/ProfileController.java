@@ -5,10 +5,10 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import poker.service.AuthService;
 import poker.dto.profile.ProfileInfoRequest;
 import poker.dto.profile.ProfileInfoResponse;
 import poker.dto.profile.UpdatePasswordRequest;
+import poker.service.AuthService;
 import poker.service.PlayerService;
 import poker.service.UserService;
 import poker.service.ValidationService;
@@ -54,12 +54,10 @@ public class ProfileController {
     }
 
     @PostMapping("/updateProfileInfo")
-    public ResponseEntity<?> updateProfileInfo(@RequestBody ProfileInfoRequest req) {
-        var playerDetails = Util.getPlayerDetailsFronCtx();
+    public ResponseEntity<?> updateProfileInfo(@RequestBody ProfileInfoRequest request) {
+        validationService.validateUpdProfileInfo(request);
 
-        validationService.validateUpdProfileInfo(req);
-
-        playerService.updateProfileInfo(playerDetails, req.nickname());
+        playerService.updateProfileInfo(request);
 
         return ResponseEntity.ok("Profile updated");
     }
