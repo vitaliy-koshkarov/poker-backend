@@ -9,6 +9,7 @@ import poker.dto.PlayerActionDataConverter;
 import poker.dto.game.*;
 import poker.core.engine.GameEngineRegistry;
 import poker.core.player.PlayerAction;
+import poker.model.PlayerDetails;
 import poker.service.*;
 import poker.util.Util;
 
@@ -45,10 +46,11 @@ public class GameController {
 
     @DeleteMapping("/delete/{id}")
     public void deleteGame(@PathVariable Long id) {
-        long userId = Util.getPlayerDetailsFronCtx().getUser().getId();
-        log.info("Remove game request, game id {}, user id {}", id, userId);
+        PlayerDetails playerDetails = Util.getPlayerDetailsFronCtx();
+        log.info("Remove game request, game id {}, user id {}", id, playerDetails.getUser().getId());
 
-//        TODO: validation
+        validationService.validateGameDeletion(id, playerDetails);
+
         boolean isSuccess = gameService.removeGame(id);
         if (isSuccess) {
             gameEngineRegistry.removeGame(id);

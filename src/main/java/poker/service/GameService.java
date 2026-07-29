@@ -55,6 +55,7 @@ public class GameService {
 
     @Transactional(rollbackFor = Exception.class)
     public boolean removeGame(long gameId) {
+//        TODO: check correct game deletion
         var game = gameRepo.findGameById(gameId);
         long potId = game.getPotId();
 

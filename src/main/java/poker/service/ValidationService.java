@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import poker.core.engine.GameEngine;
 import poker.core.engine.GameEngineRegistry;
+import poker.core.game.GameStatus;
+import poker.core.game.GameTable;
 import poker.dto.auth.LoginRequest;
 import poker.dto.auth.RegistrationRequest;
 import poker.dto.game.CreateGameRequest;
@@ -81,6 +83,23 @@ public class ValidationService {
                 log.info("Game with name {} already exists", gameName);
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Game with name " + gameName + " already exists");
             }
+        }
+    }
+
+    public void validateGameDeletion(long gameId, PlayerDetails playerDetails) {
+        GameTable table = gameEngineRegistry.getGameEngine(gameId).table();
+
+        if (table.getCreatorPlayerId() != playerDetails.getUser().getId()) {
+            log.error("Violation of authority to remove a game, user id {}", playerDetails.getUser().getId());
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                "Only the creator of the game " + table.getName() + " can delete it");
+        }
+
+        if (!table.getGameStatus().equals(GameStatus.WAITING_FOR_PLAYERS)) {
+            log.error("Attempting to delete game id {} in an inappropriate status, user id {}",
+                gameId, playerDetails.getUser().getId());
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                "Game in '" + table.getGameStatus().getShortName() + "' status can not be deleted");
         }
     }
 }
