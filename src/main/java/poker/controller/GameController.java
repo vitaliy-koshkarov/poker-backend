@@ -30,9 +30,8 @@ public class GameController {
     private final WebSocketGameStateBroadcaster webSocketGameStateBroadcaster;
 
     @GetMapping
-    public List<GameDTO> getGames() {
-        log.info("Get games list");
-        return gameStateResponseGenerator.getGamesListForLobby();
+    public ResponseEntity<?> getGames() {
+        return ResponseEntity.ok(gameStateResponseGenerator.getGamesListForLobby());
     }
 
     @PostMapping("/create")
