@@ -13,10 +13,12 @@ import poker.core.game.GameTable;
 import poker.dto.auth.LoginRequest;
 import poker.dto.auth.RegistrationRequest;
 import poker.dto.game.CreateGameRequest;
+import poker.dto.game.StartGameRequest;
 import poker.dto.profile.ProfileInfoRequest;
 import poker.dto.profile.UpdatePasswordRequest;
 import poker.model.PlayerDetails;
 import poker.model.User;
+import poker.util.Util;
 
 @Service
 @Log4j2
@@ -100,6 +102,33 @@ public class ValidationService {
                 gameId, playerDetails.getUser().getId());
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
                 "Game in '" + table.getGameStatus().getShortName() + "' status can not be deleted");
+        }
+    }
+
+    public void validateStartGame(StartGameRequest request, PlayerDetails playerDetails) {
+        long gameId = request.gameId();
+        long userId = playerDetails.getUser().getId();
+        GameTable table = gameEngineRegistry.getGameEngine(gameId).table();
+
+        if (userId != table.getCreatorPlayerId()) {
+            log.info("Attempting to start game id {} creator id {} user id {}",
+                gameId, table.getCreatorPlayerId(), userId);
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                "Only the creator of the game " + table.getName() + " can start it");
+        }
+
+        if (!table.getGameStatus().equals(GameStatus.WAITING_FOR_PLAYERS)) {
+            log.error("Attempting to start game id {} in an inappropriate status, user id {}", gameId, userId);
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                "Game in '" + table.getGameStatus().getShortName() + "' status can not be started");
+        }
+
+        int currentPlayersAmount = table.getPlayers().size();
+        if (currentPlayersAmount < Util.MIN_PLAYERS) {
+            log.info("Not enough players to start the game. Current number of players: {}", currentPlayersAmount);
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                "To start a game, at least " + Util.MIN_PLAYERS + " players must join. " +
+                    "Current number of players: " + currentPlayersAmount);
         }
     }
 }
