@@ -40,6 +40,11 @@ public class WebSocketGameController {
         log.info("Subscribe user id {}, player id {}, game id {}", userId, playerId, gameId);
         log.debug("Subscribe authentication {}", authentication);
 
+        if (!validationService.isGameExists(gameId)) {
+            log.error("Game id {} does not exists, player id {}", gameId, playerId);
+            return GameDTO.builder().build();
+        }
+
         String sessionID = stompHeaderAccessor.getSessionId();
         webSocketPlayerSessionService.addSession(userId, playerId, gameId, sessionID);
 
@@ -58,8 +63,14 @@ public class WebSocketGameController {
         long playerId = playerDetails.getPlayer().getId();
         log.info("Action {} player id {} game id {}", playerAction.getActionName(), playerId, gameId);
 
+        if (!validationService.isGameExists(gameId)) {
+            log.error("Game id {} does not exists, player id {}", gameId, playerId);
+            return;
+        }
+
         if (!validationService.isPlayerActionValid(gameId, playerDetails, playerActionRequest)) {
             log.error("Invalid action {} game id {} player id {}", playerAction, gameId, playerId);
+//            todo: Let the player know that he is doing something wrong?
             return;
         }
 

@@ -135,6 +135,10 @@ public class ValidationService {
         }
     }
 
+    public boolean isGameExists(long gameId) {
+        return gameEngineRegistry.getGameEngine(gameId) != null;
+    }
+
     public boolean isPlayerActionValid(long gameId, PlayerDetails playerDetails, PlayerActionRequest request) {
         Player authPlayer = playerDetails.getPlayer();
         GameTable table = gameEngineRegistry.getGameEngine(gameId).table();
