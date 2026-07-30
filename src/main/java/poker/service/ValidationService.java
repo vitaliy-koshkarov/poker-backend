@@ -92,6 +92,12 @@ public class ValidationService {
     }
 
     public void validateGameDeletion(long gameId, PlayerDetails playerDetails) {
+        if (!isGameExists(gameId)) {
+            log.error("Player id {} tries to remove game id {} that not exists",
+                playerDetails.getPlayer().getId(), gameId);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND , "You are trying to delete a non-existent game");
+        }
+
         GameTable table = gameEngineRegistry.getGameEngine(gameId).table();
 
         if (table.getCreatorPlayerId() != playerDetails.getUser().getId()) {
