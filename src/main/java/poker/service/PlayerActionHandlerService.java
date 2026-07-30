@@ -39,7 +39,16 @@ public class PlayerActionHandlerService {
         GameState snapshot = gameEngine.snapshot();
         log.debug("Snapshot: {}", snapshot);
 
-        gameEngine.handlePlayerAction(pad);
+        try {
+            gameEngine.handlePlayerAction(pad);
+        } catch (Exception ex) {
+            log.error("{}: {}. Place: {}, game id {}",
+                ex.getCause(), ex.getMessage(), ex.getStackTrace()[0], pad.getGameId());
+
+            gameEngine.rollback(snapshot);
+
+            throw new RuntimeException("Engine exception, game id " + pad.getGameId());
+        }
         log.debug("Game state after handling action: {}", gameEngine.getGameState());
 
         var dbPlayerActionHandler = dbPlayerActionHandlerMap.get(pad.getPlayerAction());

@@ -13,6 +13,7 @@ public class Util {
     public static final long ZERO_LONG = 0;
     public static final int ZERO_INT = 0;
     public static final int INVALID_INT_VALUE = -1;
+    public static final int MIN_PLAYERS = 2;
 
     public static PlayerDetails getPlayerDetailsFronCtx() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

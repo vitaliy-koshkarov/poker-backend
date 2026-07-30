@@ -24,6 +24,6 @@ public class ExceptionInterceptor {
 
         return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(ex.getMessage());
+            .body(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
     }
 }

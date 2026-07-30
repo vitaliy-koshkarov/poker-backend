@@ -60,14 +60,12 @@ public class GameController {
     }
 
     @PostMapping("/startGame")
-    public ResponseEntity<Void> startGame(@RequestBody StartGameRequest startGameRequest) {
+    public ResponseEntity<?> startGame(@RequestBody StartGameRequest startGameRequest) {
         long gameId = startGameRequest.gameId();
-        long playerId = startGameRequest.playerId();
         var playerDetails = Util.getPlayerDetailsFronCtx();
-        log.info("Start game id {} request, player id {}", gameId, playerId);
-        log.debug("PlayerDetails: {}", playerDetails);
+        log.info("Start game id {} request, player id {}", gameId, playerDetails.getPlayer().getId());
 
-//        TODO: validate
+        validationService.validateStartGame(startGameRequest, playerDetails);
 
         PlayerActionData pad = PlayerActionDataConverter.forStartGameAndDisconnect(gameId, playerDetails, PlayerAction.START_GAME);
         playerActionHandlerService.handle(pad);
