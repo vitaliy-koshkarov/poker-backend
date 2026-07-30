@@ -16,10 +16,7 @@ import poker.dto.PlayerActionRequest;
 import poker.dto.game.GameDTO;
 import poker.core.player.PlayerAction;
 import poker.model.PlayerDetails;
-import poker.service.WebSocketGameStateBroadcaster;
-import poker.service.GameStateResponseGenerator;
-import poker.service.PlayerActionHandlerService;
-import poker.service.WebSocketPlayerSessionService;
+import poker.service.*;
 
 @Controller
 @Log4j2
@@ -29,6 +26,7 @@ public class WebSocketGameController {
     private final PlayerActionHandlerService playerActionHandlerService;
     private final GameStateResponseGenerator gameStateResponseGenerator;
     private final WebSocketGameStateBroadcaster webSocketGameStateBroadcaster;
+    private final ValidationService validationService;
 
     @SubscribeMapping("/gameTable/{id}")
     public GameDTO subscribe(@DestinationVariable("id") Long gameId,
@@ -60,7 +58,10 @@ public class WebSocketGameController {
         long playerId = playerDetails.getPlayer().getId();
         log.info("Action {} player id {} game id {}", playerAction.getActionName(), playerId, gameId);
 
-        // todo: validate
+        if (!validationService.isPlayerActionValid(gameId, playerDetails, playerActionRequest)) {
+            log.error("Invalid action {} game id {} player id {}", playerAction, gameId, playerId);
+            return;
+        }
 
         PlayerActionData pad = PlayerActionDataConverter.convert(gameId, playerActionRequest, playerDetails, playerAction);
         playerActionHandlerService.handle(pad);

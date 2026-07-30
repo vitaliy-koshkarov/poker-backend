@@ -10,12 +10,15 @@ import poker.core.engine.GameEngine;
 import poker.core.engine.GameEngineRegistry;
 import poker.core.game.GameStatus;
 import poker.core.game.GameTable;
+import poker.core.player.GamePlayer;
+import poker.dto.PlayerActionRequest;
 import poker.dto.auth.LoginRequest;
 import poker.dto.auth.RegistrationRequest;
 import poker.dto.game.CreateGameRequest;
 import poker.dto.game.StartGameRequest;
 import poker.dto.profile.ProfileInfoRequest;
 import poker.dto.profile.UpdatePasswordRequest;
+import poker.model.Player;
 import poker.model.PlayerDetails;
 import poker.model.User;
 import poker.util.Util;
@@ -130,5 +133,27 @@ public class ValidationService {
                 "To start a game, at least " + Util.MIN_PLAYERS + " players must join. " +
                     "Current number of players: " + currentPlayersAmount);
         }
+    }
+
+    public boolean isPlayerActionValid(long gameId, PlayerDetails playerDetails, PlayerActionRequest request) {
+        Player authPlayer = playerDetails.getPlayer();
+        GameTable table = gameEngineRegistry.getGameEngine(gameId).table();
+        GamePlayer player = table.getPlayerById(authPlayer.getId());
+
+        if (player == null || !player.getNickname().equals(authPlayer.getNickname())) {
+            log.error("Player id {} plays game id {} he is not sitting at", authPlayer.getId(), gameId);
+            return false;
+        }
+
+        if (table.getActivePlayer().getId() != authPlayer.getId()
+            || !table.getActivePlayer().getNickname().equals(authPlayer.getNickname())) {
+            log.error("Player id {} makes a move in game id {} when it is not his turn", authPlayer.getId(), gameId);
+            return false;
+        }
+        // todo: add checks:
+        //      1. Is player action type correct?
+        //      2. Is player has enough chips for that action?
+
+        return true;
     }
 }
