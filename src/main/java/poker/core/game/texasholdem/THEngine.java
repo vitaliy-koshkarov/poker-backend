@@ -27,7 +27,6 @@ public record THEngine(GameTable table) implements GameEngine {
     public void handlePlayerAction(PlayerActionData pad) {
         log.info("Handle {} player id {}", pad.getPlayerAction().getActionName(), pad.getPlayerId());
 
-//        TODO: define minRaise value for the next active player
         switch (pad.getPlayerAction()) {
             case START_GAME -> startGame();
             case FOLD -> fold(pad);
@@ -100,11 +99,13 @@ public record THEngine(GameTable table) implements GameEngine {
     private void fold(PlayerActionData pad) {
         table.foldPlayer(pad.getPlayerId());
         table.defineNewActivePlayer();
+        table.defineMinRaise();
     }
 
     private void check(PlayerActionData pad) {
         table.checkPlayer(pad.getPlayerId());
         table.defineNewActivePlayer();
+        table.defineMinRaise();
     }
 
     private void bet(PlayerActionData pad) {
@@ -113,6 +114,7 @@ public record THEngine(GameTable table) implements GameEngine {
         table.betPlayer(activePlayerId, playerBet);
         table.getPot().addPlayerBet(activePlayerId, playerBet);
         table.defineNewActivePlayer();
+        table.defineMinRaise();
     }
 
     private void allIn(PlayerActionData pad) {
@@ -121,6 +123,7 @@ public record THEngine(GameTable table) implements GameEngine {
         table.betPlayer(activePlayerId, playerBet);
         table.getPot().addPlayerBet(activePlayerId, playerBet);
         table.defineNewActivePlayer();
+        table.defineMinRaise();
     }
 
     private void nextPhase(PlayerActionData pad) {

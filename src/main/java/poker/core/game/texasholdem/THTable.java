@@ -37,6 +37,7 @@ public class THTable implements GameTable {
     private int bigBlind;
     private long bigBlindPlayerId;
 
+    private int lastMaxBet;
     private int minRaise;
 
     private GamePot pot;
@@ -126,6 +127,21 @@ public class THTable implements GameTable {
     }
 
     @Override
+    public void defineMinRaise() {
+        int lastMaxBet = new Random().nextInt(1_000_000);
+
+        if (lastMaxBet > bigBlind) {
+            if (getActivePlayer().getChips() - lastMaxBet >= 0) {
+                minRaise = lastMaxBet;
+            } else {
+                minRaise = getActivePlayer().getChips();
+            }
+        } else { // lastMaxBet == BB
+            minRaise = Math.min(getActivePlayer().getChips(), bigBlind);
+        }
+    }
+
+    @Override
     public void updateGameStatus(GameStatus gameStatus) {
         this.gameStatus = gameStatus;
     }
@@ -151,8 +167,7 @@ public class THTable implements GameTable {
         defineDealerAndBlindAndActivePlayers();
         betBlinds();
 
-//        TODO: calculate min raise every new game
-        minRaise = bigBlind;
+        defineMinRaise();
 
         deck.shuffle();
         dealStartHands();
@@ -169,6 +184,8 @@ public class THTable implements GameTable {
     public void betBlinds() {
         betPlayerBlind(smallBlindPlayerId, smallBlind);
         betPlayerBlind(bigBlindPlayerId, bigBlind);
+
+        lastMaxBet = bigBlind;
     }
 
     @Override
@@ -183,6 +200,10 @@ public class THTable implements GameTable {
         GamePlayer player = playersMap.get(playerId);
         player.setStatus(PlayerStatus.WAIT);
         player.bet(bet);
+
+        if (bet > lastMaxBet) {
+            lastMaxBet = bet;
+        }
     }
 
     @Override
@@ -213,8 +234,7 @@ public class THTable implements GameTable {
         defineDealerAndBlindAndActivePlayers();
         betBlinds();
 
-//        TODO: calculate min raise every new round
-        minRaise = bigBlind;
+        defineMinRaise();
 
         deck.shuffle();
         dealStartHands();

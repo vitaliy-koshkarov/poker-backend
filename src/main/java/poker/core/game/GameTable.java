@@ -50,6 +50,7 @@ public interface GameTable {
     void addPlayer(GamePlayer gamePlayer);
     void removePlayer(long playerId);
     void defineNewActivePlayer();
+    void defineMinRaise();
     void updateGameStatus(GameStatus gameStatus);
 
     void startGame();
