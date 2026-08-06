@@ -8,6 +8,8 @@ app:
   game:
     small-blind: 5
     big-blind: 10
+    minPlayers: 2
+    maxPlayers: 6
 
 server:
   port: 8080

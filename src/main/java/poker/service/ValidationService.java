@@ -6,8 +6,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import poker.config.GameProps;
 import poker.core.engine.GameEngine;
 import poker.core.engine.GameEngineRegistry;
+import poker.core.game.BuyIn;
 import poker.core.game.GameStatus;
 import poker.core.game.GameTable;
 import poker.core.player.GamePlayer;
@@ -27,6 +29,7 @@ import poker.util.Util;
 @Log4j2
 @RequiredArgsConstructor
 public class ValidationService {
+    private final GameProps gameProps;
     private final PasswordEncoder passwordEncoder;
     private final GameEngineRegistry gameEngineRegistry;
     private final UserService userService;
@@ -81,13 +84,24 @@ public class ValidationService {
     }
 
     public void validateCreatingGame(CreateGameRequest request) {
-//        todo: add check for buyIn and maxPlayers values
         String gameName = request.name();
         for (GameEngine engine : gameEngineRegistry.getGameEngineCollection()) {
             if (engine.table().getName().equals(gameName)) {
                 log.info("Game with name {} already exists", gameName);
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Game with name " + gameName + " already exists");
             }
+        }
+
+        if (!BuyIn.isButInExists(request.buyIn())) {
+            log.error("Not valid buy-in {}", request.buyIn());
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                "Buy-in " + request.buyIn() + " is not valid");
+        }
+
+        if (gameProps.getMaxPlayers() != request.maxPlayers()) {
+            log.error("Not valid max players value {}", request.maxPlayers());
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                "Max players must not be more than " + gameProps.getMaxPlayers());
         }
     }
 

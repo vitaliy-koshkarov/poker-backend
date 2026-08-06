@@ -12,4 +12,7 @@ import org.springframework.stereotype.Component;
 public class GameProps {
     private int smallBlind;
     private int bigBlind;
+    private int minPlayers;
+//    TODO: add mechanism to change maxPlayers value in runtime dynamically without the service restart
+    private int maxPlayers;
 }
