@@ -66,6 +66,7 @@ public class GameStateFactory {
             .deck(deckSnapshot)
             .communityCards(snapshotCommunityCards)
             .playersSeats(snapshotPlayersSeats)
+            .round(table.getRound().snapshot())
             .build();
     }
 }

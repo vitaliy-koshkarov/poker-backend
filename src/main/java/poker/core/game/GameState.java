@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.ToString;
 import poker.core.game.card.Card;
 import poker.core.game.card.Deck;
+import poker.core.game.texasholdem.Round;
 import poker.core.player.GamePlayer;
 
 import java.util.List;
@@ -34,4 +35,5 @@ public class GameState {
     private Deck deck;
     private List<Card> communityCards;
     private long[] playersSeats;
+    private Round round;
 }

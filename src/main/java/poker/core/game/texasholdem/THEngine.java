@@ -37,8 +37,7 @@ public record THEngine(GameTable table) implements GameEngine {
             case DISCONNECT -> disconnectPlayer(pad);
         }
 
-//        TODO: refactoring logic for defining that the current round is over
-        if (isCurrentRoundEnded(pad.getPlayerId())) {
+        if (isCurrentRoundEnded()) {
             nextStage();
         }
     }
@@ -58,7 +57,6 @@ public record THEngine(GameTable table) implements GameEngine {
         table.setSmallBlindPlayerId(snapshot.getSmallBlindPlayerId());
         table.setBigBlind(snapshot.getBigBlind());
         table.setBigBlindPlayerId(snapshot.getBigBlindPlayerId());
-        table.setLastMaxBet(snapshot.getLastMaxBet());
         table.setMinRaise(snapshot.getMinRaise());
         table.setPot(snapshot.getGamePot());
 
@@ -71,6 +69,7 @@ public record THEngine(GameTable table) implements GameEngine {
         table.setDeck(snapshot.getDeck());
         table.setCommunityCards(snapshot.getCommunityCards());
         table.setPlayersSeats(snapshot.getPlayersSeats());
+        table.setBettingRound(snapshot.getRound());
     }
 
     private void joinPlayer(PlayerActionData pad) {
@@ -119,7 +118,7 @@ public record THEngine(GameTable table) implements GameEngine {
         long activePlayerId = table.getActivePlayer().getId();
 
         if (playerBet > table.getLastMaxBet()) {
-            table.setLastTurnPlayerId(activePlayerId);
+            table.updateLastAggressor(activePlayerId, playerBet);
         }
 
         table.betPlayer(activePlayerId, playerBet);
@@ -133,7 +132,7 @@ public record THEngine(GameTable table) implements GameEngine {
         long activePlayerId = table.getActivePlayer().getId();
 
         if (playerBet > table.getLastMaxBet()) {
-            table.setLastTurnPlayerId(activePlayerId);
+            table.updateLastAggressor(activePlayerId, playerBet);
         }
 
         table.betPlayer(activePlayerId, playerBet);
@@ -142,8 +141,8 @@ public record THEngine(GameTable table) implements GameEngine {
         table.defineMinRaise();
     }
 
-    private boolean isCurrentRoundEnded(long playerId) {
-        return table.getLastTurnPlayerId() == playerId;
+    private boolean isCurrentRoundEnded() {
+        return table.isRoundEnded();
     }
 
     private void nextStage() {
