@@ -36,6 +36,11 @@ public record THEngine(GameTable table) implements GameEngine {
             case JOIN_GAME -> joinPlayer(pad);
             case DISCONNECT -> disconnectPlayer(pad);
         }
+
+//        TODO: refactoring logic for defining that the current round is over
+        if (isCurrentRoundEnded(pad.getPlayerId())) {
+            nextStage();
+        }
     }
 
     @Override
@@ -112,6 +117,11 @@ public record THEngine(GameTable table) implements GameEngine {
     private void bet(PlayerActionData pad) {
         int playerBet = pad.getPlayerBet();
         long activePlayerId = table.getActivePlayer().getId();
+
+        if (playerBet > table.getLastMaxBet()) {
+            table.setLastTurnPlayerId(activePlayerId);
+        }
+
         table.betPlayer(activePlayerId, playerBet);
         table.getPot().addPlayerBet(activePlayerId, playerBet);
         table.defineNewActivePlayer();
@@ -121,13 +131,22 @@ public record THEngine(GameTable table) implements GameEngine {
     private void allIn(PlayerActionData pad) {
         int playerBet = pad.getPlayerBet();
         long activePlayerId = table.getActivePlayer().getId();
+
+        if (playerBet > table.getLastMaxBet()) {
+            table.setLastTurnPlayerId(activePlayerId);
+        }
+
         table.betPlayer(activePlayerId, playerBet);
         table.getPot().addPlayerBet(activePlayerId, playerBet);
         table.defineNewActivePlayer();
         table.defineMinRaise();
     }
 
-    private void nextPhase(PlayerActionData pad) {
+    private boolean isCurrentRoundEnded(long playerId) {
+        return table.getLastTurnPlayerId() == playerId;
+    }
+
+    private void nextStage() {
         switch (table.getGameStatus()) {
             case WAITING_FOR_PLAYERS -> preFlop();
             case PRE_FLOP -> flop();
@@ -138,12 +157,8 @@ public record THEngine(GameTable table) implements GameEngine {
         }
     }
 
-//    TODO: define when current round ends and add method to preFlop, flop, turn and river stages
-
     private void preFlop() {
         table.setGameStatus(PRE_FLOP);
-        table.betBlinds();
-        table.dealStartHands();
     }
 
     private void flop() {

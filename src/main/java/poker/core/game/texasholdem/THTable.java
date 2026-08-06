@@ -40,6 +40,8 @@ public class THTable implements GameTable {
     private int lastMaxBet;
     private int minRaise;
 
+    private long lastTurnPlayerId;
+
     private GamePot pot;
 
     /**
@@ -127,6 +129,14 @@ public class THTable implements GameTable {
     }
 
     @Override
+    public void betBlinds() {
+        betPlayerBlind(smallBlindPlayerId, smallBlind);
+        betPlayerBlind(bigBlindPlayerId, bigBlind);
+
+        lastMaxBet = bigBlind;
+    }
+
+    @Override
     public void defineMinRaise() {
         if (lastMaxBet > bigBlind) {
             if (getActivePlayer().getChips() - lastMaxBet >= 0) {
@@ -149,6 +159,17 @@ public class THTable implements GameTable {
     }
 
     @Override
+    public void betPlayer(long playerId, int bet) {
+        GamePlayer player = playersMap.get(playerId);
+        player.setStatus(PlayerStatus.WAIT);
+        player.bet(bet);
+
+        if (bet > lastMaxBet) {
+            lastMaxBet = bet;
+        }
+    }
+
+    @Override
     public void startGame() {
         for (GamePlayer player : playersMap.values()) {
             player.refresh();
@@ -156,6 +177,9 @@ public class THTable implements GameTable {
         }
 
         defineDealerAndBlindAndActivePlayers();
+
+        lastTurnPlayerId = bigBlindPlayerId;
+
         betBlinds();
 
         defineMinRaise();
@@ -172,29 +196,10 @@ public class THTable implements GameTable {
     }
 
     @Override
-    public void betBlinds() {
-        betPlayerBlind(smallBlindPlayerId, smallBlind);
-        betPlayerBlind(bigBlindPlayerId, bigBlind);
-
-        lastMaxBet = bigBlind;
-    }
-
-    @Override
     public void checkPlayer(long playerId) {
         GamePlayer player = playersMap.get(playerId);
         player.setStatus(PlayerStatus.WAIT);
-        player.setCurrentBet(0);
-    }
-
-    @Override
-    public void betPlayer(long playerId, int bet) {
-        GamePlayer player = playersMap.get(playerId);
-        player.setStatus(PlayerStatus.WAIT);
-        player.bet(bet);
-
-        if (bet > lastMaxBet) {
-            lastMaxBet = bet;
-        }
+        player.setCurrentBet(Util.ZERO_INT);
     }
 
     @Override

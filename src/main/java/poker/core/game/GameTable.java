@@ -24,6 +24,7 @@ public interface GameTable {
     long getBigBlindPlayerId();
     int getLastMaxBet();
     int getMinRaise();
+    long getLastTurnPlayerId();
     GamePot getPot();
     List<GamePlayer> getPlayers();
     GamePlayer getActivePlayer();
@@ -41,8 +42,9 @@ public interface GameTable {
     void setSmallBlindPlayerId(long smallBlindPlayerId);
     void setBigBlind(int bigBlind);
     void setBigBlindPlayerId(long bigBlindPlayerId);
-    void setLastMaxBet(int lastMaxBet);
+    void setLastMaxBet(int bet);
     void setMinRaise(int minRaise);
+    void setLastTurnPlayerId(long playerId);
     void setPot(GamePot pot);
     void setPlayersMap(Map<Long, GamePlayer> players);
     void setDeck(Deck deck);
@@ -52,13 +54,12 @@ public interface GameTable {
     void addPlayer(GamePlayer gamePlayer);
     void removePlayer(long playerId);
     void defineNewActivePlayer();
+    void betBlinds();
     void defineMinRaise();
+    void dealStartHands();
+    void betPlayer(long playerId, int bet);
 
     void startGame();
     void foldPlayer(long playerId);
     void checkPlayer(long playerId);
-
-    void dealStartHands();
-    void betBlinds();
-    void betPlayer(long playerId, int bet);
 }
