@@ -11,7 +11,7 @@ import poker.core.engine.GameEngineRegistry;
 import poker.core.game.GameStatus;
 import poker.core.game.GameTable;
 import poker.core.player.GamePlayer;
-import poker.dto.PlayerActionRequest;
+import poker.core.player.PlayerAction;
 import poker.dto.auth.LoginRequest;
 import poker.dto.auth.RegistrationRequest;
 import poker.dto.game.CreateGameRequest;
@@ -145,7 +145,7 @@ public class ValidationService {
         return gameEngineRegistry.getGameEngine(gameId) != null;
     }
 
-    public boolean isPlayerActionValid(long gameId, PlayerDetails playerDetails, PlayerActionRequest request) {
+    public boolean isPlayerActionValid(long gameId, PlayerDetails playerDetails, PlayerAction playerAction, int playerBet) {
         Player authPlayer = playerDetails.getPlayer();
         GameTable table = gameEngineRegistry.getGameEngine(gameId).table();
         GamePlayer player = table.getPlayerById(authPlayer.getId());
@@ -160,9 +160,17 @@ public class ValidationService {
             log.error("Player id {} makes a move in game id {} when it is not his turn", authPlayer.getId(), gameId);
             return false;
         }
-        // todo: add checks:
-        //      1. Is player action type correct?
-        //      2. Is player has enough chips for that action?
+        // todo: add check - Is player action type correct?
+        if (PlayerAction.CHECK.equals(playerAction) && playerBet != 0) {
+            log.error("Player id {} makes {} with non-zero bet {}", authPlayer.getId(), playerAction, playerBet);
+            return false;
+        }
+
+        if ((PlayerAction.BET.equals(playerAction) || PlayerAction.ALL_IN.equals(playerAction))
+            && (playerBet < table.getMinRaise() || playerBet > player.getChips())) {
+            log.error("");
+            return false;
+        }
 
         return true;
     }

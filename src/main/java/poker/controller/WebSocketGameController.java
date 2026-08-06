@@ -68,7 +68,7 @@ public class WebSocketGameController {
             return;
         }
 
-        if (!validationService.isPlayerActionValid(gameId, playerDetails, playerActionRequest)) {
+        if (!validationService.isPlayerActionValid(gameId, playerDetails, playerAction, playerActionRequest.playerBet())) {
             log.error("Invalid action {} game id {} player id {}", playerAction, gameId, playerId);
 //            todo: Let the player know that he is doing something wrong?
             return;
