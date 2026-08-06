@@ -53,7 +53,6 @@ public interface GameTable {
     void removePlayer(long playerId);
     void defineNewActivePlayer();
     void defineMinRaise();
-    void updateGameStatus(GameStatus gameStatus);
 
     void startGame();
     void foldPlayer(long playerId);

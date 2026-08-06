@@ -128,8 +128,6 @@ public class THTable implements GameTable {
 
     @Override
     public void defineMinRaise() {
-        int lastMaxBet = new Random().nextInt(1_000_000);
-
         if (lastMaxBet > bigBlind) {
             if (getActivePlayer().getChips() - lastMaxBet >= 0) {
                 minRaise = lastMaxBet;
@@ -139,11 +137,6 @@ public class THTable implements GameTable {
         } else { // lastMaxBet == BB
             minRaise = Math.min(getActivePlayer().getChips(), bigBlind);
         }
-    }
-
-    @Override
-    public void updateGameStatus(GameStatus gameStatus) {
-        this.gameStatus = gameStatus;
     }
 
     @Override
@@ -157,8 +150,6 @@ public class THTable implements GameTable {
 
     @Override
     public void startGame() {
-        gameStatus = GameStatus.PRE_FLOP;
-
         for (GamePlayer player : playersMap.values()) {
             player.refresh();
             player.setChips(buyIn); // fixme: do this only for the very first round

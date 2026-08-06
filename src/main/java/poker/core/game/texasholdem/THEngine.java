@@ -138,8 +138,10 @@ public record THEngine(GameTable table) implements GameEngine {
         }
     }
 
+//    TODO: define when current round ends and add method to preFlop, flop, turn and river stages
+
     private void preFlop() {
-        table.updateGameStatus(PRE_FLOP);
+        table.setGameStatus(PRE_FLOP);
         table.betBlinds();
         table.dealStartHands();
     }
@@ -148,21 +150,21 @@ public record THEngine(GameTable table) implements GameEngine {
         for (int i = 0; i < 3; i++) {
             table.getCommunityCards().add(table.getDeck().dealCard());
         }
-        table.updateGameStatus(FLOP);
+        table.setGameStatus(FLOP);
     }
 
     private void turn() {
         table.getCommunityCards().add(table.getDeck().dealCard());
-        table.updateGameStatus(TURN);
+        table.setGameStatus(TURN);
     }
 
     private void river() {
         table.getCommunityCards().add(table.getDeck().dealCard());
-        table.updateGameStatus(RIVER);
+        table.setGameStatus(RIVER);
     }
 
     private void showdown() {
-        table.updateGameStatus(SHOWDOWN);
+        table.setGameStatus(SHOWDOWN);
 
 //        TODO: improve logic of evaluating hands and splitting pot between players
         var playersAndCombinations = new HashMap<GamePlayer, HandEvaluator>();
@@ -201,6 +203,6 @@ public record THEngine(GameTable table) implements GameEngine {
     }
 
     private void waitingNewPlayers() {
-        table.updateGameStatus(WAITING_FOR_PLAYERS);
+        table.setGameStatus(WAITING_FOR_PLAYERS);
     }
 }
