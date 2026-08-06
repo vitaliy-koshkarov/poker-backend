@@ -59,6 +59,7 @@ public class GameStateFactory {
             .smallBlindPlayerId(table.getSmallBlindPlayerId())
             .bigBlind(table.getBigBlind())
             .bigBlindPlayerId(table.getBigBlindPlayerId())
+            .lastMaxBet(table.getLastMaxBet())
             .minRaise(table.getMinRaise())
             .gamePot(table.getPot().snapshot())
             .gamePlayers(snapshotGamePlayers)

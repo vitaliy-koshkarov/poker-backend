@@ -26,6 +26,7 @@ public class GameState {
     private long smallBlindPlayerId;
     private int bigBlind;
     private long bigBlindPlayerId;
+    private int lastMaxBet;
     private int minRaise;
     private int buyIn;
     private GamePot gamePot;

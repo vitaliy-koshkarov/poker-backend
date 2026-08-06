@@ -22,6 +22,7 @@ public interface GameTable {
     long getSmallBlindPlayerId();
     int getBigBlind();
     long getBigBlindPlayerId();
+    int getLastMaxBet();
     int getMinRaise();
     GamePot getPot();
     List<GamePlayer> getPlayers();
@@ -40,6 +41,7 @@ public interface GameTable {
     void setSmallBlindPlayerId(long smallBlindPlayerId);
     void setBigBlind(int bigBlind);
     void setBigBlindPlayerId(long bigBlindPlayerId);
+    void setLastMaxBet(int lastMaxBet);
     void setMinRaise(int minRaise);
     void setPot(GamePot pot);
     void setPlayersMap(Map<Long, GamePlayer> players);

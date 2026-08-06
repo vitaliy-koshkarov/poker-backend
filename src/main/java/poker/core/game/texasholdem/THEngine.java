@@ -53,6 +53,7 @@ public record THEngine(GameTable table) implements GameEngine {
         table.setSmallBlindPlayerId(snapshot.getSmallBlindPlayerId());
         table.setBigBlind(snapshot.getBigBlind());
         table.setBigBlindPlayerId(snapshot.getBigBlindPlayerId());
+        table.setLastMaxBet(snapshot.getLastMaxBet());
         table.setMinRaise(snapshot.getMinRaise());
         table.setPot(snapshot.getGamePot());
 
