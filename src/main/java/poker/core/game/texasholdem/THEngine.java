@@ -94,9 +94,7 @@ public record THEngine(GameTable table) implements GameEngine {
         long playerId = pad.getPlayerId();
         table.removePlayer(playerId);
 
-//        if (table.getActivePlayerId() == playerId) {
-//            table.overrideActivePlayer();
-//        }
+//        todo: if player disconnects, wait few seconds, then pass the turn to the next player
 
         log.debug("Player id {} {} game id {}", playerId, pad.getPlayerAction().getActionName(), pad.getGameId());
     }
@@ -105,18 +103,21 @@ public record THEngine(GameTable table) implements GameEngine {
         table.foldPlayer(pad.getPlayerId());
         table.defineNewActivePlayer();
         table.defineMinRaise();
+        table.getRound().removePlayerToAct(pad.getPlayerId());
     }
 
     private void check(PlayerActionData pad) {
         table.checkPlayer(pad.getPlayerId());
         table.defineNewActivePlayer();
         table.defineMinRaise();
+        table.getRound().removePlayerToAct(pad.getPlayerId());
     }
 
     private void bet(PlayerActionData pad) {
         int playerBet = pad.getPlayerBet();
-        long activePlayerId = table.getActivePlayer().getId();
+        long activePlayerId = pad.getPlayerId();
 
+        table.updatePlayersToAct(pad.getPlayerId());
         if (playerBet > table.getLastMaxBet()) {
             table.updateLastAggressor(activePlayerId, playerBet);
         }
@@ -129,8 +130,9 @@ public record THEngine(GameTable table) implements GameEngine {
 
     private void allIn(PlayerActionData pad) {
         int playerBet = pad.getPlayerBet();
-        long activePlayerId = table.getActivePlayer().getId();
+        long activePlayerId = pad.getPlayerId();
 
+        table.updatePlayersToAct(pad.getPlayerId());
         if (playerBet > table.getLastMaxBet()) {
             table.updateLastAggressor(activePlayerId, playerBet);
         }
@@ -142,7 +144,7 @@ public record THEngine(GameTable table) implements GameEngine {
     }
 
     private boolean isCurrentRoundEnded() {
-        return table.isRoundEnded();
+        return table.getRound().getPlayersToAct().isEmpty();
     }
 
     private void nextStage() {

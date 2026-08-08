@@ -28,11 +28,11 @@ public class Round implements Snapshot<Round> {
         this.playersToAct = new HashSet<>(playersToAct);
     }
 
-    public void addPlayerIdToAct(long playerId) {
+    public void addPlayerToAct(long playerId) {
         playersToAct.add(playerId);
     }
 
-    public void removePlayerPlayerToAct(long playerId) {
+    public void removePlayerToAct(long playerId) {
         playersToAct.remove(playerId);
     }
 

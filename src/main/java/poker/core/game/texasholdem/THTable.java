@@ -9,10 +9,11 @@ import poker.core.game.GameTable;
 import poker.core.game.card.Card;
 import poker.core.game.card.Deck;
 import poker.core.player.GamePlayer;
-import poker.core.player.PlayerStatus;
 import poker.util.Util;
 
 import java.util.*;
+
+import static poker.core.player.PlayerStatus.*;
 
 @Getter
 @Setter
@@ -135,15 +136,13 @@ public class THTable implements GameTable {
         }
 
         activePlayerId = playersSeats[currentActivePlayerIdx];
-        playersMap.get(activePlayerId).setStatus(PlayerStatus.ACTIVE);
+        playersMap.get(activePlayerId).setStatus(ACTIVE);
     }
 
     @Override
     public void betBlinds() {
         betPlayerBlind(smallBlindPlayerId, smallBlind);
         betPlayerBlind(bigBlindPlayerId, bigBlind);
-
-        updateLastAggressor(bigBlindPlayerId, bigBlind);
     }
 
     @Override
@@ -171,7 +170,7 @@ public class THTable implements GameTable {
     @Override
     public void betPlayer(long playerId, int bet) {
         GamePlayer player = playersMap.get(playerId);
-        player.setStatus(PlayerStatus.WAIT);
+        player.setStatus(BET);
         player.bet(bet);
 
         if (bet > bettingRound.getLastMaxBet()) {
@@ -183,11 +182,22 @@ public class THTable implements GameTable {
     public void updateLastAggressor(long playerId, int bet) {
         bettingRound.setLastAggressorPlayerId(playerId);
         bettingRound.setLastMaxBet(bet);
-        bettingRound.removePlayerPlayerToAct(playerId);
+    }
+
+    @Override
+    public void updatePlayersToAct(long playerId) {
+        bettingRound.getPlayersToAct().clear();
+
+        for (GamePlayer p : playersMap.values()) {
+            if (p.getId() != playerId && !FOLD.equals(p.getStatus()) && !ALL_IN.equals(p.getStatus())) {
+                bettingRound.addPlayerToAct(p.getId());
+            }
+        }
     }
 
     @Override
     public void startGame() {
+//        todo: add random dealerId calculation
         for (GamePlayer player : playersMap.values()) {
             player.refresh();
             player.setChips(buyIn); // fixme: do this only for the very first round
@@ -198,6 +208,7 @@ public class THTable implements GameTable {
         betBlinds();
 
         addAllPlayersToAct();
+        updateLastAggressor(bigBlindPlayerId, bigBlind);
 
         defineMinRaise();
 
@@ -208,20 +219,15 @@ public class THTable implements GameTable {
     @Override
     public void foldPlayer(long playerId) {
         GamePlayer player = playersMap.get(playerId);
-        player.setStatus(PlayerStatus.FOLD);
+        player.setStatus(FOLD);
         player.setCurrentBet(Util.ZERO_INT);
     }
 
     @Override
     public void checkPlayer(long playerId) {
         GamePlayer player = playersMap.get(playerId);
-        player.setStatus(PlayerStatus.WAIT);
+        player.setStatus(CHECK);
         player.setCurrentBet(Util.ZERO_INT);
-    }
-
-    @Override
-    public boolean isRoundEnded() {
-        return bettingRound.getPlayersToAct().isEmpty();
     }
 
     @Override
@@ -304,7 +310,7 @@ public class THTable implements GameTable {
         }
 
         activePlayerId = playersSeats[activePlayerIndex];
-        playersMap.get(activePlayerId).setStatus(PlayerStatus.ACTIVE);
+        playersMap.get(activePlayerId).setStatus(ACTIVE);
     }
 
     private void seatPlayer(long playerId) {
@@ -327,7 +333,7 @@ public class THTable implements GameTable {
 
     private void addAllPlayersToAct() {
         for (GamePlayer gamePlayer : playersMap.values()) {
-            bettingRound.addPlayerIdToAct(gamePlayer.getId());
+            bettingRound.addPlayerToAct(gamePlayer.getId());
         }
     }
 }
