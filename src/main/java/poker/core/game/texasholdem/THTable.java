@@ -348,6 +348,7 @@ public class THTable implements GameTable {
     }
 
     private void determineNewActivePlayer() {
+//        TODO: if player always FOLD, then choose next available player
         int currentActivePlayerIdx = 0;
         for (int i = 0; i < playersSeats.length; i++) {
             if (playersSeats[i] == activePlayerId) {
@@ -436,8 +437,6 @@ public class THTable implements GameTable {
             }
         }
 
-        // todo: determine whose move it is
-
         for (int i = 0; i < 3; i++) {
             communityCards.add(deck.dealCard());
         }
@@ -447,16 +446,12 @@ public class THTable implements GameTable {
         gameStatus = TURN;
 
         communityCards.add(deck.dealCard());
-
-        // todo: determine whose move it is
     }
 
     private void riverStage() {
         gameStatus = RIVER;
 
         communityCards.add(deck.dealCard());
-
-        // todo: determine whose move it is
     }
 
     private void showdownStage() {

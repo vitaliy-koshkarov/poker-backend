@@ -174,7 +174,9 @@ public class ValidationService {
             log.error("Player id {} makes a move in game id {} when it is not his turn", authPlayer.getId(), gameId);
             return false;
         }
+
         // todo: add check - Is player action type correct?
+
         if (PlayerAction.CHECK.equals(playerAction) && playerBet != 0) {
             log.error("Player id {} makes {} with non-zero bet {}", authPlayer.getId(), playerAction, playerBet);
             return false;
