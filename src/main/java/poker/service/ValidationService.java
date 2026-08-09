@@ -98,10 +98,10 @@ public class ValidationService {
                 "Buy-in " + request.buyIn() + " is not valid");
         }
 
-        if (gameProps.getMaxPlayers() != request.maxPlayers()) {
+        if (request.maxPlayers() < gameProps.getMinPlayers() || request.maxPlayers() > gameProps.getMaxPlayers()) {
             log.error("Not valid max players value {}", request.maxPlayers());
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                "Max players must not be more than " + gameProps.getMaxPlayers());
+                "Max players must be between " + gameProps.getMinPlayers() + " and " + gameProps.getMaxPlayers());
         }
     }
 

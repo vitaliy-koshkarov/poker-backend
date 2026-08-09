@@ -28,6 +28,7 @@ public class GameService {
     private final PlayerBetService playerBetService;
     private final PlayerService playerService;
     private final PlayerSeatService playerSeatService;
+    private final RoundService roundService;
 
     @Transactional(rollbackFor = Exception.class)
     public void createGame(long creatorPlayerId, CreateGameRequest createGameRequest) {
@@ -48,9 +49,12 @@ public class GameService {
             .build();
 
         var newGame = gameRepo.save(game);
+
+        long roundId = roundService.createRound(game.getId());
+
         log.info("Created {}, player id {}", newGame, creatorPlayerId);
 
-        gameEngineRegistry.registerNewGame(game);
+        gameEngineRegistry.registerNewGame(game, roundId);
     }
 
     @Transactional(rollbackFor = Exception.class)

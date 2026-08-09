@@ -56,11 +56,11 @@ public class THTable implements GameTable {
 
     private List<Card> communityCards;
 
-    private Round bettingRound;
+    private THRound bettingRound;
 
-    public THTable(long id, String name, long creatorPlayerId, int maxPlayers, int buyIn,
-                   GameStatus gameStatus, int smallBlind, int bigBlind, GamePot pot) {
-        this.id = id;
+    public THTable(long gameId, String name, long creatorPlayerId, int maxPlayers, int buyIn,
+                   GameStatus gameStatus, int smallBlind, int bigBlind, GamePot pot, long roundId) {
+        this.id = gameId;
         this.name = name;
         this.creatorPlayerId = creatorPlayerId;
         this.maxPlayers = maxPlayers;
@@ -73,7 +73,7 @@ public class THTable implements GameTable {
         this.communityCards = new ArrayList<>();
         this.playersMap = new HashMap<>();
         this.playersSeats = new long[maxPlayers];
-        bettingRound = new Round(Util.ZERO_INT, Util.ZERO_INT);
+        bettingRound = new THRound(roundId, gameId, Util.ZERO_INT, Util.ZERO_INT);
     }
 
     @Override
@@ -101,7 +101,7 @@ public class THTable implements GameTable {
     }
 
     @Override
-    public Round getRound() {
+    public THRound getRound() {
         return bettingRound;
     }
 

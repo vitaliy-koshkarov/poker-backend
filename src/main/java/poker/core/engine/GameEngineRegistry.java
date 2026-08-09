@@ -20,13 +20,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public class GameEngineRegistry {
     private final Map<Long, GameEngine> gameEngineMap = new ConcurrentHashMap<>();
 
-    public void registerNewGame(Game game) {
+    public void registerNewGame(Game game, long roundId) {
         long gameId = game.getId();
         log.info("Registering game id {} with blinds {}/{}", gameId, game.getSmallBlind(), game.getBigBlind());
 
         GameTable table = new THTable(gameId, game.getName(), game.getCreatorPlayerId(),
             game.getMaxPlayers(), game.getBuyIn(), GameStatus.getGameStatusByInt(game.getStatus()),
-            game.getSmallBlind(), game.getBigBlind(), new THPot(game.getPotId()));
+            game.getSmallBlind(), game.getBigBlind(), new THPot(game.getPotId()), roundId);
 
         GameEngine engine = new THEngine(table);
 
