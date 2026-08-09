@@ -33,21 +33,29 @@ public enum PlayerStatus {
      */
     CHECK(5, "Check"),
     /**
+     * Player matched to the highest bet
+     */
+    CALL(6, "Call"),
+    /**
      * Player made a bet
      */
-    BET(6, "Bet"),
+    BET(7, "Bet"),
+    /**
+     * Player increased the last highest bet
+     */
+    RAISE(8, "Raise"),
     /**
      * Player bet all chips
      */
-    ALL_IN(7, "All-in"),
+    ALL_IN(9, "All-in"),
     /**
      * Player disconnected
      */
-    DISCONNECT(8, "Disconnect"),
+    DISCONNECT(10, "Disconnect"),
     /**
      * Player's turn
      */
-    ACTIVE(9, "Active");
+    ACTIVE(11, "Active");
 
     private final int intStatus;
     private final String shortName;

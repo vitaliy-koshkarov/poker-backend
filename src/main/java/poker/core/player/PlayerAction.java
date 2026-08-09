@@ -13,8 +13,10 @@ public enum PlayerAction {
     DISCONNECT(2, "DISCONNECT"),
     FOLD(3, "FOLD"),
     CHECK(4, "CHECK"),
-    BET(5, "BET"),
-    ALL_IN(6, "ALL_IN");
+    CALL(5, "CALL"),
+    BET(6, "BET"),
+    RAISE(7, "RAISE"),
+    ALL_IN(8, "ALL_IN");
 
     private final int type;
     private final String actionName;

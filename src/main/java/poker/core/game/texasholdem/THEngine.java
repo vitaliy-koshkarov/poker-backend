@@ -28,13 +28,15 @@ public record THEngine(GameTable table) implements GameEngine {
         log.info("Handle {} player id {}", pad.getPlayerAction().getActionName(), pad.getPlayerId());
 
         switch (pad.getPlayerAction()) {
+            case JOIN_GAME -> joinPlayer(pad);
+            case DISCONNECT -> disconnectPlayer(pad);
             case START_GAME -> startGame();
             case FOLD -> fold(pad);
             case CHECK -> check(pad);
+            case CALL -> call(pad);
             case BET -> bet(pad);
+            case RAISE -> raise(pad);
             case ALL_IN -> allIn(pad);
-            case JOIN_GAME -> joinPlayer(pad);
-            case DISCONNECT -> disconnectPlayer(pad);
         }
 
         if (isCurrentRoundEnded()) {
@@ -86,10 +88,6 @@ public record THEngine(GameTable table) implements GameEngine {
         log.debug("Player id {} {} game {}", gamePlayer.getId(), pad.getPlayerAction(), pad.getGameId());
     }
 
-    private void startGame() {
-        table.startGame();
-    }
-
     private void disconnectPlayer(PlayerActionData pad) {
         long playerId = pad.getPlayerId();
         table.removePlayer(playerId);
@@ -99,46 +97,42 @@ public record THEngine(GameTable table) implements GameEngine {
         log.debug("Player id {} {} game id {}", playerId, pad.getPlayerAction().getActionName(), pad.getGameId());
     }
 
+    private void startGame() {
+        table.startGame();
+    }
+
     private void fold(PlayerActionData pad) {
         table.foldPlayer(pad.getPlayerId());
         table.defineNewActivePlayer();
         table.defineMinRaise();
-        table.getRound().removePlayerToAct(pad.getPlayerId());
     }
 
     private void check(PlayerActionData pad) {
         table.checkPlayer(pad.getPlayerId());
         table.defineNewActivePlayer();
         table.defineMinRaise();
-        table.getRound().removePlayerToAct(pad.getPlayerId());
+    }
+
+    private void call(PlayerActionData pad) {
     }
 
     private void bet(PlayerActionData pad) {
         int playerBet = pad.getPlayerBet();
         long activePlayerId = pad.getPlayerId();
 
-        table.updatePlayersToAct(pad.getPlayerId());
-        if (playerBet > table.getLastMaxBet()) {
-            table.updateLastAggressor(activePlayerId, playerBet);
-        }
-
         table.betPlayer(activePlayerId, playerBet);
-        table.getPot().addPlayerBet(activePlayerId, playerBet);
         table.defineNewActivePlayer();
         table.defineMinRaise();
+    }
+
+    private void raise(PlayerActionData pad) {
     }
 
     private void allIn(PlayerActionData pad) {
         int playerBet = pad.getPlayerBet();
         long activePlayerId = pad.getPlayerId();
 
-        table.updatePlayersToAct(pad.getPlayerId());
-        if (playerBet > table.getLastMaxBet()) {
-            table.updateLastAggressor(activePlayerId, playerBet);
-        }
-
         table.betPlayer(activePlayerId, playerBet);
-        table.getPot().addPlayerBet(activePlayerId, playerBet);
         table.defineNewActivePlayer();
         table.defineMinRaise();
     }

@@ -28,7 +28,7 @@ public class Round implements Snapshot<Round> {
         this.playersToAct = new HashSet<>(playersToAct);
     }
 
-    public void addPlayerToAct(long playerId) {
+    public void addPlayersToAct(long playerId) {
         playersToAct.add(playerId);
     }
 

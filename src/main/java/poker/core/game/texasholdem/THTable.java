@@ -168,34 +168,6 @@ public class THTable implements GameTable {
     }
 
     @Override
-    public void betPlayer(long playerId, int bet) {
-        GamePlayer player = playersMap.get(playerId);
-        player.setStatus(BET);
-        player.bet(bet);
-
-        if (bet > bettingRound.getLastMaxBet()) {
-            bettingRound.setLastMaxBet(bet);
-        }
-    }
-
-    @Override
-    public void updateLastAggressor(long playerId, int bet) {
-        bettingRound.setLastAggressorPlayerId(playerId);
-        bettingRound.setLastMaxBet(bet);
-    }
-
-    @Override
-    public void updatePlayersToAct(long playerId) {
-        bettingRound.getPlayersToAct().clear();
-
-        for (GamePlayer p : playersMap.values()) {
-            if (p.getId() != playerId && !FOLD.equals(p.getStatus()) && !ALL_IN.equals(p.getStatus())) {
-                bettingRound.addPlayerToAct(p.getId());
-            }
-        }
-    }
-
-    @Override
     public void startGame() {
 //        todo: add random dealerId calculation
         for (GamePlayer player : playersMap.values()) {
@@ -221,6 +193,7 @@ public class THTable implements GameTable {
         GamePlayer player = playersMap.get(playerId);
         player.setStatus(FOLD);
         player.setCurrentBet(Util.ZERO_INT);
+        bettingRound.removePlayerToAct(playerId);
     }
 
     @Override
@@ -228,6 +201,22 @@ public class THTable implements GameTable {
         GamePlayer player = playersMap.get(playerId);
         player.setStatus(CHECK);
         player.setCurrentBet(Util.ZERO_INT);
+        bettingRound.removePlayerToAct(playerId);
+    }
+
+    @Override
+    public void betPlayer(long playerId, int bet) {
+        GamePlayer player = playersMap.get(playerId);
+        player.setStatus(bet == player.getChips() ? ALL_IN : BET);
+        player.bet(bet);
+
+        pot.addPlayerBet(activePlayerId, bet);
+
+        updatePlayersToAct(playerId);
+
+        if (bet > bettingRound.getLastMaxBet()) {
+            updateLastAggressor(activePlayerId, bet);
+        }
     }
 
     @Override
@@ -333,7 +322,22 @@ public class THTable implements GameTable {
 
     private void addAllPlayersToAct() {
         for (GamePlayer gamePlayer : playersMap.values()) {
-            bettingRound.addPlayerToAct(gamePlayer.getId());
+            bettingRound.addPlayersToAct(gamePlayer.getId());
+        }
+    }
+
+    private void updateLastAggressor(long playerId, int bet) {
+        bettingRound.setLastAggressorPlayerId(playerId);
+        bettingRound.setLastMaxBet(bet);
+    }
+
+    private void updatePlayersToAct(long playerId) {
+        bettingRound.getPlayersToAct().clear();
+
+        for (GamePlayer p : playersMap.values()) {
+            if (p.getId() != playerId && !FOLD.equals(p.getStatus()) && !ALL_IN.equals(p.getStatus())) {
+                bettingRound.addPlayersToAct(p.getId());
+            }
         }
     }
 }

@@ -57,11 +57,9 @@ public interface GameTable {
     void betBlinds();
     void defineMinRaise();
     void dealStartHands();
-    void betPlayer(long playerId, int bet);
-    void updateLastAggressor(long playerId, int bet);
-    void updatePlayersToAct(long playerId);
 
     void startGame();
     void foldPlayer(long playerId);
     void checkPlayer(long playerId);
+    void betPlayer(long playerId, int bet);
 }
