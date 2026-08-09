@@ -5,7 +5,7 @@ import lombok.Setter;
 import lombok.ToString;
 import poker.core.Snapshot;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Getter
@@ -23,7 +23,7 @@ public class THRound implements Snapshot<THRound> {
         this.gameId = gameId;
         this.lastAggressorPlayerId = playerId;
         this.lastMaxBet = bet;
-        this.playersToAct = new HashSet<>();
+        this.playersToAct = new LinkedHashSet<>();
     }
 
     private THRound(long id, long gameId, long playerId, int bet, Set<Long> playersToAct) {
@@ -31,7 +31,7 @@ public class THRound implements Snapshot<THRound> {
         this.gameId = gameId;
         this.lastAggressorPlayerId = playerId;
         this.lastMaxBet = bet;
-        this.playersToAct = new HashSet<>(playersToAct);
+        this.playersToAct = new LinkedHashSet<>(playersToAct);
     }
 
     public void addPlayersToAct(long playerId) {

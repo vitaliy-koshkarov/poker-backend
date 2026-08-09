@@ -23,7 +23,6 @@ public interface GameTable {
     long getSmallBlindPlayerId();
     int getBigBlind();
     long getBigBlindPlayerId();
-    int getLastMaxBet();
     int getMinRaise();
     GamePot getPot();
     List<GamePlayer> getPlayers();
@@ -33,6 +32,7 @@ public interface GameTable {
     long[] getPlayersSeats();
     int getPlayerSeatNumber(long playerId);
     GamePlayer getPlayerById(long playerId);
+    int getLastMaxBet();
     THRound getRound();
 
     void setGameStatus(GameStatus gameStatus);
@@ -53,10 +53,6 @@ public interface GameTable {
 
     void addPlayer(GamePlayer gamePlayer);
     void removePlayer(long playerId);
-    void defineNewActivePlayer();
-    void betBlinds();
-    void defineMinRaise();
-    void dealStartHands();
 
     void startGame();
     void foldPlayer(long playerId);

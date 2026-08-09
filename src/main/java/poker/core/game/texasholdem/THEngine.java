@@ -102,14 +102,10 @@ public record THEngine(GameTable table) implements GameEngine {
 
     private void fold(PlayerActionData pad) {
         table.foldPlayer(pad.getPlayerId());
-        table.defineNewActivePlayer();
-        table.defineMinRaise();
     }
 
     private void check(PlayerActionData pad) {
         table.checkPlayer(pad.getPlayerId());
-        table.defineNewActivePlayer();
-        table.defineMinRaise();
     }
 
     private void call(PlayerActionData pad) {
@@ -117,12 +113,7 @@ public record THEngine(GameTable table) implements GameEngine {
     }
 
     private void bet(PlayerActionData pad) {
-        int playerBet = pad.getPlayerBet();
-        long activePlayerId = pad.getPlayerId();
-
-        table.betPlayer(activePlayerId, playerBet);
-        table.defineNewActivePlayer();
-        table.defineMinRaise();
+        table.betPlayer(pad.getPlayerId(), pad.getPlayerBet());
     }
 
     private void raise(PlayerActionData pad) {
@@ -130,12 +121,7 @@ public record THEngine(GameTable table) implements GameEngine {
     }
 
     private void allIn(PlayerActionData pad) {
-        int playerBet = pad.getPlayerBet();
-        long activePlayerId = pad.getPlayerId();
-
-        table.betPlayer(activePlayerId, playerBet);
-        table.defineNewActivePlayer();
-        table.defineMinRaise();
+       table.betPlayer(pad.getPlayerId(), pad.getPlayerBet());
     }
 
     private boolean isCurrentRoundEnded() {

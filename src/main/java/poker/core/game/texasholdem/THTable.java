@@ -102,13 +102,13 @@ public class THTable implements GameTable {
     }
 
     @Override
-    public THRound getRound() {
-        return bettingRound;
+    public int getLastMaxBet() {
+        return bettingRound.getLastMaxBet();
     }
 
     @Override
-    public int getLastMaxBet() {
-        return bettingRound.getLastMaxBet();
+    public THRound getRound() {
+        return bettingRound;
     }
 
     @Override
@@ -124,52 +124,8 @@ public class THTable implements GameTable {
     }
 
     @Override
-    public void defineNewActivePlayer() {
-        int currentActivePlayerIdx = 0;
-        for (int i = 0; i < playersSeats.length; i++) {
-            if (playersSeats[i] == activePlayerId) {
-                currentActivePlayerIdx = i;
-            }
-        }
-        currentActivePlayerIdx = currentActivePlayerIdx + 1;
-        if (currentActivePlayerIdx >= playersSeats.length) {
-            currentActivePlayerIdx = 0;
-        }
-
-        activePlayerId = playersSeats[currentActivePlayerIdx];
-        playersMap.get(activePlayerId).setStatus(ACTIVE);
-    }
-
-    @Override
-    public void betBlinds() {
-        betPlayerBlind(smallBlindPlayerId, smallBlind);
-        betPlayerBlind(bigBlindPlayerId, bigBlind);
-    }
-
-    @Override
-    public void defineMinRaise() {
-        if (bettingRound.getLastMaxBet() > bigBlind) {
-            if (getActivePlayer().getChips() - bettingRound.getLastMaxBet() >= 0) {
-                minRaise = bettingRound.getLastMaxBet();
-            } else {
-                minRaise = getActivePlayer().getChips();
-            }
-        } else { // lastMaxBet == BB
-            minRaise = Math.min(getActivePlayer().getChips(), bigBlind);
-        }
-    }
-
-    @Override
-    public void dealStartHands() {
-        for (int i = 0; i < 2; i++) {
-            for (GamePlayer player : playersMap.values()) {
-                player.getCards().add(deck.dealCard());
-            }
-        }
-    }
-
-    @Override
     public void startGame() {
+//        todo: shuffle player seats
         refreshTable();
 
         for (GamePlayer player : playersMap.values()) {
@@ -199,6 +155,9 @@ public class THTable implements GameTable {
         player.setStatus(FOLD);
         player.setCurrentBet(Util.ZERO_INT);
         bettingRound.removePlayerToAct(playerId);
+
+        defineNewActivePlayer();
+        defineMinRaise();
     }
 
     @Override
@@ -207,6 +166,9 @@ public class THTable implements GameTable {
         player.setStatus(CHECK);
         player.setCurrentBet(Util.ZERO_INT);
         bettingRound.removePlayerToAct(playerId);
+
+        defineNewActivePlayer();
+        defineMinRaise();
     }
 
     @Override
@@ -222,6 +184,9 @@ public class THTable implements GameTable {
         if (bet > bettingRound.getLastMaxBet()) {
             updateLastAggressor(activePlayerId, bet);
         }
+
+        defineNewActivePlayer();
+        defineMinRaise();
     }
 
     @Override
@@ -263,6 +228,19 @@ public class THTable implements GameTable {
             ", communityCards=" + communityCards +
             ", playersSeats=" + Arrays.toString(playersSeats) +
             '}';
+    }
+
+    private void dealStartHands() {
+        for (int i = 0; i < 2; i++) {
+            for (GamePlayer player : playersMap.values()) {
+                player.getCards().add(deck.dealCard());
+            }
+        }
+    }
+
+    private void betBlinds() {
+        betPlayerBlind(smallBlindPlayerId, smallBlind);
+        betPlayerBlind(bigBlindPlayerId, bigBlind);
     }
 
     private void betPlayerBlind(long playerId, int blind) {
@@ -333,6 +311,22 @@ public class THTable implements GameTable {
         }
     }
 
+    private void defineNewActivePlayer() {
+        int currentActivePlayerIdx = 0;
+        for (int i = 0; i < playersSeats.length; i++) {
+            if (playersSeats[i] == activePlayerId) {
+                currentActivePlayerIdx = i;
+            }
+        }
+        currentActivePlayerIdx = currentActivePlayerIdx + 1;
+        if (currentActivePlayerIdx >= playersSeats.length) {
+            currentActivePlayerIdx = 0;
+        }
+
+        activePlayerId = playersSeats[currentActivePlayerIdx];
+        playersMap.get(activePlayerId).setStatus(ACTIVE);
+    }
+
     private void addAllPlayersToAct() {
         bettingRound.getPlayersToAct().clear();
         for (GamePlayer gamePlayer : playersMap.values()) {
@@ -343,6 +337,18 @@ public class THTable implements GameTable {
     private void updateLastAggressor(long playerId, int bet) {
         bettingRound.setLastAggressorPlayerId(playerId);
         bettingRound.setLastMaxBet(bet);
+    }
+
+    private void defineMinRaise() {
+        if (bettingRound.getLastMaxBet() > bigBlind) {
+            if (getActivePlayer().getChips() - bettingRound.getLastMaxBet() >= 0) {
+                minRaise = bettingRound.getLastMaxBet();
+            } else {
+                minRaise = getActivePlayer().getChips();
+            }
+        } else { // lastMaxBet == BB
+            minRaise = Math.min(getActivePlayer().getChips(), bigBlind);
+        }
     }
 
     private void updatePlayersToAct(long playerId) {
