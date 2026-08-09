@@ -13,6 +13,7 @@ import poker.util.Util;
 
 import java.util.*;
 
+import static poker.core.game.GameStatus.*;
 import static poker.core.player.PlayerStatus.*;
 
 @Getter
@@ -169,23 +170,27 @@ public class THTable implements GameTable {
 
     @Override
     public void startGame() {
-//        todo: add random dealerId calculation
+        refreshTable();
+
         for (GamePlayer player : playersMap.values()) {
-            player.refresh();
-            player.setChips(buyIn); // fixme: do this only for the very first round
+            player.setChips(buyIn);
         }
+
+        addAllPlayersToAct();
 
         defineDealerAndBlindAndActivePlayers();
 
         betBlinds();
 
-        addAllPlayersToAct();
         updateLastAggressor(bigBlindPlayerId, bigBlind);
 
         defineMinRaise();
 
         deck.shuffle();
+
         dealStartHands();
+
+        gameStatus = PRE_FLOP;
     }
 
     @Override
@@ -220,6 +225,31 @@ public class THTable implements GameTable {
     }
 
     @Override
+    public void preFlop() {
+        preFlopStage();
+    }
+
+    @Override
+    public void flop() {
+        flopStage();
+    }
+
+    @Override
+    public void turn() {
+        turnStage();
+    }
+
+    @Override
+    public void river() {
+        riverStage();
+    }
+
+    @Override
+    public void showdown() {
+        showdownStage();
+    }
+
+    @Override
     public String toString() {
         return "THTable{" +
             "id=" + id + ", name=" + name + ", creatorPlayerId=" + creatorPlayerId +
@@ -233,24 +263,6 @@ public class THTable implements GameTable {
             ", communityCards=" + communityCards +
             ", playersSeats=" + Arrays.toString(playersSeats) +
             '}';
-    }
-
-    public void setUpNewRound() {
-        gameStatus = GameStatus.PRE_FLOP;
-
-        pot.refresh();
-        communityCards.clear();
-        for (GamePlayer player : playersMap.values()) {
-            player.refresh();
-        }
-
-        defineDealerAndBlindAndActivePlayers();
-        betBlinds();
-
-        defineMinRaise();
-
-        deck.shuffle();
-        dealStartHands();
     }
 
     private void betPlayerBlind(long playerId, int blind) {
@@ -275,6 +287,7 @@ public class THTable implements GameTable {
     }
 
     private void defineDealerAndBlindAndActivePlayers() {
+//        todo: add random dealerId calculation
         dealerIndex = dealerIndex + 1;
         if (dealerIndex >= playersSeats.length) {
             dealerIndex = 0;
@@ -321,6 +334,7 @@ public class THTable implements GameTable {
     }
 
     private void addAllPlayersToAct() {
+        bettingRound.getPlayersToAct().clear();
         for (GamePlayer gamePlayer : playersMap.values()) {
             bettingRound.addPlayersToAct(gamePlayer.getId());
         }
@@ -339,5 +353,71 @@ public class THTable implements GameTable {
                 bettingRound.addPlayersToAct(p.getId());
             }
         }
+    }
+
+    private void refreshTable() {
+        for (GamePlayer player : playersMap.values()) {
+            player.refresh();
+        }
+        pot.refresh();
+        communityCards.clear();
+    }
+
+    private void preFlopStage() {
+        refreshTable();
+
+        addAllPlayersToAct();
+
+        defineDealerAndBlindAndActivePlayers();
+
+        betBlinds();
+
+        updateLastAggressor(bigBlindPlayerId, bigBlind);
+
+        defineMinRaise();
+
+        deck.shuffle();
+
+        dealStartHands();
+
+        gameStatus = PRE_FLOP;
+    }
+
+    private void flopStage() {
+        gameStatus = FLOP;
+
+        bettingRound.getPlayersToAct().clear();
+
+        for (GamePlayer p : playersMap.values()) {
+            if (!FOLD.equals(p.getStatus()) && !ALL_IN.equals(p.getStatus())) {
+                bettingRound.addPlayersToAct(p.getId());
+            }
+        }
+
+        // todo: determine whose move it is
+
+        for (int i = 0; i < 3; i++) {
+            communityCards.add(deck.dealCard());
+        }
+    }
+
+    private void turnStage() {
+        gameStatus = TURN;
+
+        communityCards.add(deck.dealCard());
+
+        // todo: determine whose move it is
+    }
+
+    private void riverStage() {
+        gameStatus = RIVER;
+
+        communityCards.add(deck.dealCard());
+
+        // todo: determine whose move it is
+    }
+
+    private void showdownStage() {
+        preFlopStage();
     }
 }

@@ -5,7 +5,6 @@ import poker.core.engine.GameEngine;
 import poker.core.game.GameState;
 import poker.core.game.GameStateFactory;
 import poker.core.game.GameTable;
-import poker.core.game.card.Card;
 import poker.core.player.GamePlayer;
 import poker.core.player.PlayerActionData;
 import poker.core.player.PlayerStatus;
@@ -150,71 +149,67 @@ public record THEngine(GameTable table) implements GameEngine {
             case FLOP -> turn();
             case TURN -> river();
             case RIVER -> showdown();
-            case SHOWDOWN -> waitingNewPlayers();
         }
     }
 
     private void preFlop() {
-        table.setGameStatus(PRE_FLOP);
+        table.preFlop();
     }
 
     private void flop() {
-        for (int i = 0; i < 3; i++) {
-            table.getCommunityCards().add(table.getDeck().dealCard());
-        }
-        table.setGameStatus(FLOP);
+        table.flop();
     }
 
     private void turn() {
-        table.getCommunityCards().add(table.getDeck().dealCard());
-        table.setGameStatus(TURN);
+        table.turn();
     }
 
     private void river() {
-        table.getCommunityCards().add(table.getDeck().dealCard());
-        table.setGameStatus(RIVER);
+        table.river();
     }
 
     private void showdown() {
         table.setGameStatus(SHOWDOWN);
+//        todo: evaluate hands, determine winners and distribute reward
+        evaluateHandsAndDistributeReward();
 
+        table.showdown();
+    }
+
+    private void evaluateHandsAndDistributeReward() {
 //        TODO: improve logic of evaluating hands and splitting pot between players
-        var playersAndCombinations = new HashMap<GamePlayer, HandEvaluator>();
-        for (GamePlayer activePlayer : table.getPlayers()) {
-            var cards = new ArrayList<Card>();
-            cards.addAll(table.getCommunityCards());
-            cards.addAll(activePlayer.getCards());
-
-            playersAndCombinations.put(activePlayer, HandEvaluator.evaluate(cards));
-        }
-
-        playersAndCombinations.forEach((player, handEvaluator) -> {
-            log.info("Player {}", player);
-            log.info("HandEvaluator {}", handEvaluator);
-        });
-
-        int strongestCombinationValue = 0;
-        for (HandEvaluator hand : playersAndCombinations.values()) {
-            if (hand.getStrength() > strongestCombinationValue) {
-                strongestCombinationValue = hand.getStrength();
-            }
-        }
-
-        var winners = new HashMap<GamePlayer, HandEvaluator>();
-        for (Map.Entry<GamePlayer, HandEvaluator> pair : playersAndCombinations.entrySet()) {
-            if (pair.getValue().getStrength() == strongestCombinationValue) {
-                winners.put(pair.getKey(), pair.getValue());
-            }
-        }
-
-        log.info("Winners {}", winners);
-        table.getPot().distributeReward(winners);
+//        var playersAndCombinations = new HashMap<GamePlayer, HandEvaluator>();
+//        for (GamePlayer activePlayer : table.getPlayers()) {
+//            var cards = new ArrayList<Card>();
+//            cards.addAll(table.getCommunityCards());
+//            cards.addAll(activePlayer.getCards());
+//
+//            playersAndCombinations.put(activePlayer, HandEvaluator.evaluate(cards));
+//        }
+//
+//        playersAndCombinations.forEach((player, handEvaluator) -> {
+//            log.info("Player {}", player);
+//            log.info("HandEvaluator {}", handEvaluator);
+//        });
+//
+//        int strongestCombinationValue = 0;
+//        for (HandEvaluator hand : playersAndCombinations.values()) {
+//            if (hand.getStrength() > strongestCombinationValue) {
+//                strongestCombinationValue = hand.getStrength();
+//            }
+//        }
+//
+//        var winners = new HashMap<GamePlayer, HandEvaluator>();
+//        for (Map.Entry<GamePlayer, HandEvaluator> pair : playersAndCombinations.entrySet()) {
+//            if (pair.getValue().getStrength() == strongestCombinationValue) {
+//                winners.put(pair.getKey(), pair.getValue());
+//            }
+//        }
+//
+//        log.info("Winners {}", winners);
+//        table.getPot().distributeReward(winners);
 //        winners.forEach(Player::takeReward);
 
 //        table.moveDealer();
-    }
-
-    private void waitingNewPlayers() {
-        table.setGameStatus(WAITING_FOR_PLAYERS);
     }
 }

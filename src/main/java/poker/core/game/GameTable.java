@@ -62,4 +62,10 @@ public interface GameTable {
     void foldPlayer(long playerId);
     void checkPlayer(long playerId);
     void betPlayer(long playerId, int bet);
+
+    void preFlop();
+    void flop();
+    void turn();
+    void river();
+    void showdown();
 }
