@@ -57,6 +57,8 @@ public interface GameTable {
     void startGame();
     void foldPlayer(long playerId);
     void checkPlayer(long playerId);
+    void call(long playerId, int chips);
+    void raise(long playerId);
     void betPlayer(long playerId, int bet);
 
     void preFlop();

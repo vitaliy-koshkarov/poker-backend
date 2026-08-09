@@ -140,7 +140,7 @@ public class THTable implements GameTable {
 
         updateLastAggressor(bigBlindPlayerId, bigBlind);
 
-        defineMinRaise();
+        determineMinRaise();
 
         deck.shuffle();
 
@@ -157,7 +157,8 @@ public class THTable implements GameTable {
         bettingRound.removePlayerToAct(playerId);
 
         defineNewActivePlayer();
-        defineMinRaise();
+
+        determineMinRaise();
     }
 
     @Override
@@ -168,7 +169,27 @@ public class THTable implements GameTable {
         bettingRound.removePlayerToAct(playerId);
 
         defineNewActivePlayer();
-        defineMinRaise();
+        determineMinRaise();
+    }
+
+    @Override
+    public void call(long playerId, int chips) {
+        GamePlayer player = playersMap.get(playerId);
+        player.setStatus(CALL);
+        player.bet(chips);
+
+        pot.addPlayerBet(playerId, chips);
+
+        bettingRound.removePlayerToAct(playerId);
+
+        defineNewActivePlayer();
+
+        determineMinRaise();
+    }
+
+    @Override
+    public void raise(long playerId) {
+
     }
 
     @Override
@@ -177,16 +198,17 @@ public class THTable implements GameTable {
         player.setStatus(bet == player.getChips() ? ALL_IN : BET);
         player.bet(bet);
 
-        pot.addPlayerBet(activePlayerId, bet);
+        pot.addPlayerBet(playerId, bet);
 
         updatePlayersToAct(playerId);
+
+        defineNewActivePlayer();
 
         if (bet > bettingRound.getLastMaxBet()) {
             updateLastAggressor(activePlayerId, bet);
         }
 
-        defineNewActivePlayer();
-        defineMinRaise();
+        determineMinRaise();
     }
 
     @Override
@@ -339,7 +361,7 @@ public class THTable implements GameTable {
         bettingRound.setLastMaxBet(bet);
     }
 
-    private void defineMinRaise() {
+    private void determineMinRaise() {
         if (bettingRound.getLastMaxBet() > bigBlind) {
             if (getActivePlayer().getChips() - bettingRound.getLastMaxBet() >= 0) {
                 minRaise = bettingRound.getLastMaxBet();
@@ -380,7 +402,7 @@ public class THTable implements GameTable {
 
         updateLastAggressor(bigBlindPlayerId, bigBlind);
 
-        defineMinRaise();
+        determineMinRaise();
 
         deck.shuffle();
 

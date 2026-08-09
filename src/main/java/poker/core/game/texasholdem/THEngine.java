@@ -109,7 +109,7 @@ public record THEngine(GameTable table) implements GameEngine {
     }
 
     private void call(PlayerActionData pad) {
-//        todo: implement
+        table.call(pad.getPlayerId(), pad.getPlayerBet());
     }
 
     private void bet(PlayerActionData pad) {
@@ -117,7 +117,7 @@ public record THEngine(GameTable table) implements GameEngine {
     }
 
     private void raise(PlayerActionData pad) {
-//        todo: implement
+        table.raise(pad.getPlayerId());
     }
 
     private void allIn(PlayerActionData pad) {
