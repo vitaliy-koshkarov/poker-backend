@@ -117,7 +117,7 @@ public record THEngine(GameTable table) implements GameEngine {
     }
 
     private void raise(PlayerActionData pad) {
-        table.raise(pad.getPlayerId());
+        table.raise(pad.getPlayerId(), pad.getPlayerBet());
     }
 
     private void allIn(PlayerActionData pad) {

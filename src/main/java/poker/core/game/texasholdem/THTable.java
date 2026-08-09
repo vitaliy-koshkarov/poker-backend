@@ -156,7 +156,7 @@ public class THTable implements GameTable {
         player.setCurrentBet(Util.ZERO_INT);
         bettingRound.removePlayerToAct(playerId);
 
-        defineNewActivePlayer();
+        determineNewActivePlayer();
 
         determineMinRaise();
     }
@@ -168,28 +168,41 @@ public class THTable implements GameTable {
         player.setCurrentBet(Util.ZERO_INT);
         bettingRound.removePlayerToAct(playerId);
 
-        defineNewActivePlayer();
+        determineNewActivePlayer();
         determineMinRaise();
     }
 
     @Override
-    public void call(long playerId, int chips) {
+    public void call(long playerId, int playerBet) {
         GamePlayer player = playersMap.get(playerId);
         player.setStatus(CALL);
-        player.bet(chips);
+        player.bet(playerBet);
 
-        pot.addPlayerBet(playerId, chips);
+        pot.addPlayerBet(playerId, playerBet);
 
         bettingRound.removePlayerToAct(playerId);
 
-        defineNewActivePlayer();
+        determineNewActivePlayer();
 
         determineMinRaise();
     }
 
     @Override
-    public void raise(long playerId) {
+    public void raise(long playerId, int playerBet) {
+        GamePlayer player = playersMap.get(playerId);
+        player.setStatus(RAISE);
+        player.bet(playerBet);
 
+        pot.addPlayerBet(playerId, playerBet);
+
+        bettingRound.removePlayerToAct(playerId);
+        updatePlayersToAct(playerId);
+
+        updateLastAggressor(playerId, playerBet);
+
+        determineNewActivePlayer();
+
+        determineMinRaise();
     }
 
     @Override
@@ -200,9 +213,10 @@ public class THTable implements GameTable {
 
         pot.addPlayerBet(playerId, bet);
 
+        bettingRound.removePlayerToAct(playerId);
         updatePlayersToAct(playerId);
 
-        defineNewActivePlayer();
+        determineNewActivePlayer();
 
         if (bet > bettingRound.getLastMaxBet()) {
             updateLastAggressor(activePlayerId, bet);
@@ -333,7 +347,7 @@ public class THTable implements GameTable {
         }
     }
 
-    private void defineNewActivePlayer() {
+    private void determineNewActivePlayer() {
         int currentActivePlayerIdx = 0;
         for (int i = 0; i < playersSeats.length; i++) {
             if (playersSeats[i] == activePlayerId) {
