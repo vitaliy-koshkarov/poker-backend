@@ -53,11 +53,11 @@ public class THTable implements GameTable {
      */
     private long[] playersSeats;
 
+    private THRound bettingRound;
+
     private Deck deck;
 
     private List<Card> communityCards;
-
-    private THRound bettingRound;
 
     public THTable(long gameId, String name, long creatorPlayerId, int maxPlayers, int buyIn,
                    GameStatus gameStatus, int smallBlind, int bigBlind, GamePot pot, long roundId) {
@@ -396,6 +396,7 @@ public class THTable implements GameTable {
             player.refresh();
         }
         pot.refresh();
+        bettingRound.refresh();
         communityCards.clear();
     }
 
@@ -429,9 +430,30 @@ public class THTable implements GameTable {
     }
 
     private void flopStage() {
-        gameStatus = FLOP;
+        refreshGameForNewStage(3, FLOP);
+    }
 
-        bettingRound.getPlayersToAct().clear();
+    private void turnStage() {
+        refreshGameForNewStage(1, TURN);
+    }
+
+    private void riverStage() {
+        refreshGameForNewStage(1, RIVER);
+    }
+
+    private void showdownStage() {
+        preFlopStage();
+    }
+
+    private void refreshGameForNewStage(int dealCardsAmount, GameStatus gameStatus) {
+        for (GamePlayer p : playersMap.values()) {
+            p.setStatus(WAIT);
+            p.setCurrentBet(Util.ZERO_INT);
+        }
+
+        pot.clearPlayerBets();
+
+        bettingRound.refresh();
 
         for (GamePlayer p : playersMap.values()) {
             if (!FOLD.equals(p.getStatus()) && !ALL_IN.equals(p.getStatus())) {
@@ -439,24 +461,12 @@ public class THTable implements GameTable {
             }
         }
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < dealCardsAmount; i++) {
             communityCards.add(deck.dealCard());
         }
-    }
 
-    private void turnStage() {
-        gameStatus = TURN;
+        determineNewActivePlayer();
 
-        communityCards.add(deck.dealCard());
-    }
-
-    private void riverStage() {
-        gameStatus = RIVER;
-
-        communityCards.add(deck.dealCard());
-    }
-
-    private void showdownStage() {
-        preFlopStage();
+        this.gameStatus = gameStatus;
     }
 }

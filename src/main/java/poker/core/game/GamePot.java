@@ -15,5 +15,7 @@ public interface GamePot extends Snapshot<GamePot> {
 
     void refresh();
 
+    void clearPlayerBets();
+
     void distributeReward(Map<GamePlayer, HandEvaluator> winners);
 }

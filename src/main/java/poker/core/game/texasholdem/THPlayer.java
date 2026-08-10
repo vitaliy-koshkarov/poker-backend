@@ -6,6 +6,7 @@ import lombok.Setter;
 import poker.core.game.card.Card;
 import poker.core.player.GamePlayer;
 import poker.core.player.PlayerStatus;
+import poker.util.Util;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -29,7 +30,7 @@ public class THPlayer implements GamePlayer {
     @Override
     public void refresh() {
         cards.clear();
-        currentBet = 0;
+        currentBet = Util.ZERO_INT;
         status = PlayerStatus.WAIT;
     }
 
@@ -40,10 +41,10 @@ public class THPlayer implements GamePlayer {
 
     @Override
     public void bet(int bet) {
-        if (chips - bet >= 0) {
+        if (chips - bet >= Util.ZERO_INT) {
             chips -= bet;
         } else {
-            chips = 0;
+            chips = Util.ZERO_INT;
         }
         currentBet += bet;
     }

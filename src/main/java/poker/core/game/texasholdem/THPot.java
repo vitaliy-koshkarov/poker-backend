@@ -3,6 +3,7 @@ package poker.core.game.texasholdem;
 import lombok.Getter;
 import poker.core.game.GamePot;
 import poker.core.player.GamePlayer;
+import poker.util.Util;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,7 +36,12 @@ public class THPot implements GamePot {
     @Override
     public void refresh() {
         playersBets.clear();
-        total = 0;
+        total = Util.ZERO_INT;
+    }
+
+    @Override
+    public void clearPlayerBets() {
+        playersBets.clear();
     }
 
     @Override

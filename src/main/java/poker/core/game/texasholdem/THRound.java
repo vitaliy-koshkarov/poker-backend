@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import poker.core.Snapshot;
+import poker.util.Util;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -40,6 +41,12 @@ public class THRound implements Snapshot<THRound> {
 
     public void removePlayerToAct(long playerId) {
         playersToAct.remove(playerId);
+    }
+
+    public void refresh() {
+        lastAggressorPlayerId = Util.ZERO_LONG;
+        lastMaxBet = Util.ZERO_INT;
+        playersToAct.clear();
     }
 
     @Override
