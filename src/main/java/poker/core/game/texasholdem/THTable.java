@@ -49,7 +49,7 @@ public class THTable implements GameTable {
     private Map<Long, GamePlayer> playersMap;
 
     /**
-     * Index is a player seat number
+     * Index is a player seat number. Value is {@link GamePlayer#getId()}
      */
     private long[] playersSeats;
 
@@ -156,7 +156,7 @@ public class THTable implements GameTable {
         player.setCurrentBet(Util.ZERO_INT);
         bettingRound.removePlayerToAct(playerId);
 
-        determineNewActivePlayer();
+        determineNewActivePlayer(playerId);
 
         determineMinRaise();
     }
@@ -168,7 +168,7 @@ public class THTable implements GameTable {
         player.setCurrentBet(Util.ZERO_INT);
         bettingRound.removePlayerToAct(playerId);
 
-        determineNewActivePlayer();
+        determineNewActivePlayer(playerId);
         determineMinRaise();
     }
 
@@ -182,7 +182,7 @@ public class THTable implements GameTable {
 
         bettingRound.removePlayerToAct(playerId);
 
-        determineNewActivePlayer();
+        determineNewActivePlayer(playerId);
 
         determineMinRaise();
     }
@@ -203,7 +203,7 @@ public class THTable implements GameTable {
 
         updatePlayersToAct(playerId);
 
-        determineNewActivePlayer();
+        determineNewActivePlayer(playerId);
 
         determineMinRaise();
     }
@@ -221,7 +221,7 @@ public class THTable implements GameTable {
 
         updatePlayersToAct(playerId);
 
-        determineNewActivePlayer();
+        determineNewActivePlayer(playerId);
 
         determineMinRaise();
     }
@@ -326,6 +326,7 @@ public class THTable implements GameTable {
             activePlayerIndex = 0;
         }
 
+//        todo: if player always fold or all-in, then choose next available player
         activePlayerId = playersSeats[activePlayerIndex];
         playersMap.get(activePlayerId).setStatus(ACTIVE);
     }
@@ -348,27 +349,38 @@ public class THTable implements GameTable {
         }
     }
 
-    private void determineNewActivePlayer() {
-//        TODO: if player always FOLD, then choose next available player
-        int currentActivePlayerIdx = 0;
-        for (int i = 0; i < playersSeats.length; i++) {
-            if (playersSeats[i] == activePlayerId) {
-                currentActivePlayerIdx = i;
-            }
-        }
-        currentActivePlayerIdx = currentActivePlayerIdx + 1;
-        if (currentActivePlayerIdx >= playersSeats.length) {
-            currentActivePlayerIdx = 0;
+    private void determineNewActivePlayer(long currentActivePlayerId) {
+        long newActivePlayerId = currentActivePlayerId;
+
+//        todo: find optimized way to determine new active player id
+        while (FOLD.equals(playersMap.get(newActivePlayerId).getStatus())
+            || ALL_IN.equals(playersMap.get(newActivePlayerId).getStatus())) {
+
+            newActivePlayerId = getNewPossibleActivePlayerId(newActivePlayerId);
         }
 
-        activePlayerId = playersSeats[currentActivePlayerIdx];
-        playersMap.get(activePlayerId).setStatus(ACTIVE);
+        activePlayerId = newActivePlayerId;
+        playersMap.get(newActivePlayerId).setStatus(ACTIVE);
+    }
+
+    private long getNewPossibleActivePlayerId(long currentActivePlayerId) {
+        long newActivePlayerId = Util.ZERO_LONG;
+        for (int i = 0; i < playersSeats.length; i++) {
+            if (playersSeats[i] == currentActivePlayerId) {
+                newActivePlayerId = (i == playersSeats.length - 1) ? playersSeats[0] : playersSeats[i + 1];
+            }
+        }
+        return newActivePlayerId;
     }
 
     private void addAllPlayersToAct() {
         bettingRound.getPlayersToAct().clear();
-        for (GamePlayer gamePlayer : playersMap.values()) {
-            bettingRound.addPlayersToAct(gamePlayer.getId());
+
+        for (long playerId : playersSeats) {
+            if (!FOLD.equals(playersMap.get(playerId).getStatus())
+                && !ALL_IN.equals(playersMap.get(playerId).getStatus())) {
+                bettingRound.addPlayersToAct(playerId);
+            }
         }
     }
 
@@ -384,6 +396,7 @@ public class THTable implements GameTable {
     private void updatePlayersToAct(long playerId) {
         bettingRound.getPlayersToAct().clear();
 
+//        fixme: do not disturb the order of players' turns
         for (GamePlayer p : playersMap.values()) {
             if (p.getId() != playerId && !FOLD.equals(p.getStatus()) && !ALL_IN.equals(p.getStatus())) {
                 bettingRound.addPlayersToAct(p.getId());
@@ -465,7 +478,7 @@ public class THTable implements GameTable {
             communityCards.add(deck.dealCard());
         }
 
-        determineNewActivePlayer();
+        determineNewActivePlayer(activePlayerId);
 
         this.gameStatus = gameStatus;
     }
