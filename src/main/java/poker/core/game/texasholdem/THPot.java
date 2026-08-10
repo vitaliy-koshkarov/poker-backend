@@ -13,11 +13,12 @@ public class THPot implements GamePot {
     /**
      * Key - {@link GamePlayer#getId()}, value - player bet
      */
-    private final Map<Long, Integer> playersBets = new HashMap<>();
+    private final Map<Long, Integer> playersBets;
     private int total;
 
     public THPot(long id) {
         this.id = id;
+        this.playersBets = new HashMap<>();
     }
 
     @Override
