@@ -61,11 +61,11 @@ public class THPot implements GamePot {
 
     @Override
     public String toString() {
-        return "THPot{id: " + id + ", total: " + total + ", players bet:{" + playersBet() + "}";
+        return "THPot{id: " + id + ", total: " + total + ", players bet:{" + playersBet() + "}}";
     }
 
     private String playersBet() {
-        if (playersBets.isEmpty()) return null;
+        if (playersBets.isEmpty()) return "";
 
         var sb = new StringBuilder();
         for (Map.Entry<Long, Integer> pair : playersBets.entrySet()) {

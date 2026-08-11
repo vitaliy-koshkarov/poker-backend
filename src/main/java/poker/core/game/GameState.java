@@ -17,23 +17,21 @@ public class GameState {
     private long gameId;
     private String name;
     private long creatorPlayerId;
+    private int maxPlayers;
+    private int buyIn;
     private GameStatus gameStatus;
     private long dealerId;
     private int dealerIndex;
     private long activePlayerId;
-    private int activePlayerIndex;
-    private int maxPlayers;
     private int smallBlind;
     private long smallBlindPlayerId;
     private int bigBlind;
     private long bigBlindPlayerId;
-    private int lastMaxBet;
     private int minRaise;
-    private int buyIn;
     private GamePot gamePot;
     private List<GamePlayer> gamePlayers;
-    private Deck deck;
-    private List<Card> communityCards;
     private long[] playersSeats;
     private THRound round;
+    private Deck deck;
+    private List<Card> communityCards;
 }
