@@ -4,6 +4,7 @@ import lombok.extern.log4j.Log4j2;
 import poker.core.engine.GameEngine;
 import poker.core.game.GameState;
 import poker.core.game.GameStateFactory;
+import poker.core.game.GameStatus;
 import poker.core.game.GameTable;
 import poker.core.player.GamePlayer;
 import poker.core.player.PlayerActionData;
@@ -38,7 +39,8 @@ public record THEngine(GameTable table) implements GameEngine {
             case ALL_IN -> allIn(pad);
         }
 
-        if (isCurrentRoundEnded()) {
+        GameStatus gameStatus = table.getGameStatus();
+        if (!WAITING_FOR_PLAYERS.equals(gameStatus) && !END.equals(gameStatus) && isCurrentRoundEnded()) {
             nextStage();
         }
     }
