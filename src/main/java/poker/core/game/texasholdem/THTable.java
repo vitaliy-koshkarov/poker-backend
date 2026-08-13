@@ -9,12 +9,14 @@ import poker.core.game.GameTable;
 import poker.core.game.card.Card;
 import poker.core.game.card.Deck;
 import poker.core.player.GamePlayer;
+import poker.core.player.PlayerStatus;
 import poker.util.Util;
 
 import java.util.*;
 
 import static poker.core.game.GameStatus.*;
 import static poker.core.player.PlayerStatus.*;
+import static poker.util.Util.ZERO_INT;
 
 @Getter
 @Setter
@@ -74,7 +76,7 @@ public class THTable implements GameTable {
         this.communityCards = new ArrayList<>();
         this.playersMap = new HashMap<>();
         this.playersSeats = new long[maxPlayers];
-        bettingRound = new THRound(roundId, gameId, Util.ZERO_INT, Util.ZERO_INT);
+        bettingRound = new THRound(roundId, gameId, ZERO_INT, ZERO_INT);
     }
 
     @Override
@@ -124,13 +126,9 @@ public class THTable implements GameTable {
     }
 
     @Override
-    public void startGame() {
+    public void startNewRound() {
 //        todo: shuffle player seats
         refreshTable();
-
-        for (GamePlayer player : playersMap.values()) {
-            player.setChips(buyIn);
-        }
 
         addAllPlayersToAct();
 
@@ -153,8 +151,9 @@ public class THTable implements GameTable {
     public void foldPlayer(long playerId) {
         GamePlayer player = playersMap.get(playerId);
         player.setStatus(FOLD);
-        player.setCurrentBet(Util.ZERO_INT);
+        player.setCurrentBet(ZERO_INT);
         bettingRound.removePlayerToAct(playerId);
+//        TODO: refactoring - engine manage the game logic. Table just execute what engine command
 
         determineNewActivePlayer(playerId);
 
@@ -165,7 +164,7 @@ public class THTable implements GameTable {
     public void checkPlayer(long playerId) {
         GamePlayer player = playersMap.get(playerId);
         player.setStatus(CHECK);
-        player.setCurrentBet(Util.ZERO_INT);
+        player.setCurrentBet(ZERO_INT);
         bettingRound.removePlayerToAct(playerId);
 
         determineNewActivePlayer(playerId);
@@ -461,7 +460,7 @@ public class THTable implements GameTable {
     private void refreshGameForNewStage(int dealCardsAmount, GameStatus gameStatus) {
         for (GamePlayer p : playersMap.values()) {
             p.setStatus(WAIT);
-            p.setCurrentBet(Util.ZERO_INT);
+            p.setCurrentBet(ZERO_INT);
         }
 
         pot.clearPlayerBets();

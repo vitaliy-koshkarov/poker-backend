@@ -19,9 +19,8 @@ public class THPlayer implements GamePlayer {
 
     @Setter
     private PlayerStatus status;
-
+    @Setter
     private int chips;
-
     @Setter
     private int currentBet;
 
@@ -32,11 +31,6 @@ public class THPlayer implements GamePlayer {
         cards.clear();
         currentBet = Util.ZERO_INT;
         status = PlayerStatus.WAIT;
-    }
-
-    @Override
-    public void setChips(int chips) {
-        this.chips = chips;
     }
 
     @Override

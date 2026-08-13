@@ -4,6 +4,7 @@ import poker.core.game.card.Card;
 import poker.core.game.card.Deck;
 import poker.core.game.card.Rank;
 import poker.core.game.card.Suit;
+import poker.util.Util;
 
 import java.util.Random;
 
@@ -12,7 +13,7 @@ public class THDeck implements Deck {
     private final Card[] deck;
 
     public THDeck() {
-        deckSize = 52;
+        deckSize = Util.TEXAS_HOLDEM_DECK_SIZE;
         deck = new Card[deckSize];
 
         int i = 0;
@@ -46,7 +47,7 @@ public class THDeck implements Deck {
 
     @Override
     public void shuffle() {
-        deckSize = 52;
+        deckSize = Util.TEXAS_HOLDEM_DECK_SIZE;
         var random = new Random();
 //        TODO: may be there is a better way to shuffle deck
         for (int i = 0; i < deckSize; i++) {

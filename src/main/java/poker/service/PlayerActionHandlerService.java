@@ -17,6 +17,7 @@ import java.util.Map;
 @Log4j2
 @ToString
 public class PlayerActionHandlerService {
+//    TODO: make Engine single and Map with game tables. Engine handles each action by choosing according table
     private final GameEngineRegistry gameEngineRegistry;
     private final Map<PlayerAction, DBPlayerActionHandler> dbPlayerActionHandlerMap;
 

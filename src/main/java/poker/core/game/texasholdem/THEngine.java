@@ -30,13 +30,20 @@ public record THEngine(GameTable table) implements GameEngine {
         switch (pad.getPlayerAction()) {
             case JOIN_GAME -> joinPlayer(pad);
             case DISCONNECT -> disconnectPlayer(pad);
-            case START_GAME -> startGame();
+            case START_GAME -> startGame(true);
             case FOLD -> fold(pad);
             case CHECK -> check(pad);
             case CALL -> call(pad);
             case BET -> bet(pad);
             case RAISE -> raise(pad);
             case ALL_IN -> allIn(pad);
+        }
+
+//        TODO: broadcast winners with the same new round frame
+
+        if (isAllOtherPlayersFold(pad.getPlayerId())) {
+            startGame(false);
+            return;
         }
 
         GameStatus gameStatus = table.getGameStatus();
@@ -98,8 +105,14 @@ public record THEngine(GameTable table) implements GameEngine {
         log.debug("Player id {} {} game id {}", playerId, pad.getPlayerAction().getActionName(), pad.getGameId());
     }
 
-    private void startGame() {
-        table.startGame();
+    private void startGame(boolean isFirstRound) {
+        if (isFirstRound) {
+            for (GamePlayer player : table.getPlayers()) {
+                player.setChips(table.getBuyIn());
+            }
+        }
+
+        table.startNewRound();
     }
 
     private void fold(PlayerActionData pad) {
@@ -199,5 +212,15 @@ public record THEngine(GameTable table) implements GameEngine {
 //        winners.forEach(Player::takeReward);
 
 //        table.moveDealer();
+    }
+
+    private boolean isAllOtherPlayersFold(long playerId) {
+        boolean isAllOtherPlayersFold = true;
+        for (GamePlayer p : table.getPlayers()) {
+            if (p.getId() != playerId && !PlayerStatus.FOLD.equals(p.getStatus())) {
+                isAllOtherPlayersFold = false;
+            }
+        }
+        return isAllOtherPlayersFold;
     }
 }
