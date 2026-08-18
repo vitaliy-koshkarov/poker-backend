@@ -152,7 +152,6 @@ public class THTable implements GameTable {
         player.setStatus(FOLD);
         player.setCurrentBet(INT_ZERO);
         bettingRound.removePlayerToAct(playerId);
-//        TODO: refactoring - engine manage the game logic. Table just execute what engine command
 
         determineNewActivePlayer(playerId);
 
@@ -365,7 +364,7 @@ public class THTable implements GameTable {
         long newActivePlayerId = Util.LONG_ZERO;
         for (int i = 0; i < playersSeats.length; i++) {
             if (playersSeats[i] == currentActivePlayerId) {
-                newActivePlayerId = (i == playersSeats.length - 1) ? playersSeats[0] : playersSeats[i + 1]; // fixme: add break
+                newActivePlayerId = (i == playersSeats.length - 1) ? playersSeats[0] : playersSeats[i + 1];
                 break;
             }
         }

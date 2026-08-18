@@ -18,6 +18,7 @@ import static poker.util.Util.INT_ONE;
 
 @Log4j2
 public record THEngine(GameTable table) implements GameEngine {
+//    TODO: refactoring - engine manage the game logic. Table just execute what engine command
 
     @Override
     public GameState getGameState() {
