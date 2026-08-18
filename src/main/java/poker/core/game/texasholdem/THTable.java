@@ -15,6 +15,7 @@ import java.util.*;
 
 import static poker.core.game.GameStatus.*;
 import static poker.core.player.PlayerStatus.*;
+import static poker.util.Util.INT_ZERO;
 
 @Getter
 @Setter
@@ -74,7 +75,7 @@ public class THTable implements GameTable {
         this.communityCards = new ArrayList<>();
         this.playersMap = new HashMap<>();
         this.playersSeats = new long[maxPlayers];
-        bettingRound = new THRound(roundId, gameId, Util.ZERO_INT, Util.ZERO_INT);
+        bettingRound = new THRound(roundId, gameId, INT_ZERO, INT_ZERO);
     }
 
     @Override
@@ -124,13 +125,9 @@ public class THTable implements GameTable {
     }
 
     @Override
-    public void startGame() {
+    public void startNewRound() {
 //        todo: shuffle player seats
         refreshTable();
-
-        for (GamePlayer player : playersMap.values()) {
-            player.setChips(buyIn);
-        }
 
         addAllPlayersToAct();
 
@@ -153,7 +150,7 @@ public class THTable implements GameTable {
     public void foldPlayer(long playerId) {
         GamePlayer player = playersMap.get(playerId);
         player.setStatus(FOLD);
-        player.setCurrentBet(Util.ZERO_INT);
+        player.setCurrentBet(INT_ZERO);
         bettingRound.removePlayerToAct(playerId);
 
         determineNewActivePlayer(playerId);
@@ -165,7 +162,7 @@ public class THTable implements GameTable {
     public void checkPlayer(long playerId) {
         GamePlayer player = playersMap.get(playerId);
         player.setStatus(CHECK);
-        player.setCurrentBet(Util.ZERO_INT);
+        player.setCurrentBet(INT_ZERO);
         bettingRound.removePlayerToAct(playerId);
 
         determineNewActivePlayer(playerId);
@@ -333,7 +330,7 @@ public class THTable implements GameTable {
 
     private void seatPlayer(long playerId) {
         for (int i = 0; i < playersSeats.length; i++) {
-            if (playersSeats[i] == Util.ZERO_LONG) {
+            if (playersSeats[i] == Util.LONG_ZERO) {
                 playersSeats[i] = playerId;
                 break;
             }
@@ -343,7 +340,7 @@ public class THTable implements GameTable {
     private void releaseSeat(long playerId) {
         for (int i = 0; i < playersSeats.length; i++) {
             if (playersSeats[i] == playerId) {
-                playersSeats[i] = Util.ZERO_LONG;
+                playersSeats[i] = Util.LONG_ZERO;
                 break;
             }
         }
@@ -364,10 +361,11 @@ public class THTable implements GameTable {
     }
 
     private long getNewPossibleActivePlayerId(long currentActivePlayerId) {
-        long newActivePlayerId = Util.ZERO_LONG;
+        long newActivePlayerId = Util.LONG_ZERO;
         for (int i = 0; i < playersSeats.length; i++) {
             if (playersSeats[i] == currentActivePlayerId) {
                 newActivePlayerId = (i == playersSeats.length - 1) ? playersSeats[0] : playersSeats[i + 1];
+                break;
             }
         }
         return newActivePlayerId;
@@ -410,6 +408,7 @@ public class THTable implements GameTable {
         }
         pot.refresh();
         bettingRound.refresh();
+        bettingRound.increment();
         communityCards.clear();
     }
 
@@ -461,7 +460,7 @@ public class THTable implements GameTable {
     private void refreshGameForNewStage(int dealCardsAmount, GameStatus gameStatus) {
         for (GamePlayer p : playersMap.values()) {
             p.setStatus(WAIT);
-            p.setCurrentBet(Util.ZERO_INT);
+            p.setCurrentBet(INT_ZERO);
         }
 
         pot.clearPlayerBets();

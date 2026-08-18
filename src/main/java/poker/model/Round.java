@@ -21,6 +21,9 @@ public class Round {
     @Column(name = "game_id", nullable = false)
     private Long gameId;
 
+    @Column(name = "round_number", nullable = false)
+    private Integer roundNumber;
+
     @Column(name = "last_aggressor_player_id", nullable = false)
     private Long lastAggressorPlayerId;
 

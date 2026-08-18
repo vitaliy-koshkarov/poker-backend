@@ -9,18 +9,17 @@ public interface GamePlayer extends Snapshot<GamePlayer> {
     long getId();
     String getNickname();
     PlayerStatus getStatus();
-    void setStatus(PlayerStatus status);
     int getChips();
     int getCurrentBet();
     List<Card> getCards();
 
     void refresh();
 
+    void setStatus(PlayerStatus status);
     void setChips(int chips);
+    void setCurrentBet(int bet);
 
     void bet(int bet);
 
     void takeReward(int reward);
-
-    void setCurrentBet(int bet);
 }

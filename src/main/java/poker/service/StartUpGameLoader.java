@@ -6,7 +6,6 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Service;
-import poker.core.engine.GameEngineRegistry;
 
 import java.util.Collections;
 
@@ -15,8 +14,8 @@ import java.util.Collections;
 @RequiredArgsConstructor
 @ToString
 public class StartUpGameLoader implements ApplicationRunner {
-    private final GameService gameService;
-    private final GameEngineRegistry gameEngineRegistry;
+//    private final GameService gameService;
+//    private final GameRegistry gameRegistry;
 
     @Override
     public void run(ApplicationArguments args) {
@@ -28,7 +27,7 @@ public class StartUpGameLoader implements ApplicationRunner {
         var gamesList = Collections.emptyList(); // gameService.getListNonEndedGames();
 //        gamesList.forEach(game -> {
 //            log.info("{}", game);
-//            gameEngineRegistry.recoverGame(game);
+//            gameRegistry.recoverGame(game);
 //        });
         log.info("Loaded {} games", gamesList.size());
     }

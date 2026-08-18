@@ -21,6 +21,7 @@ public record GameDTO(
     int smallBlind,
     int bigBlind,
     int minRaise,
+    int roundNumber,
     PotDTO pot,
     List<PlayerDTO> players,
     List<CardDTO> communityCards) {

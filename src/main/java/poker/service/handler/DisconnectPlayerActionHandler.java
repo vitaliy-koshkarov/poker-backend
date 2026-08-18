@@ -5,7 +5,7 @@ import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import poker.core.engine.GameEngine;
+import poker.core.game.GameTable;
 import poker.core.player.PlayerAction;
 import poker.core.player.PlayerActionData;
 import poker.core.player.PlayerStatus;
@@ -31,14 +31,14 @@ public class DisconnectPlayerActionHandler implements DBPlayerActionHandler {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean handleAction(GameEngine gameEngine, PlayerActionData pad) {
+    public boolean handleAction(GameTable gameTable, PlayerActionData pad) {
         long gameId = pad.getGameId();
         long playerId = pad.getPlayerId();
 
         playerService.updatePlayerStatus(playerId, PlayerStatus.NOT_IN_GAME);
         playerSeatService.releasePlayerSeat(pad.getUserId(), playerId, gameId);
 
-        long eventId = gameEventService.createAndSaveEvent(gameEngine, pad);
+        long eventId = gameEventService.createAndSaveEvent(gameTable, pad);
 
         log.info("Player id {} {} status {} game id {} event id {}",
             playerId, pad.getPlayerAction(), PlayerStatus.NOT_IN_GAME, gameId, eventId);

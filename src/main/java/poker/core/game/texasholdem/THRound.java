@@ -15,6 +15,7 @@ import java.util.Set;
 public class THRound implements Snapshot<THRound> {
     private long id;
     private long gameId;
+    private int roundNumber;
     private long lastAggressorPlayerId;
     private int lastMaxBet;
     private Set<Long> playersToAct;
@@ -22,14 +23,16 @@ public class THRound implements Snapshot<THRound> {
     public THRound(long id, long gameId, long playerId, int bet) {
         this.id = id;
         this.gameId = gameId;
+        this.roundNumber = Util.INT_ONE;
         this.lastAggressorPlayerId = playerId;
         this.lastMaxBet = bet;
         this.playersToAct = new LinkedHashSet<>();
     }
 
-    private THRound(long id, long gameId, long playerId, int bet, Set<Long> playersToAct) {
+    private THRound(long id, long gameId, int roundNumber, long playerId, int bet, Set<Long> playersToAct) {
         this.id = id;
         this.gameId = gameId;
+        this.roundNumber = roundNumber;
         this.lastAggressorPlayerId = playerId;
         this.lastMaxBet = bet;
         this.playersToAct = new LinkedHashSet<>(playersToAct);
@@ -44,13 +47,17 @@ public class THRound implements Snapshot<THRound> {
     }
 
     public void refresh() {
-        lastAggressorPlayerId = Util.ZERO_LONG;
-        lastMaxBet = Util.ZERO_INT;
+        lastAggressorPlayerId = Util.LONG_ZERO;
+        lastMaxBet = Util.INT_ZERO;
         playersToAct.clear();
+    }
+
+    public void increment() {
+        roundNumber += Util.INT_ONE;
     }
 
     @Override
     public THRound snapshot() {
-        return new THRound(id, gameId, lastAggressorPlayerId, lastMaxBet, playersToAct);
+        return new THRound(id, gameId, roundNumber, lastAggressorPlayerId, lastMaxBet, playersToAct);
     }
 }

@@ -54,7 +54,7 @@ public interface GameTable {
     void addPlayer(GamePlayer gamePlayer);
     void removePlayer(long playerId);
 
-    void startGame();
+    void startNewRound();
     void foldPlayer(long playerId);
     void checkPlayer(long playerId);
     void call(long playerId, int playerBet);
