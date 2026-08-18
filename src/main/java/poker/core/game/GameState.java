@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.ToString;
 import poker.core.game.card.Card;
 import poker.core.game.card.Deck;
+import poker.core.game.texasholdem.THRound;
 import poker.core.player.GamePlayer;
 
 import java.util.List;
@@ -16,21 +17,21 @@ public class GameState {
     private long gameId;
     private String name;
     private long creatorPlayerId;
+    private int maxPlayers;
+    private int buyIn;
     private GameStatus gameStatus;
     private long dealerId;
     private int dealerIndex;
     private long activePlayerId;
-    private int activePlayerIndex;
-    private int maxPlayers;
     private int smallBlind;
     private long smallBlindPlayerId;
     private int bigBlind;
     private long bigBlindPlayerId;
     private int minRaise;
-    private int buyIn;
     private GamePot gamePot;
     private List<GamePlayer> gamePlayers;
+    private long[] playersSeats;
+    private THRound round;
     private Deck deck;
     private List<Card> communityCards;
-    private long[] playersSeats;
 }

@@ -1,11 +1,11 @@
 package poker.core.game.texasholdem;
 
 import lombok.extern.log4j.Log4j2;
-import poker.core.engine.GameEngine;
+import poker.core.GameEngine;
 import poker.core.game.GameState;
 import poker.core.game.GameStateFactory;
+import poker.core.game.GameStatus;
 import poker.core.game.GameTable;
-import poker.core.game.card.Card;
 import poker.core.player.GamePlayer;
 import poker.core.player.PlayerActionData;
 import poker.core.player.PlayerStatus;
@@ -14,9 +14,11 @@ import poker.util.Util;
 import java.util.*;
 
 import static poker.core.game.GameStatus.*;
+import static poker.util.Util.INT_ONE;
 
 @Log4j2
 public record THEngine(GameTable table) implements GameEngine {
+//    TODO: refactoring - engine manage the game logic. Table just execute what engine command
 
     @Override
     public GameState getGameState() {
@@ -27,15 +29,28 @@ public record THEngine(GameTable table) implements GameEngine {
     public void handlePlayerAction(PlayerActionData pad) {
         log.info("Handle {} player id {}", pad.getPlayerAction().getActionName(), pad.getPlayerId());
 
-//        TODO: define minRaise value for the next active player
         switch (pad.getPlayerAction()) {
-            case START_GAME -> startGame();
-            case FOLD -> fold(pad);
-            case CHECK -> check(pad);
-            case BET -> bet(pad);
-            case ALL_IN -> allIn(pad);
             case JOIN_GAME -> joinPlayer(pad);
             case DISCONNECT -> disconnectPlayer(pad);
+            case START_GAME -> startGame(true);
+            case FOLD -> fold(pad);
+            case CHECK -> check(pad);
+            case CALL -> call(pad);
+            case BET -> bet(pad);
+            case RAISE -> raise(pad);
+            case ALL_IN -> allIn(pad);
+        }
+
+//        TODO: broadcast winners with the same new round frame
+        GameStatus gameStatus = table.getGameStatus();
+        if (isGameNotEnded() && isAllPlayersFoldExceptOne()) {
+            evaluateHandsAndDistributeReward();
+            startGame(false);
+            return;
+        }
+
+        if (!WAITING_FOR_PLAYERS.equals(gameStatus) && !END.equals(gameStatus) && isCurrentRoundEnded()) {
+            nextStage();
         }
     }
 
@@ -62,10 +77,12 @@ public record THEngine(GameTable table) implements GameEngine {
             playersMap.put(gamePlayer.getId(), gamePlayer);
         }
         table.setPlayersMap(playersMap);
+        table.setPlayersSeats(snapshot.getPlayersSeats());
+
+        table.setBettingRound(snapshot.getRound());
 
         table.setDeck(snapshot.getDeck());
         table.setCommunityCards(snapshot.getCommunityCards());
-        table.setPlayersSeats(snapshot.getPlayersSeats());
     }
 
     private void joinPlayer(PlayerActionData pad) {
@@ -74,7 +91,7 @@ public record THEngine(GameTable table) implements GameEngine {
             .nickname(pad.getNickname())
             .status(PlayerStatus.JOIN_THE_GAME)
             .chips(pad.getChips())
-            .currentBet(Util.ZERO_INT)
+            .currentBet(Util.INT_ZERO)
             .cards(new ArrayList<>())
             .build();
 
@@ -82,121 +99,142 @@ public record THEngine(GameTable table) implements GameEngine {
         log.debug("Player id {} {} game {}", gamePlayer.getId(), pad.getPlayerAction(), pad.getGameId());
     }
 
-    private void startGame() {
-        table.startGame();
-    }
-
     private void disconnectPlayer(PlayerActionData pad) {
         long playerId = pad.getPlayerId();
         table.removePlayer(playerId);
 
-//        if (table.getActivePlayerId() == playerId) {
-//            table.overrideActivePlayer();
-//        }
+//        todo: if player disconnects, wait few seconds, then pass the turn to the next player
 
         log.debug("Player id {} {} game id {}", playerId, pad.getPlayerAction().getActionName(), pad.getGameId());
     }
 
+    private void startGame(boolean isFirstRound) {
+        if (isFirstRound) {
+            for (GamePlayer player : table.getPlayers()) {
+                player.setChips(table.getBuyIn());
+            }
+        }
+
+        table.startNewRound();
+    }
+
     private void fold(PlayerActionData pad) {
         table.foldPlayer(pad.getPlayerId());
-        table.defineNewActivePlayer();
     }
 
     private void check(PlayerActionData pad) {
         table.checkPlayer(pad.getPlayerId());
-        table.defineNewActivePlayer();
+    }
+
+    private void call(PlayerActionData pad) {
+        table.call(pad.getPlayerId(), pad.getPlayerBet());
     }
 
     private void bet(PlayerActionData pad) {
-        int playerBet = pad.getPlayerBet();
-        long activePlayerId = table.getActivePlayer().getId();
-        table.betPlayer(activePlayerId, playerBet);
-        table.getPot().addPlayerBet(activePlayerId, playerBet);
-        table.defineNewActivePlayer();
+        table.betPlayer(pad.getPlayerId(), pad.getPlayerBet());
+    }
+
+    private void raise(PlayerActionData pad) {
+        table.raise(pad.getPlayerId(), pad.getPlayerBet());
     }
 
     private void allIn(PlayerActionData pad) {
-        int playerBet = pad.getPlayerBet();
-        long activePlayerId = table.getActivePlayer().getId();
-        table.betPlayer(activePlayerId, playerBet);
-        table.getPot().addPlayerBet(activePlayerId, playerBet);
-        table.defineNewActivePlayer();
+        table.betPlayer(pad.getPlayerId(), pad.getPlayerBet());
     }
 
-    private void nextPhase(PlayerActionData pad) {
+    private boolean isCurrentRoundEnded() {
+        return table.getRound().getPlayersToAct().isEmpty();
+    }
+
+    private void nextStage() {
         switch (table.getGameStatus()) {
             case WAITING_FOR_PLAYERS -> preFlop();
             case PRE_FLOP -> flop();
             case FLOP -> turn();
             case TURN -> river();
             case RIVER -> showdown();
-            case SHOWDOWN -> waitingNewPlayers();
         }
     }
 
     private void preFlop() {
-        table.updateGameStatus(PRE_FLOP);
-        table.betBlinds();
-        table.dealStartHands();
+        table.preFlop();
     }
 
     private void flop() {
-        for (int i = 0; i < 3; i++) {
-            table.getCommunityCards().add(table.getDeck().dealCard());
-        }
-        table.updateGameStatus(FLOP);
+        table.flop();
     }
 
     private void turn() {
-        table.getCommunityCards().add(table.getDeck().dealCard());
-        table.updateGameStatus(TURN);
+        table.turn();
     }
 
     private void river() {
-        table.getCommunityCards().add(table.getDeck().dealCard());
-        table.updateGameStatus(RIVER);
+        table.river();
     }
 
     private void showdown() {
-        table.updateGameStatus(SHOWDOWN);
+        table.setGameStatus(SHOWDOWN);
+//        todo: evaluate hands, determine winners and distribute reward
+        evaluateHandsAndDistributeReward();
 
+        table.showdown();
+    }
+
+    private void evaluateHandsAndDistributeReward() {
 //        TODO: improve logic of evaluating hands and splitting pot between players
-        var playersAndCombinations = new HashMap<GamePlayer, HandEvaluator>();
-        for (GamePlayer activePlayer : table.getPlayers()) {
-            var cards = new ArrayList<Card>();
-            cards.addAll(table.getCommunityCards());
-            cards.addAll(activePlayer.getCards());
-
-            playersAndCombinations.put(activePlayer, HandEvaluator.evaluate(cards));
-        }
-
-        playersAndCombinations.forEach((player, handEvaluator) -> {
-            log.info("Player {}", player);
-            log.info("HandEvaluator {}", handEvaluator);
-        });
-
-        int strongestCombinationValue = 0;
-        for (HandEvaluator hand : playersAndCombinations.values()) {
-            if (hand.getStrength() > strongestCombinationValue) {
-                strongestCombinationValue = hand.getStrength();
-            }
-        }
-
-        var winners = new HashMap<GamePlayer, HandEvaluator>();
-        for (Map.Entry<GamePlayer, HandEvaluator> pair : playersAndCombinations.entrySet()) {
-            if (pair.getValue().getStrength() == strongestCombinationValue) {
-                winners.put(pair.getKey(), pair.getValue());
-            }
-        }
-
-        log.info("Winners {}", winners);
-        table.getPot().distributeReward(winners);
+//        var playersAndCombinations = new HashMap<GamePlayer, HandEvaluator>();
+//        for (GamePlayer activePlayer : table.getPlayers()) {
+//            var cards = new ArrayList<Card>();
+//            cards.addAll(table.getCommunityCards());
+//            cards.addAll(activePlayer.getCards());
+//
+//            playersAndCombinations.put(activePlayer, HandEvaluator.evaluate(cards));
+//        }
+//
+//        playersAndCombinations.forEach((player, handEvaluator) -> {
+//            log.info("Player {}", player);
+//            log.info("HandEvaluator {}", handEvaluator);
+//        });
+//
+//        int strongestCombinationValue = 0;
+//        for (HandEvaluator hand : playersAndCombinations.values()) {
+//            if (hand.getStrength() > strongestCombinationValue) {
+//                strongestCombinationValue = hand.getStrength();
+//            }
+//        }
+//
+//        var winners = new HashMap<GamePlayer, HandEvaluator>();
+//        for (Map.Entry<GamePlayer, HandEvaluator> pair : playersAndCombinations.entrySet()) {
+//            if (pair.getValue().getStrength() == strongestCombinationValue) {
+//                winners.put(pair.getKey(), pair.getValue());
+//            }
+//        }
+//
+//        log.info("Winners {}", winners);
+//        table.getPot().distributeReward(winners);
 //        winners.forEach(Player::takeReward);
 
 //        table.moveDealer();
     }
 
-    private void waitingNewPlayers() {
-        table.updateGameStatus(WAITING_FOR_PLAYERS);
+    private boolean isGameNotEnded() {
+        return !WAITING_FOR_PLAYERS.equals(table.getGameStatus())
+            || END.equals(table.getGameStatus()) || SHOWDOWN.equals(table.getGameStatus());
+    }
+
+    private boolean isAllPlayersFoldExceptOne() {
+        return table.getRound().getPlayersToAct().size() == INT_ONE && isOtherPlayersFold();
+    }
+
+    private boolean isOtherPlayersFold() {
+        long remainToActPlayerId = table.getRound().getPlayersToAct().iterator().next();
+        boolean isOtherPlayersFold = true;
+        for (GamePlayer p : table.getPlayers()) {
+            if (p.getId() != remainToActPlayerId && !PlayerStatus.FOLD.equals(p.getStatus())) {
+                isOtherPlayersFold = false;
+                break;
+            }
+        }
+        return isOtherPlayersFold;
     }
 }

@@ -16,10 +16,7 @@ import poker.dto.PlayerActionRequest;
 import poker.dto.game.GameDTO;
 import poker.core.player.PlayerAction;
 import poker.model.PlayerDetails;
-import poker.service.WebSocketGameStateBroadcaster;
-import poker.service.GameStateResponseGenerator;
-import poker.service.PlayerActionHandlerService;
-import poker.service.WebSocketPlayerSessionService;
+import poker.service.*;
 
 @Controller
 @Log4j2
@@ -29,6 +26,7 @@ public class WebSocketGameController {
     private final PlayerActionHandlerService playerActionHandlerService;
     private final GameStateResponseGenerator gameStateResponseGenerator;
     private final WebSocketGameStateBroadcaster webSocketGameStateBroadcaster;
+    private final ValidationService validationService;
 
     @SubscribeMapping("/gameTable/{id}")
     public GameDTO subscribe(@DestinationVariable("id") Long gameId,
@@ -41,6 +39,11 @@ public class WebSocketGameController {
 
         log.info("Subscribe user id {}, player id {}, game id {}", userId, playerId, gameId);
         log.debug("Subscribe authentication {}", authentication);
+
+        if (!validationService.isGameExists(gameId)) {
+            log.error("Game id {} does not exists, player id {}", gameId, playerId);
+            return GameDTO.builder().build();
+        }
 
         String sessionID = stompHeaderAccessor.getSessionId();
         webSocketPlayerSessionService.addSession(userId, playerId, gameId, sessionID);
@@ -60,7 +63,16 @@ public class WebSocketGameController {
         long playerId = playerDetails.getPlayer().getId();
         log.info("Action {} player id {} game id {}", playerAction.getActionName(), playerId, gameId);
 
-        // todo: validate
+        if (!validationService.isGameExists(gameId)) {
+            log.error("Game id {} does not exists, player id {}", gameId, playerId);
+            return;
+        }
+
+        if (!validationService.isPlayerActionValid(gameId, playerDetails, playerAction, playerActionRequest.playerBet())) {
+            log.error("Invalid action {} game id {} player id {}", playerAction, gameId, playerId);
+//            todo: Let the player know that he is doing something wrong?
+            return;
+        }
 
         PlayerActionData pad = PlayerActionDataConverter.convert(gameId, playerActionRequest, playerDetails, playerAction);
         playerActionHandlerService.handle(pad);

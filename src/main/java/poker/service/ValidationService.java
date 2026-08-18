@@ -6,16 +6,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import poker.core.engine.GameEngine;
-import poker.core.engine.GameEngineRegistry;
+import poker.config.GameProps;
+import poker.core.GameRegistry;
+import poker.core.game.BuyIn;
 import poker.core.game.GameStatus;
 import poker.core.game.GameTable;
+import poker.core.player.GamePlayer;
+import poker.core.player.PlayerAction;
 import poker.dto.auth.LoginRequest;
 import poker.dto.auth.RegistrationRequest;
 import poker.dto.game.CreateGameRequest;
 import poker.dto.game.StartGameRequest;
 import poker.dto.profile.ProfileInfoRequest;
 import poker.dto.profile.UpdatePasswordRequest;
+import poker.model.Player;
 import poker.model.PlayerDetails;
 import poker.model.User;
 import poker.util.Util;
@@ -24,8 +28,9 @@ import poker.util.Util;
 @Log4j2
 @RequiredArgsConstructor
 public class ValidationService {
+    private final GameProps gameProps;
     private final PasswordEncoder passwordEncoder;
-    private final GameEngineRegistry gameEngineRegistry;
+    private final GameRegistry gameRegistry;
     private final UserService userService;
     private final PlayerService playerService;
 
@@ -78,18 +83,35 @@ public class ValidationService {
     }
 
     public void validateCreatingGame(CreateGameRequest request) {
-//        todo: add check for buyIn and maxPlayers values
         String gameName = request.name();
-        for (GameEngine engine : gameEngineRegistry.getGameEngineCollection()) {
-            if (engine.table().getName().equals(gameName)) {
+        for (GameTable gameTable : gameRegistry.getGameTableCollection()) {
+            if (gameTable.getName().equals(gameName)) {
                 log.info("Game with name {} already exists", gameName);
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Game with name " + gameName + " already exists");
             }
         }
+
+        if (!BuyIn.isButInExists(request.buyIn())) {
+            log.error("Not valid buy-in {}", request.buyIn());
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                "Buy-in " + request.buyIn() + " is not valid");
+        }
+
+        if (request.maxPlayers() < gameProps.getMinPlayers() || request.maxPlayers() > gameProps.getMaxPlayers()) {
+            log.error("Not valid max players value {}", request.maxPlayers());
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                "Max players must be between " + gameProps.getMinPlayers() + " and " + gameProps.getMaxPlayers());
+        }
     }
 
     public void validateGameDeletion(long gameId, PlayerDetails playerDetails) {
-        GameTable table = gameEngineRegistry.getGameEngine(gameId).table();
+        if (!isGameExists(gameId)) {
+            log.error("Player id {} tries to remove game id {} that not exists",
+                playerDetails.getPlayer().getId(), gameId);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND , "You are trying to delete a non-existent game");
+        }
+
+        GameTable table = gameRegistry.getGameTable(gameId);
 
         if (table.getCreatorPlayerId() != playerDetails.getUser().getId()) {
             log.error("Violation of authority to remove a game, user id {}", playerDetails.getUser().getId());
@@ -108,7 +130,7 @@ public class ValidationService {
     public void validateStartGame(StartGameRequest request, PlayerDetails playerDetails) {
         long gameId = request.gameId();
         long userId = playerDetails.getUser().getId();
-        GameTable table = gameEngineRegistry.getGameEngine(gameId).table();
+        GameTable table = gameRegistry.getGameTable(gameId);
 
         if (userId != table.getCreatorPlayerId()) {
             log.info("Attempting to start game id {} creator id {} user id {}",
@@ -130,5 +152,41 @@ public class ValidationService {
                 "To start a game, at least " + Util.MIN_PLAYERS + " players must join. " +
                     "Current number of players: " + currentPlayersAmount);
         }
+    }
+
+    public boolean isGameExists(long gameId) {
+        return gameRegistry.getGameTable(gameId) != null;
+    }
+
+    public boolean isPlayerActionValid(long gameId, PlayerDetails playerDetails, PlayerAction playerAction, int playerBet) {
+        Player authPlayer = playerDetails.getPlayer();
+        GameTable table = gameRegistry.getGameTable(gameId);
+        GamePlayer player = table.getPlayerById(authPlayer.getId());
+
+        if (player == null || !player.getNickname().equals(authPlayer.getNickname())) {
+            log.error("Player id {} plays game id {} he is not sitting at", authPlayer.getId(), gameId);
+            return false;
+        }
+
+        if (table.getActivePlayer().getId() != authPlayer.getId()
+            || !table.getActivePlayer().getNickname().equals(authPlayer.getNickname())) {
+            log.error("Player id {} makes a move in game id {} when it is not his turn", authPlayer.getId(), gameId);
+            return false;
+        }
+
+        // todo: add check - Is player action type correct?
+
+        if (PlayerAction.CHECK.equals(playerAction) && playerBet != 0) {
+            log.error("Player id {} makes {} with non-zero bet {}", authPlayer.getId(), playerAction, playerBet);
+            return false;
+        }
+
+        if ((PlayerAction.BET.equals(playerAction) || PlayerAction.ALL_IN.equals(playerAction))
+            && (playerBet < table.getMinRaise() || playerBet > player.getChips())) {
+            log.error("");
+            return false;
+        }
+
+        return true;
     }
 }

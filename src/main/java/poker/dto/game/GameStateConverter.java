@@ -7,7 +7,7 @@ import poker.dto.player.PlayerConverter;
 
 public class GameStateConverter {
 
-    public static GameDTO toGameStateDTOInLobby(GameState gameState) {
+    public static GameDTO forLobbyGameStateDTO(GameState gameState) {
         return GameDTO.builder()
             .id(gameState.getGameId())
             .name(gameState.getName())
@@ -33,6 +33,7 @@ public class GameStateConverter {
             .smallBlind(gameState.getSmallBlind())
             .bigBlind(gameState.getBigBlind())
             .minRaise(gameState.getMinRaise())
+            .roundNumber(gameState.getRound().getRoundNumber())
             .pot(PotConverter.toDTO(gameState.getGamePot()))
             .players(PlayerConverter.toPlayerDTO(gameState.getGamePlayers()))
             .communityCards(CardConverter.toCardDTOList(gameState.getCommunityCards()))

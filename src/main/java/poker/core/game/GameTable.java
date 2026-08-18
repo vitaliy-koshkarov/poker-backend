@@ -2,6 +2,7 @@ package poker.core.game;
 
 import poker.core.game.card.Card;
 import poker.core.game.card.Deck;
+import poker.core.game.texasholdem.THRound;
 import poker.core.player.GamePlayer;
 
 import java.util.List;
@@ -31,6 +32,8 @@ public interface GameTable {
     long[] getPlayersSeats();
     int getPlayerSeatNumber(long playerId);
     GamePlayer getPlayerById(long playerId);
+    int getLastMaxBet();
+    THRound getRound();
 
     void setGameStatus(GameStatus gameStatus);
     void setDealerId(long dealerId);
@@ -46,17 +49,21 @@ public interface GameTable {
     void setDeck(Deck deck);
     void setCommunityCards(List<Card> communityCards);
     void setPlayersSeats(long[] playersSeats);
+    void setBettingRound(THRound bettingRound);
 
     void addPlayer(GamePlayer gamePlayer);
     void removePlayer(long playerId);
-    void defineNewActivePlayer();
-    void updateGameStatus(GameStatus gameStatus);
 
-    void startGame();
+    void startNewRound();
     void foldPlayer(long playerId);
     void checkPlayer(long playerId);
+    void call(long playerId, int playerBet);
+    void betPlayer(long playerId, int playerBet);
+    void raise(long playerId, int playerBet);
 
-    void dealStartHands();
-    void betBlinds();
-    void betPlayer(long playerId, int bet);
+    void preFlop();
+    void flop();
+    void turn();
+    void river();
+    void showdown();
 }
