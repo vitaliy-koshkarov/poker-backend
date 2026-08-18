@@ -6,7 +6,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import poker.config.GameProps;
-import poker.core.engine.GameEngineRegistry;
+import poker.core.GameRegistry;
 import poker.dto.game.CreateGameRequest;
 import poker.core.game.GameStatus;
 import poker.model.*;
@@ -22,12 +22,13 @@ import java.util.List;
 @ToString
 public class GameService {
     private final GameProps gameProps;
-    private final GameEngineRegistry gameEngineRegistry;
+    private final GameRegistry gameRegistry;
     private final GameRepository gameRepo;
     private final PotService potService;
     private final PlayerBetService playerBetService;
     private final PlayerService playerService;
     private final PlayerSeatService playerSeatService;
+    private final RoundService roundService;
 
     @Transactional(rollbackFor = Exception.class)
     public void createGame(long creatorPlayerId, CreateGameRequest createGameRequest) {
@@ -43,14 +44,17 @@ public class GameService {
             .potId(pot.getId())
             .createdAt(new Timestamp(System.currentTimeMillis()))
             .creatorPlayerId(creatorPlayerId)
-            .dealerId(Util.ZERO_LONG)
-            .activePlayerId(Util.ZERO_LONG)
+            .dealerId(Util.LONG_ZERO)
+            .activePlayerId(Util.LONG_ZERO)
             .build();
 
         var newGame = gameRepo.save(game);
+
+        long roundId = roundService.createRound(game.getId());
+
         log.info("Created {}, player id {}", newGame, creatorPlayerId);
 
-        gameEngineRegistry.registerNewGame(game);
+        gameRegistry.registerNewGame(game, roundId);
     }
 
     @Transactional(rollbackFor = Exception.class)

@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 import poker.core.game.GameTable;
 import poker.core.player.PlayerAction;
 import poker.core.player.PlayerActionData;
-import poker.core.player.PlayerStatus;
 import poker.model.event.GameEvent;
 import poker.model.event.GameEventData;
 
@@ -13,10 +12,10 @@ import java.sql.Timestamp;
 
 @Component
 @Log4j2
-public class DisconnectGameEventFactory implements GameEventFactory {
+public class RaiseGameEventFactory implements GameEventFactory {
     @Override
     public PlayerAction supportsPlayerAction() {
-        return PlayerAction.DISCONNECT;
+        return PlayerAction.RAISE;
     }
 
     @Override
@@ -25,8 +24,14 @@ public class DisconnectGameEventFactory implements GameEventFactory {
             .gameId(gameTable.getId())
             .userId(pad.getUserId())
             .playerId(pad.getPlayerId())
-            .playerStatus(PlayerStatus.NOT_IN_GAME.getIntStatus()) // todo: think how to handle accidental disconnects
+            .potId(gameTable.getPot().getId())
+            .playerStatus(gameTable.getPlayerById(pad.getPlayerId()).getStatus().getIntStatus())
             .actionType(pad.getPlayerAction().getType())
+            .currentBet(gameTable.getPlayerById(pad.getPlayerId()).getCurrentBet())
+            .roundNumber(gameTable.getRound().getRoundNumber())
+            .lastAggressorPlayerId(gameTable.getRound().getLastAggressorPlayerId())
+            .lastMaxBet(gameTable.getRound().getLastMaxBet())
+            .playersToAct(gameTable.getRound().getPlayersToAct())
             .dateTimeMs(pad.getDateTimeMs())
             .build();
 

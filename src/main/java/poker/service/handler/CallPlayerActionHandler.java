@@ -3,8 +3,7 @@ package poker.service.handler;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
 import poker.core.game.GamePot;
 import poker.core.game.GameTable;
 import poker.core.player.GamePlayer;
@@ -14,11 +13,11 @@ import poker.service.*;
 
 import java.util.Set;
 
-@Component
-@RequiredArgsConstructor
+@Service
 @Log4j2
+@RequiredArgsConstructor
 @ToString
-public class BetPlayerActionHandler implements DBPlayerActionHandler {
+public class CallPlayerActionHandler implements DBPlayerActionHandler {
     private final GameService gameService;
     private final RoundService roundService;
     private final PlayerService playerService;
@@ -28,11 +27,10 @@ public class BetPlayerActionHandler implements DBPlayerActionHandler {
 
     @Override
     public PlayerAction supportsPlayerAction() {
-        return PlayerAction.BET;
+        return PlayerAction.CALL;
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public boolean handleAction(GameTable gameTable, PlayerActionData pad) {
         long gameId = gameTable.getId();
         long playerId = pad.getPlayerId();

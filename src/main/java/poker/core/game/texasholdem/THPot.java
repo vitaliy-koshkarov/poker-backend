@@ -3,6 +3,7 @@ package poker.core.game.texasholdem;
 import lombok.Getter;
 import poker.core.game.GamePot;
 import poker.core.player.GamePlayer;
+import poker.util.Util;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,11 +14,12 @@ public class THPot implements GamePot {
     /**
      * Key - {@link GamePlayer#getId()}, value - player bet
      */
-    private final Map<Long, Integer> playersBets = new HashMap<>();
+    private final Map<Long, Integer> playersBets;
     private int total;
 
     public THPot(long id) {
         this.id = id;
+        this.playersBets = new HashMap<>();
     }
 
     @Override
@@ -34,7 +36,12 @@ public class THPot implements GamePot {
     @Override
     public void refresh() {
         playersBets.clear();
-        total = 0;
+        total = Util.INT_ZERO;
+    }
+
+    @Override
+    public void clearPlayerBets() {
+        playersBets.clear();
     }
 
     @Override
@@ -54,11 +61,11 @@ public class THPot implements GamePot {
 
     @Override
     public String toString() {
-        return "THPot{id: " + id + ", total: " + total + ", players bet:{" + playersBet() + "}";
+        return "THPot{id: " + id + ", total: " + total + ", players bet:{" + playersBet() + "}}";
     }
 
     private String playersBet() {
-        if (playersBets.isEmpty()) return null;
+        if (playersBets.isEmpty()) return "";
 
         var sb = new StringBuilder();
         for (Map.Entry<Long, Integer> pair : playersBets.entrySet()) {

@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import poker.core.player.PlayerActionData;
 import poker.dto.PlayerActionDataConverter;
 import poker.dto.game.*;
-import poker.core.engine.GameEngineRegistry;
+import poker.core.GameRegistry;
 import poker.core.player.PlayerAction;
 import poker.model.PlayerDetails;
 import poker.service.*;
@@ -20,7 +20,7 @@ import poker.util.Util;
 public class GameController {
     private final ValidationService validationService;
     private final GameService gameService;
-    private final GameEngineRegistry gameEngineRegistry;
+    private final GameRegistry gameRegistry;
     private final PlayerActionHandlerService playerActionHandlerService;
     private final GameStateResponseGenerator gameStateResponseGenerator;
     private final WebSocketGameStateBroadcaster webSocketGameStateBroadcaster;
@@ -53,7 +53,7 @@ public class GameController {
 
         boolean isSuccess = gameService.removeGame(id);
         if (isSuccess) {
-            gameEngineRegistry.removeGame(id);
+            gameRegistry.removeGame(id);
         }
 
         log.info("Game id {} successfully removed", id);
