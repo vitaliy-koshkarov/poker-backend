@@ -41,6 +41,10 @@ public class StartGameEventFactory implements GameEventFactory {
             .bigBlind(engine.table().getBigBlind())
             .buyIn(engine.table().getBuyIn())
             .actionType(pad.getPlayerAction().getType())
+            .roundNumber(engine.table().getRound().getRoundNumber())
+            .lastAggressorPlayerId(engine.table().getRound().getLastAggressorPlayerId())
+            .lastMaxBet(engine.table().getRound().getLastMaxBet())
+            .playersToAct(engine.table().getRound().getPlayersToAct())
             .playerIdsAndCards(toPlayerIdsAndCardsMap(engine.table().getPlayers()))
             .dateTimeMs(pad.getDateTimeMs())
             .build();
@@ -58,12 +62,12 @@ public class StartGameEventFactory implements GameEventFactory {
 
     private static Map<Long, List<EventCard>> toPlayerIdsAndCardsMap(List<GamePlayer> gamePlayers) {
         var playersCards = new HashMap<Long, List<EventCard>>();
-        for (GamePlayer gp : gamePlayers) {
+        for (GamePlayer gamePlayer : gamePlayers) {
             var cards = new ArrayList<EventCard>();
-            for (Card card : gp.getCards()) {
+            for (Card card : gamePlayer.getCards()) {
                 cards.add(CardConverter.toEventCard(card));
             }
-            playersCards.put(gp.getId(), cards);
+            playersCards.put(gamePlayer.getId(), cards);
         }
         return playersCards;
     }

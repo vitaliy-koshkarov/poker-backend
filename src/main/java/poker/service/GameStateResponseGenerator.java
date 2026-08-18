@@ -24,7 +24,7 @@ public class GameStateResponseGenerator {
         var gameStateDTOInLobbyList = new LinkedList<GameDTO>();
 
         for (GameEngine gameEngine : gameEngineRegistry.getGameEngineCollection()) {
-            gameStateDTOInLobbyList.add(GameStateConverter.toGameStateDTOInLobby(gameEngine.getGameState()));
+            gameStateDTOInLobbyList.add(GameStateConverter.forLobbyGameStateDTO(gameEngine.getGameState()));
         }
 
         return gameStateDTOInLobbyList;

@@ -8,6 +8,7 @@ import poker.repository.RoundRepository;
 import poker.util.Util;
 
 import java.util.HashSet;
+import java.util.Set;
 
 @Service
 @Log4j2
@@ -18,6 +19,7 @@ public class RoundService {
     public long createRound(long gameId) {
         Round round = Round.builder()
             .gameId(gameId)
+            .roundNumber(Util.INT_ZERO)
             .lastAggressorPlayerId(Util.LONG_ZERO)
             .lastMaxBet(Util.INT_ZERO)
             .playersToAct(new HashSet<>())
@@ -27,5 +29,10 @@ public class RoundService {
         log.info("Created round {}", newRound);
 
         return newRound.getId();
+    }
+
+    public void updateRound(long roundId, int roundNumber, long lastAggressorPlayerId,
+                            int lastMaxBet, Set<Long> playersToAct) {
+        roundRepo.updateRound(roundId, roundNumber, lastAggressorPlayerId, lastMaxBet, playersToAct);
     }
 }

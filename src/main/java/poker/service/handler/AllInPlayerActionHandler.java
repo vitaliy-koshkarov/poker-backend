@@ -12,12 +12,15 @@ import poker.core.player.PlayerAction;
 import poker.core.player.PlayerActionData;
 import poker.service.*;
 
+import java.util.Set;
+
 @Component
 @RequiredArgsConstructor
 @Log4j2
 @ToString
 public class AllInPlayerActionHandler implements DBPlayerActionHandler {
     private final GameService gameService;
+    private final RoundService roundService;
     private final PlayerService playerService;
     private final PlayerBetService playerBetService;
     private final PotService potService;
@@ -34,8 +37,15 @@ public class AllInPlayerActionHandler implements DBPlayerActionHandler {
         long gameId = gameEngine.table().getId();
         long playerId = pad.getPlayerId();
         GamePlayer player = gameEngine.table().getPlayerById(playerId);
+        long roundId = gameEngine.table().getRound().getId();
+        int roundNumber = gameEngine.table().getRound().getRoundNumber();
+        long lastAggressorPlayerId = gameEngine.table().getRound().getLastAggressorPlayerId();
+        int lastMaxBet = gameEngine.table().getRound().getLastMaxBet();
+        Set<Long> playersToAct = gameEngine.table().getRound().getPlayersToAct();
 
         gameService.updateActivePlayer(gameId, gameEngine.table().getActivePlayerId());
+
+        roundService.updateRound(roundId, roundNumber, lastAggressorPlayerId, lastMaxBet, playersToAct);
 
         playerService.updateStatusAndChipsAndCurrentBet(
             player.getId(), player.getStatus(), player.getChips(), player.getCurrentBet());

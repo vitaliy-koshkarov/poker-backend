@@ -11,14 +11,12 @@ import poker.core.game.GameStatus;
 import poker.core.player.PlayerAction;
 import poker.core.player.PlayerActionData;
 import poker.model.PlayerBet;
-import poker.service.GameEventService;
-import poker.service.GameService;
-import poker.service.PlayerBetService;
-import poker.service.PlayerService;
+import poker.service.*;
 
 import java.sql.Timestamp;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 @Component
 @Log4j2
@@ -26,6 +24,7 @@ import java.util.List;
 @ToString
 public class StartGamePlayerActionHandler implements DBPlayerActionHandler {
     private final GameService gameService;
+    private final RoundService roundService;
     private final PlayerService playerService;
     private final PlayerBetService playerBetService;
     private final GameEventService gameEventService;
@@ -42,9 +41,16 @@ public class StartGamePlayerActionHandler implements DBPlayerActionHandler {
         long dealerId = gameEngine.table().getDealerId();
         long playerId = pad.getPlayerId();
         long activePlayerId = gameEngine.table().getActivePlayerId();
+        long roundId = gameEngine.table().getRound().getId();
+        int roundNumber = gameEngine.table().getRound().getRoundNumber();
+        long lastAggressorPlayerId = gameEngine.table().getRound().getLastAggressorPlayerId();
+        int lastMaxBet = gameEngine.table().getRound().getLastMaxBet();
+        Set<Long> playersToAct = gameEngine.table().getRound().getPlayersToAct();
 
         gameService.startGame(gameId, dealerId, activePlayerId,
             GameStatus.PRE_FLOP, new Timestamp(pad.getDateTimeMs()));
+
+        roundService.updateRound(roundId, roundNumber, lastAggressorPlayerId, lastMaxBet, playersToAct);
 
         List<GamePlayer> gamePlayers = gameEngine.table().getPlayers();
 

@@ -409,6 +409,7 @@ public class THTable implements GameTable {
         }
         pot.refresh();
         bettingRound.refresh();
+        bettingRound.increment();
         communityCards.clear();
     }
 

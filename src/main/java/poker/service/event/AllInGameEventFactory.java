@@ -29,6 +29,10 @@ public class AllInGameEventFactory implements GameEventFactory {
             .playerStatus(engine.table().getPlayerById(pad.getPlayerId()).getStatus().getIntStatus())
             .actionType(pad.getPlayerAction().getType())
             .currentBet(engine.table().getPlayerById(pad.getPlayerId()).getCurrentBet())
+            .roundNumber(engine.table().getRound().getRoundNumber())
+            .lastAggressorPlayerId(engine.table().getRound().getLastAggressorPlayerId())
+            .lastMaxBet(engine.table().getRound().getLastMaxBet())
+            .playersToAct(engine.table().getRound().getPlayersToAct())
             .dateTimeMs(pad.getDateTimeMs())
             .build();
 

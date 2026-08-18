@@ -11,12 +11,15 @@ import poker.core.player.PlayerAction;
 import poker.core.player.PlayerActionData;
 import poker.service.*;
 
+import java.util.Set;
+
 @Service
 @Log4j2
 @RequiredArgsConstructor
 @ToString
 public class RaisePlayerActionHandler implements DBPlayerActionHandler {
     private final GameService gameService;
+    private final RoundService roundService;
     private final PlayerService playerService;
     private final PlayerBetService playerBetService;
     private final PotService potService;
@@ -31,8 +34,15 @@ public class RaisePlayerActionHandler implements DBPlayerActionHandler {
     public boolean handleAction(GameEngine gameEngine, PlayerActionData pad) {
         long gameId = gameEngine.table().getId();
         long playerId = pad.getPlayerId();
+        long roundId = gameEngine.table().getRound().getId();
+        int roundNumber = gameEngine.table().getRound().getRoundNumber();
+        long lastAggressorPlayerId = gameEngine.table().getRound().getLastAggressorPlayerId();
+        int lastMaxBet = gameEngine.table().getRound().getLastMaxBet();
+        Set<Long> playersToAct = gameEngine.table().getRound().getPlayersToAct();
 
         gameService.updateActivePlayer(gameId, gameEngine.table().getActivePlayerId());
+
+        roundService.updateRound(roundId, roundNumber, lastAggressorPlayerId, lastMaxBet, playersToAct);
 
         GamePlayer player = gameEngine.table().getPlayerById(playerId);
         int currentBet = player.getCurrentBet();

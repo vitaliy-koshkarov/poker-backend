@@ -27,6 +27,10 @@ public class FoldGameEventFactory implements GameEventFactory {
             .gameStatus(engine.table().getGameStatus().getIntStatus())
             .playerStatus(engine.table().getPlayerById(pad.getPlayerId()).getStatus().getIntStatus())
             .actionType(pad.getPlayerAction().getType())
+            .roundNumber(engine.table().getRound().getRoundNumber())
+            .lastAggressorPlayerId(engine.table().getRound().getLastAggressorPlayerId())
+            .lastMaxBet(engine.table().getRound().getLastMaxBet())
+            .playersToAct(engine.table().getRound().getPlayersToAct())
             .dateTimeMs(pad.getDateTimeMs())
             .build();
 
