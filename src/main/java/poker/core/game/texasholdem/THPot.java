@@ -36,7 +36,7 @@ public class THPot implements GamePot {
     @Override
     public void refresh() {
         playersBets.clear();
-        total = Util.ZERO_INT;
+        total = Util.INT_ZERO;
     }
 
     @Override

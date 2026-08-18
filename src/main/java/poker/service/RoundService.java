@@ -18,8 +18,8 @@ public class RoundService {
     public long createRound(long gameId) {
         Round round = Round.builder()
             .gameId(gameId)
-            .lastAggressorPlayerId(Util.ZERO_LONG)
-            .lastMaxBet(Util.ZERO_INT)
+            .lastAggressorPlayerId(Util.LONG_ZERO)
+            .lastMaxBet(Util.INT_ZERO)
             .playersToAct(new HashSet<>())
             .build();
 

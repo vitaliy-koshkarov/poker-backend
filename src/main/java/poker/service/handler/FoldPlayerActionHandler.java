@@ -37,13 +37,13 @@ public class FoldPlayerActionHandler implements DBPlayerActionHandler {
         long playerId = pad.getPlayerId();
 
         gameService.updateActivePlayer(gameId, gameEngine.table().getActivePlayerId());
-        playerService.updatePlayerStatusAndCurrentBet(playerId, PlayerStatus.FOLD, Util.ZERO_INT);
-        playerBetService.updatePlayerBet(playerId, gameEngine.table().getPot().getId(), Util.ZERO_INT);
+        playerService.updatePlayerStatusAndCurrentBet(playerId, PlayerStatus.FOLD, Util.INT_ZERO);
+        playerBetService.updatePlayerBet(playerId, gameEngine.table().getPot().getId(), Util.INT_ZERO);
 
         long eventId = gameEventService.createAndSaveEvent(gameEngine, pad);
 
         log.info("Player id {} {} status {} game id {} current bet {} event id {}",
-            playerId, pad.getPlayerAction(), PlayerStatus.FOLD, gameId, Util.ZERO_INT, eventId);
+            playerId, pad.getPlayerAction(), PlayerStatus.FOLD, gameId, Util.INT_ZERO, eventId);
 
         return true;
     }

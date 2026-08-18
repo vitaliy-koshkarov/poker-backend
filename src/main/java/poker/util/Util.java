@@ -10,8 +10,9 @@ import java.security.Principal;
 
 @Log4j2
 public class Util {
-    public static final long ZERO_LONG = 0;
-    public static final int ZERO_INT = 0;
+    public static final long LONG_ZERO = 0;
+    public static final int INT_ZERO = 0;
+    public static final int INT_ONE = 1;
     public static final int INVALID_INT_VALUE = -1;
     public static final int MIN_PLAYERS = 2;
     public static final int TEXAS_HOLDEM_DECK_SIZE = 52;

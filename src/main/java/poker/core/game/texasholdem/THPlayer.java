@@ -29,16 +29,16 @@ public class THPlayer implements GamePlayer {
     @Override
     public void refresh() {
         cards.clear();
-        currentBet = Util.ZERO_INT;
+        currentBet = Util.INT_ZERO;
         status = PlayerStatus.WAIT;
     }
 
     @Override
     public void bet(int bet) {
-        if (chips - bet >= Util.ZERO_INT) {
+        if (chips - bet >= Util.INT_ZERO) {
             chips -= bet;
         } else {
-            chips = Util.ZERO_INT;
+            chips = Util.INT_ZERO;
         }
         currentBet += bet;
     }

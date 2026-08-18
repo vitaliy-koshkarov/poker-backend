@@ -35,7 +35,7 @@ public class CheckPlayerActionHandler implements DBPlayerActionHandler {
         long playerId = pad.getPlayerId();
 
         gameService.updateActivePlayer(gameId, gameEngine.table().getActivePlayerId());
-        playerService.updatePlayerStatusAndCurrentBet(playerId, PlayerStatus.CHECK, Util.ZERO_INT);
+        playerService.updatePlayerStatusAndCurrentBet(playerId, PlayerStatus.CHECK, Util.INT_ZERO);
 
         long eventId = gameEventService.createAndSaveEvent(gameEngine, pad);
 

@@ -14,6 +14,7 @@ import java.util.Set;
 @ToString
 public class THRound implements Snapshot<THRound> {
     private long id;
+//    TODO: add roundNumber for tracking
     private long gameId;
     private long lastAggressorPlayerId;
     private int lastMaxBet;
@@ -44,8 +45,8 @@ public class THRound implements Snapshot<THRound> {
     }
 
     public void refresh() {
-        lastAggressorPlayerId = Util.ZERO_LONG;
-        lastMaxBet = Util.ZERO_INT;
+        lastAggressorPlayerId = Util.LONG_ZERO;
+        lastMaxBet = Util.INT_ZERO;
         playersToAct.clear();
     }
 
