@@ -5,8 +5,8 @@ import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import poker.core.engine.GameEngine;
 import poker.core.game.GamePot;
+import poker.core.game.GameTable;
 import poker.core.player.GamePlayer;
 import poker.core.player.PlayerAction;
 import poker.core.player.PlayerActionData;
@@ -33,30 +33,30 @@ public class AllInPlayerActionHandler implements DBPlayerActionHandler {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean handleAction(GameEngine gameEngine, PlayerActionData pad) {
-        long gameId = gameEngine.table().getId();
+    public boolean handleAction(GameTable gameTable, PlayerActionData pad) {
+        long gameId = gameTable.getId();
         long playerId = pad.getPlayerId();
-        GamePlayer player = gameEngine.table().getPlayerById(playerId);
-        long roundId = gameEngine.table().getRound().getId();
-        int roundNumber = gameEngine.table().getRound().getRoundNumber();
-        long lastAggressorPlayerId = gameEngine.table().getRound().getLastAggressorPlayerId();
-        int lastMaxBet = gameEngine.table().getRound().getLastMaxBet();
-        Set<Long> playersToAct = gameEngine.table().getRound().getPlayersToAct();
+        GamePlayer player = gameTable.getPlayerById(playerId);
+        long roundId = gameTable.getRound().getId();
+        int roundNumber = gameTable.getRound().getRoundNumber();
+        long lastAggressorPlayerId = gameTable.getRound().getLastAggressorPlayerId();
+        int lastMaxBet = gameTable.getRound().getLastMaxBet();
+        Set<Long> playersToAct = gameTable.getRound().getPlayersToAct();
 
-        gameService.updateActivePlayer(gameId, gameEngine.table().getActivePlayerId());
+        gameService.updateActivePlayer(gameId, gameTable.getActivePlayerId());
 
         roundService.updateRound(roundId, roundNumber, lastAggressorPlayerId, lastMaxBet, playersToAct);
 
         playerService.updateStatusAndChipsAndCurrentBet(
             player.getId(), player.getStatus(), player.getChips(), player.getCurrentBet());
 
-        GamePot pot = gameEngine.table().getPot();
+        GamePot pot = gameTable.getPot();
         int currentBet = player.getCurrentBet();
         playerBetService.updatePlayerBet(playerId, pot.getId(), currentBet);
 
         potService.updatePotTotal(pot.getId(), pot.getTotal());
 
-        long eventId = gameEventService.createAndSaveEvent(gameEngine, pad);
+        long eventId = gameEventService.createAndSaveEvent(gameTable, pad);
 
         log.info("Player id {} {} game id {} pot id {} event id {}",
             playerId, pad.getPlayerAction(), gameId, pot.getId(), eventId);

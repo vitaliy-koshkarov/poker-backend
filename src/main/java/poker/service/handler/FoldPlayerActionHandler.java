@@ -5,7 +5,7 @@ import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import poker.core.engine.GameEngine;
+import poker.core.game.GameTable;
 import poker.core.player.PlayerAction;
 import poker.core.player.PlayerActionData;
 import poker.core.player.PlayerStatus;
@@ -32,24 +32,24 @@ public class FoldPlayerActionHandler implements DBPlayerActionHandler {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean handleAction(GameEngine gameEngine, PlayerActionData pad) {
-        long gameId = gameEngine.table().getId();
+    public boolean handleAction(GameTable gameTable, PlayerActionData pad) {
+        long gameId = gameTable.getId();
         long playerId = pad.getPlayerId();
-        long roundId = gameEngine.table().getRound().getId();
-        int roundNumber = gameEngine.table().getRound().getRoundNumber();
-        long lastAggressorPlayerId = gameEngine.table().getRound().getLastAggressorPlayerId();
-        int lastMaxBet = gameEngine.table().getRound().getLastMaxBet();
-        Set<Long> playersToAct = gameEngine.table().getRound().getPlayersToAct();
+        long roundId = gameTable.getRound().getId();
+        int roundNumber = gameTable.getRound().getRoundNumber();
+        long lastAggressorPlayerId = gameTable.getRound().getLastAggressorPlayerId();
+        int lastMaxBet = gameTable.getRound().getLastMaxBet();
+        Set<Long> playersToAct = gameTable.getRound().getPlayersToAct();
 
-        gameService.updateActivePlayer(gameId, gameEngine.table().getActivePlayerId());
+        gameService.updateActivePlayer(gameId, gameTable.getActivePlayerId());
 
         roundService.updateRound(roundId, roundNumber, lastAggressorPlayerId, lastMaxBet, playersToAct);
 
         playerService.updatePlayerStatusAndCurrentBet(playerId, PlayerStatus.FOLD, Util.INT_ZERO);
 
-        playerBetService.updatePlayerBet(playerId, gameEngine.table().getPot().getId(), Util.INT_ZERO);
+        playerBetService.updatePlayerBet(playerId, gameTable.getPot().getId(), Util.INT_ZERO);
 
-        long eventId = gameEventService.createAndSaveEvent(gameEngine, pad);
+        long eventId = gameEventService.createAndSaveEvent(gameTable, pad);
 
         log.info("Player id {} {} status {} game id {} current bet {} event id {}",
             playerId, pad.getPlayerAction(), PlayerStatus.FOLD, gameId, Util.INT_ZERO, eventId);

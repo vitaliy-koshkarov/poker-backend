@@ -2,7 +2,7 @@ package poker.service.event;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
-import poker.core.engine.GameEngine;
+import poker.core.game.GameTable;
 import poker.core.game.card.Card;
 import poker.core.player.GamePlayer;
 import poker.core.player.PlayerAction;
@@ -27,33 +27,33 @@ public class StartGameEventFactory implements GameEventFactory {
     }
 
     @Override
-    public GameEvent create(GameEngine engine, PlayerActionData pad) {
+    public GameEvent create(GameTable gameTable, PlayerActionData pad) {
         GameEventData gameEventData = GameEventData.builder()
-            .gameId(engine.table().getId())
+            .gameId(gameTable.getId())
             .userId(pad.getUserId())
             .playerId(pad.getPlayerId())
-            .potId(engine.table().getPot().getId())
-            .dealerId(engine.table().getDealerId())
-            .activePlayerId(engine.table().getActivePlayerId())
-            .gameStatus(engine.table().getGameStatus().getIntStatus())
-            .playerStatus(engine.table().getPlayerById(pad.getPlayerId()).getStatus().getIntStatus())
-            .smallBlind(engine.table().getSmallBlind())
-            .bigBlind(engine.table().getBigBlind())
-            .buyIn(engine.table().getBuyIn())
+            .potId(gameTable.getPot().getId())
+            .dealerId(gameTable.getDealerId())
+            .activePlayerId(gameTable.getActivePlayerId())
+            .gameStatus(gameTable.getGameStatus().getIntStatus())
+            .playerStatus(gameTable.getPlayerById(pad.getPlayerId()).getStatus().getIntStatus())
+            .smallBlind(gameTable.getSmallBlind())
+            .bigBlind(gameTable.getBigBlind())
+            .buyIn(gameTable.getBuyIn())
             .actionType(pad.getPlayerAction().getType())
-            .roundNumber(engine.table().getRound().getRoundNumber())
-            .lastAggressorPlayerId(engine.table().getRound().getLastAggressorPlayerId())
-            .lastMaxBet(engine.table().getRound().getLastMaxBet())
-            .playersToAct(engine.table().getRound().getPlayersToAct())
-            .playerIdsAndCards(toPlayerIdsAndCardsMap(engine.table().getPlayers()))
+            .roundNumber(gameTable.getRound().getRoundNumber())
+            .lastAggressorPlayerId(gameTable.getRound().getLastAggressorPlayerId())
+            .lastMaxBet(gameTable.getRound().getLastMaxBet())
+            .playersToAct(gameTable.getRound().getPlayersToAct())
+            .playerIdsAndCards(toPlayerIdsAndCardsMap(gameTable.getPlayers()))
             .dateTimeMs(pad.getDateTimeMs())
             .build();
 
         return GameEvent.builder()
-            .gameId(engine.table().getId())
+            .gameId(gameTable.getId())
             .userId(pad.getUserId())
             .playerId(pad.getPlayerId())
-            .potId(engine.table().getPot().getId())
+            .potId(gameTable.getPot().getId())
             .type(pad.getPlayerAction().getType())
             .gameEventData(gameEventData)
             .createdAt(new Timestamp(pad.getDateTimeMs()))

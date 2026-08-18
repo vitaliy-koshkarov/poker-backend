@@ -2,7 +2,7 @@ package poker.service.event;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
-import poker.core.engine.GameEngine;
+import poker.core.game.GameTable;
 import poker.core.player.PlayerAction;
 import poker.core.player.PlayerActionData;
 import poker.model.event.GameEvent;
@@ -23,7 +23,7 @@ public class GameEventFactoryProvider {
         }
     }
 
-    public GameEvent create(GameEngine engine, PlayerActionData pad) {
-        return factories.get(pad.getPlayerAction()).create(engine, pad);
+    public GameEvent create(GameTable gameTable, PlayerActionData pad) {
+        return factories.get(pad.getPlayerAction()).create(gameTable, pad);
     }
 }

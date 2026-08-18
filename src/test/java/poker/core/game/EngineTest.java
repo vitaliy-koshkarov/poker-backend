@@ -2,7 +2,7 @@ package poker.core.game;
 
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
-import poker.core.engine.GameEngine;
+import poker.core.GameEngine;
 import poker.core.game.texasholdem.*;
 import poker.core.player.PlayerAction;
 import poker.core.player.PlayerActionData;

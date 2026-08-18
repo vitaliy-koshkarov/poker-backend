@@ -7,8 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import poker.config.GameProps;
-import poker.core.engine.GameEngine;
-import poker.core.engine.GameEngineRegistry;
+import poker.core.GameRegistry;
 import poker.core.game.BuyIn;
 import poker.core.game.GameStatus;
 import poker.core.game.GameTable;
@@ -31,7 +30,7 @@ import poker.util.Util;
 public class ValidationService {
     private final GameProps gameProps;
     private final PasswordEncoder passwordEncoder;
-    private final GameEngineRegistry gameEngineRegistry;
+    private final GameRegistry gameRegistry;
     private final UserService userService;
     private final PlayerService playerService;
 
@@ -85,8 +84,8 @@ public class ValidationService {
 
     public void validateCreatingGame(CreateGameRequest request) {
         String gameName = request.name();
-        for (GameEngine engine : gameEngineRegistry.getGameEngineCollection()) {
-            if (engine.table().getName().equals(gameName)) {
+        for (GameTable gameTable : gameRegistry.getGameTableCollection()) {
+            if (gameTable.getName().equals(gameName)) {
                 log.info("Game with name {} already exists", gameName);
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Game with name " + gameName + " already exists");
             }
@@ -112,7 +111,7 @@ public class ValidationService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND , "You are trying to delete a non-existent game");
         }
 
-        GameTable table = gameEngineRegistry.getGameEngine(gameId).table();
+        GameTable table = gameRegistry.getGameTable(gameId);
 
         if (table.getCreatorPlayerId() != playerDetails.getUser().getId()) {
             log.error("Violation of authority to remove a game, user id {}", playerDetails.getUser().getId());
@@ -131,7 +130,7 @@ public class ValidationService {
     public void validateStartGame(StartGameRequest request, PlayerDetails playerDetails) {
         long gameId = request.gameId();
         long userId = playerDetails.getUser().getId();
-        GameTable table = gameEngineRegistry.getGameEngine(gameId).table();
+        GameTable table = gameRegistry.getGameTable(gameId);
 
         if (userId != table.getCreatorPlayerId()) {
             log.info("Attempting to start game id {} creator id {} user id {}",
@@ -156,12 +155,12 @@ public class ValidationService {
     }
 
     public boolean isGameExists(long gameId) {
-        return gameEngineRegistry.getGameEngine(gameId) != null;
+        return gameRegistry.getGameTable(gameId) != null;
     }
 
     public boolean isPlayerActionValid(long gameId, PlayerDetails playerDetails, PlayerAction playerAction, int playerBet) {
         Player authPlayer = playerDetails.getPlayer();
-        GameTable table = gameEngineRegistry.getGameEngine(gameId).table();
+        GameTable table = gameRegistry.getGameTable(gameId);
         GamePlayer player = table.getPlayerById(authPlayer.getId());
 
         if (player == null || !player.getNickname().equals(authPlayer.getNickname())) {

@@ -1,7 +1,7 @@
 package poker.core.game.texasholdem;
 
 import lombok.extern.log4j.Log4j2;
-import poker.core.engine.GameEngine;
+import poker.core.GameEngine;
 import poker.core.game.GameState;
 import poker.core.game.GameStateFactory;
 import poker.core.game.GameStatus;
@@ -76,11 +76,12 @@ public record THEngine(GameTable table) implements GameEngine {
             playersMap.put(gamePlayer.getId(), gamePlayer);
         }
         table.setPlayersMap(playersMap);
+        table.setPlayersSeats(snapshot.getPlayersSeats());
+
+        table.setBettingRound(snapshot.getRound());
 
         table.setDeck(snapshot.getDeck());
         table.setCommunityCards(snapshot.getCommunityCards());
-        table.setPlayersSeats(snapshot.getPlayersSeats());
-        table.setBettingRound(snapshot.getRound());
     }
 
     private void joinPlayer(PlayerActionData pad) {
@@ -137,7 +138,7 @@ public record THEngine(GameTable table) implements GameEngine {
     }
 
     private void allIn(PlayerActionData pad) {
-       table.betPlayer(pad.getPlayerId(), pad.getPlayerBet());
+        table.betPlayer(pad.getPlayerId(), pad.getPlayerBet());
     }
 
     private boolean isCurrentRoundEnded() {

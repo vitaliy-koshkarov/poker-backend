@@ -5,7 +5,7 @@ import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import poker.core.engine.GameEngine;
+import poker.core.game.GameTable;
 import poker.core.player.PlayerAction;
 import poker.core.player.PlayerActionData;
 import poker.service.GameEventService;
@@ -28,15 +28,15 @@ public class JoinPlayerActionHandler implements DBPlayerActionHandler {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean handleAction(GameEngine gameEngine, PlayerActionData pad) {
+    public boolean handleAction(GameTable gameTable, PlayerActionData pad) {
         long gameId = pad.getGameId();
         long userId = pad.getUserId();
         long playerId = pad.getPlayerId();
 
-        int playerSeatNumber = gameEngine.table().getPlayerSeatNumber(playerId);
+        int playerSeatNumber = gameTable.getPlayerSeatNumber(playerId);
         long playerSeatId = playerSeatService.createPlayerSeat(userId, playerId, gameId, playerSeatNumber);
 
-        long eventId = gameEventService.createAndSaveEvent(gameEngine, pad);
+        long eventId = gameEventService.createAndSaveEvent(gameTable, pad);
 
         log.info("Player id {} {} seat id {} game id {} event id {}",
             playerId, pad.getPlayerAction(), playerSeatId, gameId, eventId);

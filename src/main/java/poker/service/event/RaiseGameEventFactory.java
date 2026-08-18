@@ -2,7 +2,7 @@ package poker.service.event;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
-import poker.core.engine.GameEngine;
+import poker.core.game.GameTable;
 import poker.core.player.PlayerAction;
 import poker.core.player.PlayerActionData;
 import poker.model.event.GameEvent;
@@ -19,19 +19,19 @@ public class RaiseGameEventFactory implements GameEventFactory {
     }
 
     @Override
-    public GameEvent create(GameEngine engine, PlayerActionData pad) {
+    public GameEvent create(GameTable gameTable, PlayerActionData pad) {
         var gameEventData = GameEventData.builder()
-            .gameId(engine.table().getId())
+            .gameId(gameTable.getId())
             .userId(pad.getUserId())
             .playerId(pad.getPlayerId())
-            .potId(engine.table().getPot().getId())
-            .playerStatus(engine.table().getPlayerById(pad.getPlayerId()).getStatus().getIntStatus())
+            .potId(gameTable.getPot().getId())
+            .playerStatus(gameTable.getPlayerById(pad.getPlayerId()).getStatus().getIntStatus())
             .actionType(pad.getPlayerAction().getType())
-            .currentBet(engine.table().getPlayerById(pad.getPlayerId()).getCurrentBet())
-            .roundNumber(engine.table().getRound().getRoundNumber())
-            .lastAggressorPlayerId(engine.table().getRound().getLastAggressorPlayerId())
-            .lastMaxBet(engine.table().getRound().getLastMaxBet())
-            .playersToAct(engine.table().getRound().getPlayersToAct())
+            .currentBet(gameTable.getPlayerById(pad.getPlayerId()).getCurrentBet())
+            .roundNumber(gameTable.getRound().getRoundNumber())
+            .lastAggressorPlayerId(gameTable.getRound().getLastAggressorPlayerId())
+            .lastMaxBet(gameTable.getRound().getLastMaxBet())
+            .playersToAct(gameTable.getRound().getPlayersToAct())
             .dateTimeMs(pad.getDateTimeMs())
             .build();
 
@@ -39,7 +39,7 @@ public class RaiseGameEventFactory implements GameEventFactory {
             .gameId(gameEventData.getGameId())
             .userId(gameEventData.getUserId())
             .playerId(gameEventData.getPlayerId())
-            .potId(engine.table().getPot().getId())
+            .potId(gameTable.getPot().getId())
             .type(gameEventData.getActionType())
             .gameEventData(gameEventData)
             .createdAt(new Timestamp(gameEventData.getDateTimeMs()))

@@ -5,7 +5,7 @@ import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import poker.core.engine.GameEngine;
+import poker.core.game.GameTable;
 import poker.core.player.GamePlayer;
 import poker.core.game.GameStatus;
 import poker.core.player.PlayerAction;
@@ -36,29 +36,29 @@ public class StartGamePlayerActionHandler implements DBPlayerActionHandler {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean handleAction(GameEngine gameEngine, PlayerActionData pad) {
-        long gameId = gameEngine.table().getId();
-        long dealerId = gameEngine.table().getDealerId();
+    public boolean handleAction(GameTable gameTable, PlayerActionData pad) {
+        long gameId = gameTable.getId();
+        long dealerId = gameTable.getDealerId();
         long playerId = pad.getPlayerId();
-        long activePlayerId = gameEngine.table().getActivePlayerId();
-        long roundId = gameEngine.table().getRound().getId();
-        int roundNumber = gameEngine.table().getRound().getRoundNumber();
-        long lastAggressorPlayerId = gameEngine.table().getRound().getLastAggressorPlayerId();
-        int lastMaxBet = gameEngine.table().getRound().getLastMaxBet();
-        Set<Long> playersToAct = gameEngine.table().getRound().getPlayersToAct();
+        long activePlayerId = gameTable.getActivePlayerId();
+        long roundId = gameTable.getRound().getId();
+        int roundNumber = gameTable.getRound().getRoundNumber();
+        long lastAggressorPlayerId = gameTable.getRound().getLastAggressorPlayerId();
+        int lastMaxBet = gameTable.getRound().getLastMaxBet();
+        Set<Long> playersToAct = gameTable.getRound().getPlayersToAct();
 
         gameService.startGame(gameId, dealerId, activePlayerId,
             GameStatus.PRE_FLOP, new Timestamp(pad.getDateTimeMs()));
 
         roundService.updateRound(roundId, roundNumber, lastAggressorPlayerId, lastMaxBet, playersToAct);
 
-        List<GamePlayer> gamePlayers = gameEngine.table().getPlayers();
+        List<GamePlayer> gamePlayers = gameTable.getPlayers();
 
         List<PlayerBet> playersBets = new LinkedList<>();
         for (GamePlayer gamePlayer : gamePlayers) {
             playersBets.add(
                 PlayerBet.builder()
-                    .potId(gameEngine.table().getPot().getId())
+                    .potId(gameTable.getPot().getId())
                     .playerId(gamePlayer.getId())
                     .playerBet(gamePlayer.getCurrentBet())
                     .build()
@@ -70,10 +70,10 @@ public class StartGamePlayerActionHandler implements DBPlayerActionHandler {
             playerService.updatePlayerStatusAndChips(gPlayer.getId(), gPlayer.getChips(), gPlayer.getStatus());
         }
 
-        long eventId = gameEventService.createAndSaveEvent(gameEngine, pad);
+        long eventId = gameEventService.createAndSaveEvent(gameTable, pad);
 
         log.info("Player id {} {} game id {} status {} event id {}",
-            playerId, pad.getPlayerAction(), gameId, gameEngine.table().getGameStatus(), eventId);
+            playerId, pad.getPlayerAction(), gameId, gameTable.getGameStatus(), eventId);
 
         return true;
     }

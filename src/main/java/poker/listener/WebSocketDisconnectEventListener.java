@@ -7,7 +7,7 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
-import poker.core.engine.GameEngineRegistry;
+import poker.core.GameRegistry;
 import poker.core.player.PlayerActionData;
 import poker.dto.PlayerActionDataConverter;
 import poker.dto.game.GameDTO;
@@ -20,7 +20,7 @@ import poker.service.*;
 @Log4j2
 @RequiredArgsConstructor
 public class WebSocketDisconnectEventListener {
-    private final GameEngineRegistry gameEngineRegistry;
+    private final GameRegistry gameRegistry;
     private final PlayerActionHandlerService playerActionHandlerService;
     private final GameStateResponseGenerator gameStateResponseGenerator;
     private final WebSocketPlayerSessionService webSocketPlayerSessionService;
@@ -72,8 +72,6 @@ public class WebSocketDisconnectEventListener {
      * @return true if player seat at the table, false otherwise
      */
     private boolean isJoinedPlayerDisconnect(long gameId, long playerId) {
-        return gameEngineRegistry.getGameEngine(gameId)
-            .table()
-            .getPlayerById(playerId) != null;
+        return gameRegistry.getGameTable(gameId).getPlayerById(playerId) != null;
     }
 }
