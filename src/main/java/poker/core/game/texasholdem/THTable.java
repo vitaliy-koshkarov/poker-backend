@@ -153,7 +153,7 @@ public class THTable implements GameTable {
         player.setCurrentBet(INT_ZERO);
         bettingRound.removePlayerToAct(playerId);
 
-        determineNewActivePlayer(playerId);
+        determineNewActivePlayer();
 
         determineMinRaise();
     }
@@ -165,7 +165,7 @@ public class THTable implements GameTable {
         player.setCurrentBet(INT_ZERO);
         bettingRound.removePlayerToAct(playerId);
 
-        determineNewActivePlayer(playerId);
+        determineNewActivePlayer();
         determineMinRaise();
     }
 
@@ -179,7 +179,7 @@ public class THTable implements GameTable {
 
         bettingRound.removePlayerToAct(playerId);
 
-        determineNewActivePlayer(playerId);
+        determineNewActivePlayer();
 
         determineMinRaise();
     }
@@ -198,9 +198,9 @@ public class THTable implements GameTable {
             updateLastAggressor(playerId, playerBet);
         }
 
-        updatePlayersToAct(playerId);
+        updatePlayersToAct(INT_ZERO);
 
-        determineNewActivePlayer(playerId);
+        determineNewActivePlayer();
 
         determineMinRaise();
     }
@@ -216,9 +216,9 @@ public class THTable implements GameTable {
         bettingRound.removePlayerToAct(playerId);
         updateLastAggressor(playerId, playerBet);
 
-        updatePlayersToAct(playerId);
+        updatePlayersToAct(INT_ZERO);
 
-        determineNewActivePlayer(playerId);
+        determineNewActivePlayer();
 
         determineMinRaise();
     }
@@ -346,60 +346,60 @@ public class THTable implements GameTable {
         }
     }
 
-    private void determineNewActivePlayer(long currentActivePlayerId) {
-        long newActivePlayerId = currentActivePlayerId;
-
-//        todo: find optimized way to determine new active player id
-        while (FOLD.equals(playersMap.get(newActivePlayerId).getStatus())
-            || ALL_IN.equals(playersMap.get(newActivePlayerId).getStatus())) {
-
-            newActivePlayerId = getNewPossibleActivePlayerId(newActivePlayerId);
-        }
-
-        activePlayerId = newActivePlayerId;
-        playersMap.get(newActivePlayerId).setStatus(ACTIVE);
-    }
-
-    private long getNewPossibleActivePlayerId(long currentActivePlayerId) {
-        long newActivePlayerId = Util.LONG_ZERO;
-        for (int i = 0; i < playersSeats.length; i++) {
-            if (playersSeats[i] == currentActivePlayerId) {
-                newActivePlayerId = (i == playersSeats.length - 1) ? playersSeats[0] : playersSeats[i + 1];
-                break;
-            }
-        }
-        return newActivePlayerId;
-    }
-
-    private void addAllPlayersToAct() {
-        bettingRound.getPlayersToAct().clear();
-
-        for (long playerId : playersSeats) {
-            if (!FOLD.equals(playersMap.get(playerId).getStatus())
-                && !ALL_IN.equals(playersMap.get(playerId).getStatus())) {
-                bettingRound.addPlayersToAct(playerId);
-            }
-        }
-    }
-
     private void updateLastAggressor(long playerId, int bet) {
         bettingRound.setLastAggressorPlayerId(playerId);
         bettingRound.setLastMaxBet(bet);
     }
 
-    private void determineMinRaise() {
-        minRaise = Math.min(playersMap.get(activePlayerId).getChips(), bettingRound.getLastMaxBet());
-    }
-
-    private void updatePlayersToAct(long playerId) {
+    private void addAllPlayersToAct() {
         bettingRound.getPlayersToAct().clear();
 
-//        fixme: do not disturb the order of players' turns
-        for (GamePlayer p : playersMap.values()) {
-            if (p.getId() != playerId && !FOLD.equals(p.getStatus()) && !ALL_IN.equals(p.getStatus())) {
-                bettingRound.addPlayersToAct(p.getId());
+        updatePlayersToAct(dealerIndex);
+    }
+
+    private void updatePlayersToAct(int playerIdx) {
+        bettingRound.getPlayersToAct().clear();
+
+        int nextPlayerToActIndexByOrder = playerIdx;
+
+//        find next player to act seat index to track the order of moves
+        for (int i = 0; i < playersSeats.length; i++) {
+            if (playersSeats[i] == bettingRound.getLastAggressorPlayerId() && i + 1 < playersSeats.length) {
+                nextPlayerToActIndexByOrder = i + 1;
+                break;
             }
         }
+
+        if (nextPlayerToActIndexByOrder != INT_ZERO) {
+//            add players after aggressor
+            addRemainingPlayersToAct(nextPlayerToActIndexByOrder, playersSeats.length - 1);
+//            add players before aggressor
+            addRemainingPlayersToAct(0, nextPlayerToActIndexByOrder);
+        } else {
+//            add all players
+            addRemainingPlayersToAct(0, playersSeats.length - 1);
+        }
+    }
+
+    private void addRemainingPlayersToAct(int startIdx, int endIdx) {
+        for (int i = startIdx; i <= endIdx; i++) {
+            if (!(FOLD.equals(playersMap.get(playersSeats[i]).getStatus())
+                || ALL_IN.equals(playersMap.get(playersSeats[i]).getStatus()))) {
+                bettingRound.addPlayersToAct(playersSeats[i]);
+            }
+        }
+    }
+
+    private void determineNewActivePlayer() {
+        if (!bettingRound.getPlayersToAct().isEmpty()) {
+            activePlayerId = bettingRound.getPlayersToAct().iterator().next();
+        }
+
+        playersMap.get(activePlayerId).setStatus(ACTIVE);
+    }
+
+    private void determineMinRaise() {
+        minRaise = Math.min(playersMap.get(activePlayerId).getChips(), bettingRound.getLastMaxBet());
     }
 
     private void refreshTable() {
@@ -467,17 +467,14 @@ public class THTable implements GameTable {
 
         bettingRound.refresh();
 
-        for (GamePlayer p : playersMap.values()) {
-            if (!FOLD.equals(p.getStatus()) && !ALL_IN.equals(p.getStatus())) {
-                bettingRound.addPlayersToAct(p.getId());
-            }
-        }
+//        Next player who can move is the next 'active' player after dealer
+        updatePlayersToAct(dealerIndex);
 
         for (int i = 0; i < dealCardsAmount; i++) {
             communityCards.add(deck.dealCard());
         }
 
-        determineNewActivePlayer(activePlayerId);
+        determineNewActivePlayer();
 
         this.gameStatus = gameStatus;
     }

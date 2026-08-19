@@ -1,6 +1,5 @@
 package poker.core.game;
 
-import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import poker.core.GameEngine;
 import poker.core.game.texasholdem.*;
@@ -17,11 +16,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static poker.core.game.GameStatus.*;
 import static poker.util.Util.*;
 
-@Log4j2
 public final class EngineTest {
 
     @Test
-    public void testCorrectGameCreation() {
+    public void correctGameCreation() {
         long gameId = 1L;
         String gameName = "test_game";
         long playerId1 = 1L;
@@ -66,7 +64,7 @@ public final class EngineTest {
     }
 
     @Test
-    public void twoPlayersJoinTheGame() {
+    public void whenTwoPlayersJoinTheGame() {
         long gameId = 1L;
         String gameName = "test_game";
         int maxPlayers = 2;
@@ -109,7 +107,7 @@ public final class EngineTest {
     }
 
     @Test
-    public void correctGameStateAtStartOfGameFor2Players() {
+    public void startGameActionFor2Players() {
         long gameId = 1L;
         String gameName = "test_game";
         int maxPlayers = 2;
@@ -189,7 +187,7 @@ public final class EngineTest {
     }
 
     @Test
-    public void testFoldActionIn1RoundFor2Players() {
+    public void foldActionInTheFirstRoundFor2Players() {
         long gameId = 1L;
         String gameName = "test_game";
         int maxPlayers = 2;
@@ -270,63 +268,63 @@ public final class EngineTest {
     }
 
     @Test
-    public void checkCallPlayerAction() {
-//        long gameId = 1L;
-//        String gameName = "test_game";
-//        long playerId1 = 1L;
-//        int maxPlayers = 2;
-//        int buyIn = 100;
-//        int SB = 5;
-//        int BB = 10;
-//        THPot pot = new THPot(1L);
-//        long roundId = 1L;
-//        GameTable table = new THTable(gameId, gameName, playerId1, maxPlayers, buyIn, WAITING_FOR_PLAYERS, SB, BB, pot, roundId);
-//        GameEngine engine = new THEngine(table);
-//
-//        PlayerActionData join1PlayerAction = create(gameId, PlayerAction.JOIN_GAME, playerId1, playerId1, "P_1", ZERO_INT, ZERO_INT);
-//        engine.handlePlayerAction(join1PlayerAction);
-//
-//        long playerId2 = 2L;
-//        PlayerActionData join2PlayerAction = create(gameId, PlayerAction.JOIN_GAME, playerId2, playerId2, "P_2", ZERO_INT, ZERO_INT);
-//        engine.handlePlayerAction(join2PlayerAction);
-//
-//
-//        PlayerActionData startGameAction = create(gameId, PlayerAction.START_GAME, playerId1, playerId1, null, ZERO_INT, ZERO_INT);
-//        engine.handlePlayerAction(startGameAction);
-//
-//
-//        PlayerActionData call1PlayerAction = create(gameId, PlayerAction.CALL, playerId1, playerId1, null, 95, 5);
-//        engine.handlePlayerAction(call1PlayerAction);
-//
-//
-//        GameState gameState = engine.getGameState();
-//
-//        assertEquals(PRE_FLOP, gameState.getGameStatus());
-//        assertEquals(playerId2, gameState.getDealerId());
-//        assertEquals(1, gameState.getDealerIndex());
-//        assertEquals(playerId2, gameState.getActivePlayerId());
-//        assertEquals(BB, gameState.getMinRaise());
-//        assertEquals(BB + BB, gameState.getGamePot().getTotal());
-//
-//        var playersBetsMap = new HashMap<Long, Integer>();
-//        playersBetsMap.put(playerId1, BB);
-//        playersBetsMap.put(playerId2, BB);
-//        assertEquals(playersBetsMap, gameState.getGamePot().getPlayersBets());
-//
-//        assertEquals(2, gameState.getGamePlayers().size());
-//        assertEquals(2, gameState.getPlayersSeats().length);
-//        assertEquals(playerId1, gameState.getPlayersSeats()[0]);
-//        assertEquals(playerId2, gameState.getPlayersSeats()[1]);
-//
-//        assertEquals(playerId2, gameState.getRound().getLastAggressorPlayerId());
-//        assertEquals(BB, gameState.getRound().getLastMaxBet());
-//
-//        var playersToActSet = new HashSet<Long>();
-//        playersToActSet.add(playerId2);
-//        assertEquals(playersToActSet, gameState.getRound().getPlayersToAct());
-//
-//        assertEquals(48, gameState.getDeck().getSize());
-//        assertTrue(gameState.getCommunityCards().isEmpty());
+    public void callActionFor2Players() {
+        long gameId = 1L;
+        String gameName = "test_game";
+        long pId1 = 1L;
+        int maxPlayers = 2;
+        int buyIn = 100;
+        int SB = 5;
+        int BB = 10;
+        THPot pot = new THPot(1L);
+        long roundId = 1L;
+        GameTable table = new THTable(gameId, gameName, pId1, maxPlayers, buyIn, WAITING_FOR_PLAYERS, SB, BB, pot, roundId);
+        GameEngine engine = new THEngine(table);
+
+        PlayerActionData joinP1Action = create(gameId, PlayerAction.JOIN_GAME, pId1, pId1, "P_1", INT_ZERO, INT_ZERO);
+        engine.handlePlayerAction(joinP1Action);
+
+        long pId2 = 2L;
+        PlayerActionData joinP2Action = create(gameId, PlayerAction.JOIN_GAME, pId2, pId2, "P_2", INT_ZERO, INT_ZERO);
+        engine.handlePlayerAction(joinP2Action);
+
+
+        PlayerActionData startGameAction = create(gameId, PlayerAction.START_GAME, pId1, pId1, null, INT_ZERO, INT_ZERO);
+        engine.handlePlayerAction(startGameAction);
+
+
+        PlayerActionData callP1Action = create(gameId, PlayerAction.CALL, pId1, pId1, null, 95, 5);
+        engine.handlePlayerAction(callP1Action);
+
+
+        GameState gameState = engine.getGameState();
+
+        assertEquals(PRE_FLOP, gameState.getGameStatus());
+        assertEquals(pId2, gameState.getDealerId());
+        assertEquals(1, gameState.getDealerIndex());
+        assertEquals(pId2, gameState.getActivePlayerId());
+        assertEquals(BB, gameState.getMinRaise());
+        assertEquals(BB + BB, gameState.getGamePot().getTotal());
+
+        var playersBetsMap = new HashMap<Long, Integer>();
+        playersBetsMap.put(pId1, BB);
+        playersBetsMap.put(pId2, BB);
+        assertEquals(playersBetsMap, gameState.getGamePot().getPlayersBets());
+
+        assertEquals(2, gameState.getGamePlayers().size());
+        assertEquals(2, gameState.getPlayersSeats().length);
+        assertEquals(pId1, gameState.getPlayersSeats()[0]);
+        assertEquals(pId2, gameState.getPlayersSeats()[1]);
+
+        assertEquals(pId2, gameState.getRound().getLastAggressorPlayerId());
+        assertEquals(BB, gameState.getRound().getLastMaxBet());
+
+        var playersToActSet = new HashSet<Long>();
+        playersToActSet.add(pId2);
+        assertEquals(playersToActSet, gameState.getRound().getPlayersToAct());
+
+        assertEquals(48, gameState.getDeck().getSize());
+        assertTrue(gameState.getCommunityCards().isEmpty());
     }
 
     private PlayerActionData create(long gameId, PlayerAction playerAction, long userId, long playerId, String nickname,
