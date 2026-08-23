@@ -8,7 +8,7 @@ import poker.repository.RoundRepository;
 import poker.util.Util;
 
 import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 @Service
 @Log4j2
@@ -32,7 +32,7 @@ public class RoundService {
     }
 
     public void updateRound(long roundId, int roundNumber, long lastAggressorPlayerId,
-                            int lastMaxBet, Set<Long> playersToAct) {
+                            int lastMaxBet, List<Long> playersToAct) {
         roundRepo.updateRound(roundId, roundNumber, lastAggressorPlayerId, lastMaxBet, playersToAct);
     }
 }

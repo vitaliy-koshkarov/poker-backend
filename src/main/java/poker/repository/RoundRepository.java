@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import poker.model.Round;
 
-import java.util.Set;
+import java.util.List;
 
 public interface RoundRepository extends JpaRepository<Round, Long> {
 
@@ -20,5 +20,5 @@ public interface RoundRepository extends JpaRepository<Round, Long> {
                      @Param("rN") int roundNumber,
                      @Param("playerId") long lastAggressorPlayerId,
                      @Param("maxBet") int lastMaxBet,
-                     @Param("players") Set<Long> playersToAct);
+                     @Param("players") List<Long> playersToAct);
 }
