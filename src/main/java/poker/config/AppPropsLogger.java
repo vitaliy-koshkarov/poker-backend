@@ -25,5 +25,7 @@ public class AppPropsLogger implements ApplicationRunner {
         log.info("websocket.broadcastDestination={}", webSocketProps.getBroadcastDestination());
         log.info("smallBlind={}", gameProps.getSmallBlind());
         log.info("bigBlind={}", gameProps.getBigBlind());
+        log.info("minPlayers={}", gameProps.getMinPlayers());
+        log.info("maxPlayers={}", gameProps.getMaxPlayers());
     }
 }

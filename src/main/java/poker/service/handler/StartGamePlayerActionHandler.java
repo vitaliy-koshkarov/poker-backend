@@ -16,7 +16,6 @@ import poker.service.*;
 import java.sql.Timestamp;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 @Component
 @Log4j2
@@ -45,7 +44,7 @@ public class StartGamePlayerActionHandler implements DBPlayerActionHandler {
         int roundNumber = gameTable.getRound().getRoundNumber();
         long lastAggressorPlayerId = gameTable.getRound().getLastAggressorPlayerId();
         int lastMaxBet = gameTable.getRound().getLastMaxBet();
-        Set<Long> playersToAct = gameTable.getRound().getPlayersToAct();
+        List<Long> playersToAct = gameTable.getRound().getPlayersToAct();
 
         gameService.startGame(gameId, dealerId, activePlayerId,
             GameStatus.PRE_FLOP, new Timestamp(pad.getDateTimeMs()));
