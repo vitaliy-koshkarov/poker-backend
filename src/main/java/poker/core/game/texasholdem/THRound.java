@@ -23,7 +23,7 @@ public class THRound implements Snapshot<THRound> {
     public THRound(long id, long gameId, long playerId, int bet) {
         this.id = id;
         this.gameId = gameId;
-        this.roundNumber = Util.INT_ONE;
+        this.roundNumber = Util.INT_ZERO;
         this.lastAggressorPlayerId = playerId;
         this.lastMaxBet = bet;
         this.playersToAct = new LinkedHashSet<>();

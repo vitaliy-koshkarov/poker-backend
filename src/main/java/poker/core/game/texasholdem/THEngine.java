@@ -18,7 +18,6 @@ import static poker.util.Util.INT_ONE;
 
 @Log4j2
 public record THEngine(GameTable table) implements GameEngine {
-//    TODO: refactoring - engine manage the game logic. Table just execute what engine command
 
     @Override
     public GameState getGameState() {
@@ -42,13 +41,13 @@ public record THEngine(GameTable table) implements GameEngine {
         }
 
 //        TODO: broadcast winners with the same new round frame
-        GameStatus gameStatus = table.getGameStatus();
         if (isGameNotEnded() && isAllPlayersFoldExceptOne()) {
             evaluateHandsAndDistributeReward();
             startGame(false);
             return;
         }
 
+        GameStatus gameStatus = table.getGameStatus();
         if (!WAITING_FOR_PLAYERS.equals(gameStatus) && !END.equals(gameStatus) && isCurrentRoundEnded()) {
             nextStage();
         }
