@@ -226,7 +226,7 @@ public record THEngine(GameTable table) implements GameEngine {
     }
 
     private boolean isOtherPlayersFold() {
-        long remainToActPlayerId = table.getRound().getPlayersToAct().iterator().next();
+        long remainToActPlayerId = table.getRound().getPlayersToAct().getFirst();
         boolean isOtherPlayersFold = true;
         for (GamePlayer p : table.getPlayers()) {
             if (p.getId() != remainToActPlayerId && !PlayerStatus.FOLD.equals(p.getStatus())) {

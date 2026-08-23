@@ -10,7 +10,6 @@ import poker.core.player.GamePlayer;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
@@ -35,7 +34,7 @@ public class GameEventData implements Serializable {
     private Integer roundNumber;
     private Long lastAggressorPlayerId;
     private Integer lastMaxBet;
-    private Set<Long> playersToAct;
+    private List<Long> playersToAct;
     /**
      * Key - {@link GamePlayer#getId()}, value - list of {@link poker.core.game.card.Card}
      */

@@ -11,7 +11,7 @@ import poker.core.player.PlayerAction;
 import poker.core.player.PlayerActionData;
 import poker.service.*;
 
-import java.util.Set;
+import java.util.List;
 
 @Service
 @Log4j2
@@ -38,7 +38,7 @@ public class CallPlayerActionHandler implements DBPlayerActionHandler {
         int roundNumber = gameTable.getRound().getRoundNumber();
         long lastAggressorPlayerId = gameTable.getRound().getLastAggressorPlayerId();
         int lastMaxBet = gameTable.getRound().getLastMaxBet();
-        Set<Long> playersToAct = gameTable.getRound().getPlayersToAct();
+        List<Long> playersToAct = gameTable.getRound().getPlayersToAct();
 
         gameService.updateActivePlayer(gameId, gameTable.getActivePlayerId());
 
