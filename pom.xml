@@ -23,6 +23,7 @@
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.release>21</maven.compiler.release> <!-- because current parent.pom use 17 by default !-->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jwt>0.13.0</jwt>
         <spring-security-messaging>6.3.10</spring-security-messaging>

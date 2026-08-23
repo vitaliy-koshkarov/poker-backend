@@ -12,7 +12,7 @@ import poker.core.player.PlayerStatus;
 import poker.service.*;
 import poker.util.Util;
 
-import java.util.Set;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -39,7 +39,7 @@ public class FoldPlayerActionHandler implements DBPlayerActionHandler {
         int roundNumber = gameTable.getRound().getRoundNumber();
         long lastAggressorPlayerId = gameTable.getRound().getLastAggressorPlayerId();
         int lastMaxBet = gameTable.getRound().getLastMaxBet();
-        Set<Long> playersToAct = gameTable.getRound().getPlayersToAct();
+        List<Long> playersToAct = gameTable.getRound().getPlayersToAct();
 
         gameService.updateActivePlayer(gameId, gameTable.getActivePlayerId());
 
