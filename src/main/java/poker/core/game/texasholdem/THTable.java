@@ -208,10 +208,14 @@ public class THTable implements GameTable {
     public void raise(long playerId, int playerBet) {
         GamePlayer player = playersMap.get(playerId);
         player.setStatus(RAISE);
-        player.bet(playerBet);
 
         bettingRound.removePlayerToAct(playerId);
-        updateLastAggressor(playerId, playerBet);
+
+        int newPlayerBet = playersMap.get(playerId).getCurrentBet() + playerBet;
+        if (newPlayerBet > bettingRound.getLastMaxBet()) {
+            updateLastAggressor(playerId, newPlayerBet);
+        }
+        player.bet(playerBet);
 
         pot.addPlayerBet(playerId, playerBet);
 
@@ -361,39 +365,33 @@ public class THTable implements GameTable {
         bettingRound.getPlayersToAct().clear();
 
         if (dealerIndex != INT_ZERO && dealerIndex + INT_ONE < playersSeats.length) {
-//            add players after aggressor
-            addRemainingPlayersToAct(dealerIndex + INT_ONE, playersSeats.length - INT_ONE);
-//            add players before aggressor
+//            add players after dealer
+            addRemainingPlayersToAct(dealerIndex + INT_ONE, playersSeats.length);
+//            add players before dealer
             addRemainingPlayersToAct(INT_ZERO, dealerIndex);
         } else {
 //            add all players
+            addRemainingPlayersToAct(INT_ZERO, playersSeats.length);
+        }
+    }
+
+    private void updatePlayersToActExceptAggressor(long aggressorPlayerId) {
+        bettingRound.getPlayersToAct().clear();
+
+        int aggressorPlayerSeatIdx = getPlayerSeatNumber(aggressorPlayerId);
+        if (aggressorPlayerSeatIdx + INT_ONE < playersSeats.length) {
+//            add players after aggressor
+            addRemainingPlayersToAct(aggressorPlayerSeatIdx + INT_ONE, playersSeats.length);
+//            add players before aggressor
+            addRemainingPlayersToAct(INT_ZERO, aggressorPlayerSeatIdx);
+        } else {
+//            aggressor is the last. Add players before aggressor
             addRemainingPlayersToAct(INT_ZERO, playersSeats.length - INT_ONE);
         }
     }
 
-    private void updatePlayersToActExceptAggressor(long playerId) {
-        bettingRound.getPlayersToAct().clear();
-
-//        find next player to act seat index to track the order of moves
-        int nextPlayerToActIndexByOrder = INT_ZERO;
-        for (int i = 0; i < playersSeats.length; i++) {
-            if (playersSeats[i] == playerId && i + INT_ONE < playersSeats.length) {
-                nextPlayerToActIndexByOrder = i + INT_ONE;
-                break;
-            }
-        }
-
-//        add players after aggressor
-        addRemainingPlayersToAct(nextPlayerToActIndexByOrder, playersSeats.length - INT_ONE);
-//        add players before aggressor
-        addRemainingPlayersToAct(
-            playersSeats[nextPlayerToActIndexByOrder] == playerId ? nextPlayerToActIndexByOrder + INT_ONE : nextPlayerToActIndexByOrder,
-            nextPlayerToActIndexByOrder - INT_ONE
-        );
-    }
-
-    private void addRemainingPlayersToAct(int startIdx, int endIdxInclude) {
-        for (int i = startIdx; i <= endIdxInclude; i++) {
+    private void addRemainingPlayersToAct(int startIdx, int endIdx) {
+        for (int i = startIdx; i < endIdx; i++) {
             if (!(FOLD.equals(playersMap.get(playersSeats[i]).getStatus())
                 || ALL_IN.equals(playersMap.get(playersSeats[i]).getStatus()))) {
                 bettingRound.addPlayersToAct(playersSeats[i]);

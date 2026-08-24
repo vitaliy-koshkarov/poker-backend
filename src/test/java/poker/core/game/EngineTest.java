@@ -64,7 +64,7 @@ public final class EngineTest {
     }
 
     @Test
-    public void whenTwoPlayersJoinTheGame() {
+    public void joinPlayerAction() {
         long gameId = 1L;
         String gameName = "test_game";
         int maxPlayers = 2;
@@ -563,6 +563,102 @@ public final class EngineTest {
 
         var expectedPlayersToActList = new LinkedList<Long>();
         expectedPlayersToActList.add(pId2);
+        assertEquals(expectedPlayersToActList, playersToActList);
+
+        assertEquals(48, gameState.getDeck().getSize());
+        assertTrue(gameState.getCommunityCards().isEmpty());
+    }
+
+    @Test
+    public void raisePlayerAction() {
+        long gameId = 1L;
+        String gameName = "test_game";
+        int maxPlayers = 2;
+        int buyIn = 100;
+        int SB = 5;
+        int BB = 10;
+        THPot pot = new THPot(1L);
+        long roundId = 1L;
+
+        long pId1 = 1L;
+        String p1Name = "P_1";
+
+        GameTable table = new THTable(gameId, gameName, pId1, maxPlayers, buyIn, WAITING_FOR_PLAYERS, SB, BB, pot, roundId);
+        GameEngine engine = new THEngine(table);
+
+        PlayerActionData joinP1Action = create(gameId, PlayerAction.JOIN_GAME, pId1, pId1, p1Name, INT_ZERO, INT_ZERO);
+        engine.handlePlayerAction(joinP1Action);
+
+        long pId2 = 2L;
+        String p2Name = "P_2";
+        PlayerActionData joinP2Action = create(gameId, PlayerAction.JOIN_GAME, pId2, pId2, p2Name, INT_ZERO, INT_ZERO);
+        engine.handlePlayerAction(joinP2Action);
+
+        PlayerActionData startGameAction = create(gameId, PlayerAction.START_GAME, pId1, pId1, null, INT_ZERO, INT_ZERO);
+        engine.handlePlayerAction(startGameAction);
+
+        PlayerActionData betP1Action = create(gameId, PlayerAction.BET, pId1, pId1, null, 70, 25);
+        engine.handlePlayerAction(betP1Action);
+
+        PlayerActionData raiseP2Action = create(gameId, PlayerAction.RAISE, pId2, pId2, null, 50, 40);
+        engine.handlePlayerAction(raiseP2Action);
+
+        GameState gameState = engine.getGameState();
+
+        assertEquals(PRE_FLOP, gameState.getGameStatus());
+        assertEquals(pId2, gameState.getDealerId());
+        assertEquals(1, gameState.getDealerIndex());
+        assertEquals(pId1, gameState.getActivePlayerId());
+        assertEquals(2 * BB, gameState.getMinRaise());
+
+        GamePot gamePot = gameState.getGamePot();
+        assertEquals(8 * BB, gamePot.getTotal());
+
+        Map<Long, Integer> playersBetsMap = gamePot.getPlayersBets();
+        assertEquals(2, playersBetsMap.size());
+        var expectedPlayerBetsMap = new HashMap<Long, Integer>();
+        expectedPlayerBetsMap.put(pId1, 3 * BB);
+        expectedPlayerBetsMap.put(pId2, 5 * BB);
+        assertEquals(expectedPlayerBetsMap, playersBetsMap);
+
+        var gamePlayersList = gameState.getGamePlayers();
+        assertEquals(2, gamePlayersList.size());
+
+        GamePlayer player1 = gamePlayersList.get(0);
+        assertEquals(pId1, player1.getId());
+        assertEquals(p1Name, player1.getNickname());
+        assertEquals(PlayerStatus.ACTIVE, player1.getStatus());
+//        fixme: chips will change after distribute reward function will be ready
+        assertEquals(buyIn - 3 * BB, player1.getChips());
+        assertEquals(3 * BB, player1.getCurrentBet());
+        assertEquals(2, player1.getCards().size());
+
+        GamePlayer player2 = gamePlayersList.get(1);
+        assertEquals(pId2, player2.getId());
+        assertEquals(p2Name, player2.getNickname());
+        assertEquals(PlayerStatus.RAISE, player2.getStatus());
+//        fixme: chips will change after distribute reward function will be ready
+        assertEquals(buyIn - 5 * BB, player2.getChips());
+        assertEquals(5 * BB, player2.getCurrentBet());
+        assertEquals(2, player2.getCards().size());
+
+        long[] playersSeats = gameState.getPlayersSeats();
+        assertEquals(2, playersSeats.length);
+        assertEquals(pId1, playersSeats[0]);
+        assertEquals(pId2, playersSeats[1]);
+
+        THRound round = gameState.getRound();
+        assertEquals(roundId, round.getId());
+        assertEquals(gameId, round.getGameId());
+        assertEquals(INT_ONE, round.getRoundNumber());
+        assertEquals(pId2, round.getLastAggressorPlayerId());
+        assertEquals(5 * BB, round.getLastMaxBet());
+
+        var playersToActList = round.getPlayersToAct();
+        assertEquals(1, playersToActList.size());
+
+        var expectedPlayersToActList = new LinkedList<Long>();
+        expectedPlayersToActList.add(pId1);
         assertEquals(expectedPlayersToActList, playersToActList);
 
         assertEquals(48, gameState.getDeck().getSize());
