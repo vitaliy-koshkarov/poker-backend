@@ -49,7 +49,7 @@ public interface GameTable {
     void setDeck(Deck deck);
     void setCommunityCards(List<Card> communityCards);
     void setPlayersSeats(long[] playersSeats);
-    void setBettingRound(THRound bettingRound);
+    void setRound(THRound round);
 
     void addPlayer(GamePlayer gamePlayer);
     void removePlayer(long playerId);

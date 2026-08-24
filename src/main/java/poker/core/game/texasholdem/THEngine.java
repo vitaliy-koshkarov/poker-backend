@@ -78,7 +78,7 @@ public record THEngine(GameTable table) implements GameEngine {
         table.setPlayersMap(playersMap);
         table.setPlayersSeats(snapshot.getPlayersSeats());
 
-        table.setBettingRound(snapshot.getRound());
+        table.setRound(snapshot.getRound());
 
         table.setDeck(snapshot.getDeck());
         table.setCommunityCards(snapshot.getCommunityCards());
