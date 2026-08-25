@@ -59,6 +59,8 @@ public class THTable implements GameTable {
     private Deck deck;
 
     private List<Card> communityCards;
+//    TODO: re-think concept and refactoring
+    private WinnerPlayer lastRoundWinnerPlayer;
 
     public THTable(long gameId, String name, long creatorPlayerId, int maxPlayers, int buyIn,
                    GameStatus gameStatus, int smallBlind, int bigBlind, GamePot pot, long roundId) {

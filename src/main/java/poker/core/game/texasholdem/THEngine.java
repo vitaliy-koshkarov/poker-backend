@@ -14,8 +14,7 @@ import poker.util.Util;
 import java.util.*;
 
 import static poker.core.game.GameStatus.*;
-import static poker.util.Util.INT_ONE;
-import static poker.util.Util.INT_ZERO;
+import static poker.util.Util.*;
 
 @Log4j2
 public record THEngine(GameTable table) implements GameEngine {
@@ -45,7 +44,7 @@ public record THEngine(GameTable table) implements GameEngine {
 
         GameStatus gameStatus = table.getGameStatus();
         if (isGameNotEnded(gameStatus) && isAllPlayersFoldExceptOne()) {
-            distributeReward();
+            distributeRewardForOneWinner();
             startGame(false);
             return;
         }
@@ -238,7 +237,29 @@ public record THEngine(GameTable table) implements GameEngine {
         return foldPlayersCounter == INT_ONE;
     }
 
-    private void distributeReward() {}
+    private void distributeRewardForOneWinner() {
+        long winnerPlayerId = LONG_ZERO;
+        for (GamePlayer p : table.getPlayers()) {
+            if (!PlayerStatus.FOLD.equals(p.getStatus())) {
+                winnerPlayerId = p.getId();
+                break;
+            }
+        }
 
-    private void evaluateHands() {}
+        int chipsReward = table.getPot().getTotal();
+        table.getPot().refresh();
+
+        GamePlayer winnerGamePlayer = table.getPlayerById(winnerPlayerId);
+        winnerGamePlayer.takeReward(chipsReward);
+        winnerGamePlayer.setCurrentBet(INT_ZERO);
+
+        WinnerPlayer winnerPlayer = new WinnerPlayer(winnerGamePlayer.getId(), chipsReward, winnerGamePlayer.getCards());
+        table.setLastRoundWinnerPlayer(winnerPlayer);
+    }
+
+    private void distributeReward() {
+    }
+
+    private void evaluateHands() {
+    }
 }

@@ -234,6 +234,9 @@ public final class EngineTest {
 
         GameState gameState = engine.getGameState();
 
+        WinnerPlayer winner = table.getLastRoundWinnerPlayer();
+        assertEquals(SB + BB, winner.reward());
+
         assertEquals(PRE_FLOP, gameState.getGameStatus());
         assertEquals(pId1, gameState.getDealerId());
         assertEquals(INT_ZERO, gameState.getDealerIndex());
@@ -256,7 +259,11 @@ public final class EngineTest {
         assertEquals(p1Name, player1.getNickname());
         assertEquals(PlayerStatus.WAIT, player1.getStatus());
 //        fixme: chips will change after distribute reward function will be ready
-        assertEquals(buyIn - SB - BB, player1.getChips());
+        if (winner.id() == pId1) {
+            assertEquals(buyIn + SB, player1.getChips());
+        } else {
+            assertEquals(buyIn - SB - BB, player1.getChips());
+        }
         assertEquals(BB, player1.getCurrentBet());
         assertEquals(2, player1.getCards().size());
 
@@ -265,7 +272,11 @@ public final class EngineTest {
         assertEquals(p2Name, player2.getNickname());
         assertEquals(PlayerStatus.ACTIVE, player2.getStatus());
 //        fixme: chips will change after distribute reward function will be ready
-        assertEquals(buyIn - SB - BB, player2.getChips());
+        if (winner.id() == pId2) {
+            assertEquals(buyIn, player2.getChips());
+        } else {
+            assertEquals(buyIn - SB - BB, player2.getChips());
+        }
         assertEquals(SB, player2.getCurrentBet());
         assertEquals(2, player2.getCards().size());
 
