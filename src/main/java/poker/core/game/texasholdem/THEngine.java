@@ -15,6 +15,7 @@ import java.util.*;
 
 import static poker.core.game.GameStatus.*;
 import static poker.util.Util.INT_ONE;
+import static poker.util.Util.INT_ZERO;
 
 @Log4j2
 public record THEngine(GameTable table) implements GameEngine {
@@ -41,13 +42,21 @@ public record THEngine(GameTable table) implements GameEngine {
         }
 
 //        TODO: broadcast winners with the same new round frame
-        if (isGameNotEnded() && isAllPlayersFoldExceptOne()) {
-            evaluateHandsAndDistributeReward();
+
+        GameStatus gameStatus = table.getGameStatus();
+        if (isGameNotEnded(gameStatus) && isAllPlayersFoldExceptOne()) {
+            distributeReward();
             startGame(false);
             return;
         }
 
-        GameStatus gameStatus = table.getGameStatus();
+        if (RIVER.equals(gameStatus) && table.getRound().getPlayersToAct().isEmpty()) {
+            evaluateHands();
+            distributeReward();
+            startGame(false);
+            return;
+        }
+
         if (!WAITING_FOR_PLAYERS.equals(gameStatus) && !END.equals(gameStatus) && isCurrentRoundEnded()) {
             nextStage();
         }
@@ -216,24 +225,20 @@ public record THEngine(GameTable table) implements GameEngine {
 //        table.moveDealer();
     }
 
-    private boolean isGameNotEnded() {
-        return !WAITING_FOR_PLAYERS.equals(table.getGameStatus())
-            || END.equals(table.getGameStatus()) || SHOWDOWN.equals(table.getGameStatus());
+    private boolean isGameNotEnded(GameStatus gS) {
+        return PRE_FLOP.equals(gS) || FLOP.equals(gS) || TURN.equals(gS) || RIVER.equals(gS);
     }
 
     private boolean isAllPlayersFoldExceptOne() {
-        return table.getRound().getPlayersToAct().size() == INT_ONE && isOtherPlayersFold();
+        int foldPlayersCounter = INT_ZERO;
+        for (GamePlayer p : table.getPlayers()) {
+            if (PlayerStatus.FOLD.equals(p.getStatus()))
+                foldPlayersCounter++;
+        }
+        return foldPlayersCounter == INT_ONE;
     }
 
-    private boolean isOtherPlayersFold() {
-        long remainToActPlayerId = table.getRound().getPlayersToAct().getFirst();
-        boolean isOtherPlayersFold = true;
-        for (GamePlayer p : table.getPlayers()) {
-            if (p.getId() != remainToActPlayerId && !PlayerStatus.FOLD.equals(p.getStatus())) {
-                isOtherPlayersFold = false;
-                break;
-            }
-        }
-        return isOtherPlayersFold;
-    }
+    private void distributeReward() {}
+
+    private void evaluateHands() {}
 }
