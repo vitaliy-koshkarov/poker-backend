@@ -59,7 +59,7 @@ public class THTable implements GameTable {
     private Deck deck;
 
     private List<Card> communityCards;
-//    TODO: re-think concept and refactoring
+//    TODO: re-think concept (replay history, way of storing, frontend-backend interaction) and refactoring
     private WinnerPlayer lastRoundWinnerPlayer;
 
     public THTable(long gameId, String name, long creatorPlayerId, int maxPlayers, int buyIn,

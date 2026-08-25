@@ -257,9 +257,11 @@ public record THEngine(GameTable table) implements GameEngine {
         table.setLastRoundWinnerPlayer(winnerPlayer);
     }
 
-    private void distributeReward() {
+    private void evaluateHands() {
+//        TODO: implement logic for evaluating player cards
     }
 
-    private void evaluateHands() {
+    private void distributeReward() {
+//        TODO: implement logic for reward distribution between one or several winners
     }
 }
