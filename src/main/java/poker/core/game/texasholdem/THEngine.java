@@ -6,6 +6,7 @@ import poker.core.game.GameState;
 import poker.core.game.GameStateFactory;
 import poker.core.game.GameStatus;
 import poker.core.game.GameTable;
+import poker.core.game.card.Card;
 import poker.core.player.GamePlayer;
 import poker.core.player.PlayerActionData;
 import poker.core.player.PlayerStatus;
@@ -50,7 +51,8 @@ public record THEngine(GameTable table) implements GameEngine {
         }
 
         if (RIVER.equals(gameStatus) && table.getRound().getPlayersToAct().isEmpty()) {
-            evaluateHands();
+            Map<Long, HandEvaluator> playersAndCombinations = evaluateHands();
+            determineWinners(playersAndCombinations);
             distributeReward();
             startGame(false);
             return;
@@ -253,15 +255,58 @@ public record THEngine(GameTable table) implements GameEngine {
         winnerGamePlayer.takeReward(chipsReward);
         winnerGamePlayer.setCurrentBet(INT_ZERO);
 
-        WinnerPlayer winnerPlayer = new WinnerPlayer(winnerGamePlayer.getId(), chipsReward, winnerGamePlayer.getCards());
+        var winnerCardsList = new ArrayList<Card>();
+        winnerCardsList.addAll(table.getPlayerById(winnerPlayerId).getCards());
+        winnerCardsList.addAll(table.getCommunityCards());
+
+        WinnerPlayer winnerPlayer = new WinnerPlayer(winnerGamePlayer.getId(), chipsReward, winnerCardsList);
         table.setLastRoundWinnerPlayer(winnerPlayer);
     }
 
-    private void evaluateHands() {
-//        TODO: implement logic for evaluating player cards
+    private Map<Long, HandEvaluator> evaluateHands() {
+//        TODO: re-write algorithm of evaluation hands
+        var playersAndCombinations = new HashMap<Long, HandEvaluator>();
+        for (GamePlayer player : table.getPlayers()) {
+            if (PlayerStatus.CHECK.equals(player.getStatus())
+                || PlayerStatus.CALL.equals(player.getStatus())
+                || PlayerStatus.ALL_IN.equals(player.getStatus())) {
+                var cards = new ArrayList<Card>();
+                cards.addAll(table.getCommunityCards());
+                cards.addAll(player.getCards());
+
+                playersAndCombinations.put(player.getId(), HandEvaluator.evaluate(cards));
+            }
+        }
+        return playersAndCombinations;
+    }
+
+    private void determineWinners(Map<Long, HandEvaluator> playersAndCombinations) {
+//        TODO: implement for several winners
+        int strongestCombination = INT_ZERO;
+        long winnerPlayerId =  LONG_ZERO;
+        for (Map.Entry<Long, HandEvaluator> pair : playersAndCombinations.entrySet()) {
+            if (pair.getValue().getStrength() > strongestCombination) {
+                strongestCombination = pair.getValue().getStrength();
+                winnerPlayerId = pair.getKey();
+            }
+        }
+
+        var winnerCardsList = new ArrayList<Card>();
+        winnerCardsList.addAll(table.getPlayerById(winnerPlayerId).getCards());
+        winnerCardsList.addAll(table.getCommunityCards());
+
+        WinnerPlayer winnerPlayer = new WinnerPlayer(winnerPlayerId, table.getPot().getTotal(), winnerCardsList);
+        table.setLastRoundWinnerPlayer(winnerPlayer);
     }
 
     private void distributeReward() {
 //        TODO: implement logic for reward distribution between one or several winners
+        WinnerPlayer winnerPlayer = table.getLastRoundWinnerPlayer();
+
+        GamePlayer winnerGamePlayer = table.getPlayerById(winnerPlayer.id());
+        winnerGamePlayer.takeReward(table.getPot().getTotal());
+        winnerGamePlayer.setCurrentBet(INT_ZERO);
+
+        table.getPot().refresh();
     }
 }
