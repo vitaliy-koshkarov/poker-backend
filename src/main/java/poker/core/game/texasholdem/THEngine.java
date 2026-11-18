@@ -6,6 +6,7 @@ import poker.core.game.GameState;
 import poker.core.game.GameStateFactory;
 import poker.core.game.GameStatus;
 import poker.core.game.GameTable;
+import poker.core.game.card.Card;
 import poker.core.player.GamePlayer;
 import poker.core.player.PlayerActionData;
 import poker.core.player.PlayerStatus;
@@ -14,7 +15,7 @@ import poker.util.Util;
 import java.util.*;
 
 import static poker.core.game.GameStatus.*;
-import static poker.util.Util.INT_ONE;
+import static poker.util.Util.*;
 
 @Log4j2
 public record THEngine(GameTable table) implements GameEngine {
@@ -41,13 +42,22 @@ public record THEngine(GameTable table) implements GameEngine {
         }
 
 //        TODO: broadcast winners with the same new round frame
-        if (isGameNotEnded() && isAllPlayersFoldExceptOne()) {
-            evaluateHandsAndDistributeReward();
+
+        GameStatus gameStatus = table.getGameStatus();
+        if (isGameNotEnded(gameStatus) && isAllPlayersFoldExceptOne()) {
+            distributeRewardForOneWinner();
             startGame(false);
             return;
         }
 
-        GameStatus gameStatus = table.getGameStatus();
+        if (RIVER.equals(gameStatus) && table.getRound().getPlayersToAct().isEmpty()) {
+            Map<Long, HandEvaluator> playersAndCombinations = evaluateHands();
+            determineWinners(playersAndCombinations);
+            distributeReward();
+            startGame(false);
+            return;
+        }
+
         if (!WAITING_FOR_PLAYERS.equals(gameStatus) && !END.equals(gameStatus) && isCurrentRoundEnded()) {
             nextStage();
         }
@@ -78,7 +88,7 @@ public record THEngine(GameTable table) implements GameEngine {
         table.setPlayersMap(playersMap);
         table.setPlayersSeats(snapshot.getPlayersSeats());
 
-        table.setBettingRound(snapshot.getRound());
+        table.setRound(snapshot.getRound());
 
         table.setDeck(snapshot.getDeck());
         table.setCommunityCards(snapshot.getCommunityCards());
@@ -216,24 +226,87 @@ public record THEngine(GameTable table) implements GameEngine {
 //        table.moveDealer();
     }
 
-    private boolean isGameNotEnded() {
-        return !WAITING_FOR_PLAYERS.equals(table.getGameStatus())
-            || END.equals(table.getGameStatus()) || SHOWDOWN.equals(table.getGameStatus());
+    private boolean isGameNotEnded(GameStatus gS) {
+        return PRE_FLOP.equals(gS) || FLOP.equals(gS) || TURN.equals(gS) || RIVER.equals(gS);
     }
 
     private boolean isAllPlayersFoldExceptOne() {
-        return table.getRound().getPlayersToAct().size() == INT_ONE && isOtherPlayersFold();
+        int foldPlayersCounter = INT_ZERO;
+        for (GamePlayer p : table.getPlayers()) {
+            if (PlayerStatus.FOLD.equals(p.getStatus()))
+                foldPlayersCounter++;
+        }
+        return foldPlayersCounter == INT_ONE;
     }
 
-    private boolean isOtherPlayersFold() {
-        long remainToActPlayerId = table.getRound().getPlayersToAct().getFirst();
-        boolean isOtherPlayersFold = true;
+    private void distributeRewardForOneWinner() {
+        long winnerPlayerId = LONG_ZERO;
         for (GamePlayer p : table.getPlayers()) {
-            if (p.getId() != remainToActPlayerId && !PlayerStatus.FOLD.equals(p.getStatus())) {
-                isOtherPlayersFold = false;
+            if (!PlayerStatus.FOLD.equals(p.getStatus())) {
+                winnerPlayerId = p.getId();
                 break;
             }
         }
-        return isOtherPlayersFold;
+
+        int chipsReward = table.getPot().getTotal();
+        table.getPot().refresh();
+
+        GamePlayer winnerGamePlayer = table.getPlayerById(winnerPlayerId);
+        winnerGamePlayer.takeReward(chipsReward);
+        winnerGamePlayer.setCurrentBet(INT_ZERO);
+
+        var winnerCardsList = new ArrayList<Card>();
+        winnerCardsList.addAll(table.getPlayerById(winnerPlayerId).getCards());
+        winnerCardsList.addAll(table.getCommunityCards());
+
+        WinnerPlayer winnerPlayer = new WinnerPlayer(winnerGamePlayer.getId(), chipsReward, winnerCardsList);
+        table.setLastRoundWinnerPlayer(winnerPlayer);
+    }
+
+    private Map<Long, HandEvaluator> evaluateHands() {
+//        TODO: re-write algorithm of evaluation hands
+        var playersAndCombinations = new HashMap<Long, HandEvaluator>();
+        for (GamePlayer player : table.getPlayers()) {
+            if (PlayerStatus.CHECK.equals(player.getStatus())
+                || PlayerStatus.CALL.equals(player.getStatus())
+                || PlayerStatus.ALL_IN.equals(player.getStatus())) {
+                var cards = new ArrayList<Card>();
+                cards.addAll(table.getCommunityCards());
+                cards.addAll(player.getCards());
+
+                playersAndCombinations.put(player.getId(), HandEvaluator.evaluate(cards));
+            }
+        }
+        return playersAndCombinations;
+    }
+
+    private void determineWinners(Map<Long, HandEvaluator> playersAndCombinations) {
+//        TODO: implement for several winners
+        int strongestCombination = INT_ZERO;
+        long winnerPlayerId =  LONG_ZERO;
+        for (Map.Entry<Long, HandEvaluator> pair : playersAndCombinations.entrySet()) {
+            if (pair.getValue().getStrength() > strongestCombination) {
+                strongestCombination = pair.getValue().getStrength();
+                winnerPlayerId = pair.getKey();
+            }
+        }
+
+        var winnerCardsList = new ArrayList<Card>();
+        winnerCardsList.addAll(table.getPlayerById(winnerPlayerId).getCards());
+        winnerCardsList.addAll(table.getCommunityCards());
+
+        WinnerPlayer winnerPlayer = new WinnerPlayer(winnerPlayerId, table.getPot().getTotal(), winnerCardsList);
+        table.setLastRoundWinnerPlayer(winnerPlayer);
+    }
+
+    private void distributeReward() {
+//        TODO: implement logic for reward distribution between one or several winners
+        WinnerPlayer winnerPlayer = table.getLastRoundWinnerPlayer();
+
+        GamePlayer winnerGamePlayer = table.getPlayerById(winnerPlayer.id());
+        winnerGamePlayer.takeReward(table.getPot().getTotal());
+        winnerGamePlayer.setCurrentBet(INT_ZERO);
+
+        table.getPot().refresh();
     }
 }
